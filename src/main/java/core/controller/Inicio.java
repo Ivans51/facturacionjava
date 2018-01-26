@@ -7,7 +7,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -19,22 +18,22 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        cambiarEscena(Route.AlertDialog, anchorPane);
+
     }
 
     public void actionCliente(ActionEvent actionEvent) {
-
+        cambiarEscena(Route.RegistroCliente, anchorPane);
     }
 
     public void actionProducto(ActionEvent actionEvent) {
-
+        cambiarEscena(Route.RegistroProducto, anchorPane);
     }
 
     public void actionStock(ActionEvent actionEvent) {
-
+        cambiarEscena(Route.Stock, anchorPane);
     }
 
     public void actionFacturacion(ActionEvent actionEvent) {
-
+        cambiarEscena(Route.Facturas, anchorPane);
     }
 }

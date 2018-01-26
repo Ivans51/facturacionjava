@@ -7,21 +7,21 @@ import core.util.Route;
 import core.util.Validar;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class RegistroProducto extends ManagerFXML implements Initializable{
 
-    public TextField jNombre, jDescripcion, jPrecioVenta, jPrecioCosto, jStock, cProveedor;
+    public TextField jNombre, jDescripcion, jPrecioVenta, jPrecioCosto, jStock;
     public JFXButton btnAgregar, btnLimpiar, btnSalir,btnEditar, btnEliminar;
     public TableView tableProducto;
     public AnchorPane anchorPane;
+    public ComboBox cProveedor;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -34,14 +34,14 @@ public class RegistroProducto extends ManagerFXML implements Initializable{
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            Validar.limmpiarCampos(jNombre, jDescripcion, jPrecioVenta, jPrecioCosto, jStock, cProveedor);
+            Validar.limmpiarCampos(jNombre, jDescripcion, jPrecioVenta, jPrecioCosto, jStock);
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }
     }
 
-    public void actionSalir(MouseEvent mouseEvent) {
-        cambiarEscena(Route.Inicio, anchorPane);
+    public void actionSalir(ActionEvent mouseEvent) {
+        cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
     public void actionEditar(ActionEvent actionEvent) {

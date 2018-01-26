@@ -27,4 +27,8 @@ public class Stock extends ManagerFXML implements Initializable{
     public void actionBuscar(ActionEvent actionEvent) {
 
     }
+
+    public void actionSalir(ActionEvent actionEvent) {
+
+    }
 }

@@ -10,12 +10,12 @@ public class AuditoriaUtil {
 
     private AuditoriaDAO auditoriaDAO;
     private Auditoria auditoria;
-    /*private String nombreUsuario = Storage.getUsuario().getNombreUsuario();
-    private int idUsuario = Storage.getUsuario().getIdUsuario();*/
+    private String nombreUsuario = Storage.getUsuario().getNombreUsuario();
+    private int idUsuario = Storage.getUsuario().getIdUsuario();
 
     public AuditoriaUtil(String nombreUsuario, int idUsuario) {
-        /*this.nombreUsuario = nombreUsuario;
-        this.idUsuario = idUsuario;*/
+        this.nombreUsuario = nombreUsuario;
+        this.idUsuario = idUsuario;
         auditoria = new Auditoria();
         auditoriaDAO = new AuditoriaDAO(MyBatisConnection.getSqlSessionFactory());
     }
@@ -24,9 +24,9 @@ public class AuditoriaUtil {
         try {
             auditoria.setAccion(accion);
             auditoria.setFecha(FechaUtil.getCurrentDate());
-            //auditoria.setHora(FechaUtil.getHourMinutes());
-            /*auditoria.setNombreUsuario(nombreUsuario);
-            auditoria.setFK_idUsuario(idUsuario);*/
+            auditoria.setHora(FechaUtil.getHourMinutes());
+            auditoria.setNombreUsuario(nombreUsuario);
+            auditoria.setFK_idUsuario(idUsuario);
             auditoriaDAO.insert(auditoria);
         } catch (ParseException e) {
             e.printStackTrace();
