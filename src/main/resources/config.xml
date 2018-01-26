@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- Úsalos y de esa forma no tendrás que escribir constantemente el nombre totalmente cualificado -->
+    <typeAliases>
+        <typeAlias type="core.vo.Auditoria" alias="Auditoria"/>
+        <typeAlias type="core.vo.Usuario" alias="Usuario"/>
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/rrhh?zeroDateTimeBehavior=convertToNull"/>
+                <property name="username" value="root"/>
+                <property name="password" value=""/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- In SQL Mapping XML file -->
+    <mappers>
+        <mapper resource="mapper/Auditoria.xml"/>
+        <mapper resource="mapper/Usuario.xml"/>
+    </mappers>
+
+</configuration>

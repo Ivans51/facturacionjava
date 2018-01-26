@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@../CSS/styles-layout.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.Inicio">
+   <children>
+      <HBox layoutY="6.0" spacing="10.0" styleClass="layot-color-secondary" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <stylesheets>
+            <URL value="@../CSS/styles-button.css" />
+            <URL value="@../CSS/styles-label.css" />
+            <URL value="@../CSS/styles-layout.css" />
+         </stylesheets>
+         <children>
+            <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Registro Cliente" />
+            <JFXButton fx:id="btnProducto" layoutX="20.0" layoutY="20.0" onAction="#actionProducto" text="Registro Producto" />
+            <JFXButton fx:id="btnStock" layoutX="128.0" layoutY="20.0" onAction="#actionStock" text="Stock" />
+            <JFXButton fx:id="btnFacturacion" layoutX="236.0" layoutY="20.0" onAction="#actionFacturacion" text="Facturación" />
+            <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label fx:id="lblNombreUsuario" alignment="CENTER_RIGHT" text="Nombre Usuario" textFill="WHITE" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </HBox>
+      <AnchorPane fx:id="anchorPane" layoutX="3.0" layoutY="55.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="55.0" />
+   </children>
+</AnchorPane>
