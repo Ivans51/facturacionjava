@@ -3,42 +3,42 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Auditoria">
+<mapper namespace="Servicios">
 
-    <resultMap id="result" type="Auditoria">
+    <resultMap id="result" type="Servicios">
         <!-- property="atributo java" column="columna tabla" -->
-        <result property="idAuditoria" column="idAuditoria"/>
+        <result property="idservicios" column="idservicios"/>
+        <result property="nombre" column="nombre"/>
+        <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
-        <result property="hora" column="hora"/>
-        <result property="accion" column="accion"/>
-        <result property="nombreUsuario" column="nombreUsuario"/>
+        <result property="tiempo_estimado" column="tiempo_estimado"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">
         SELECT *
-        FROM facturacion.auditoria;
+        FROM facturacion.servicios;
     </select>
 
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
-        FROM facturacion.auditoria
+        FROM facturacion.servicios
         WHERE idAuditoria = #{idAuditoria}
     </select>
 
-    <insert id="insert" parameterType="Auditoria" useGeneratedKeys="true" keyProperty="idAuditoria">
-        INSERT INTO facturacion.auditoria (fecha, accion, nombreUsuario, usuario_cedula)
+    <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
+        INSERT INTO facturacion.servicios (fecha, accion, nombreUsuario, usuario_cedula)
         VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
     </insert>
 
-    <update id="update" parameterType="Auditoria">
-        UPDATE facturacion.auditoria
+    <update id="update" parameterType="Servicios">
+        UPDATE facturacion.servicios
         SET name = #{name}
         WHERE idAuditoria = #{idAuditoria}
     </update>
 
     <delete id="delete" parameterType="int">
-        DELETE FROM facturacion.auditoria
+        DELETE FROM facturacion.servicios
         WHERE idAuditoria = #{idAuditoria}
     </delete>
 </mapper>

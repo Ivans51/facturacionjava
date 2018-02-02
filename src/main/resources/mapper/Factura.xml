@@ -3,36 +3,38 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Auditoria">
+<mapper namespace="Factura">
 
-    <resultMap id="result" type="Auditoria">
+    <resultMap id="result" type="Factura">
         <!-- property="atributo java" column="columna tabla" -->
-        <result property="idAuditoria" column="idAuditoria"/>
-        <result property="fecha" column="fecha"/>
-        <result property="hora" column="hora"/>
-        <result property="accion" column="accion"/>
-        <result property="nombreUsuario" column="nombreUsuario"/>
+        <result property="idfactura" column="idfactura"/>
+        <result property="servicios" column="servicios"/>
+        <result property="forma_pago" column="forma_pago"/>
+        <result property="fecha_entrega" column="fecha_entrega"/>
+        <result property="IVA" column="IVA"/>
+        <result property="total" column="total"/>
+        <result property="cliente_cedula" column="cliente_cedula"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">
         SELECT *
-        FROM facturacion.auditoria;
+        FROM facturacion.factura;
     </select>
 
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
-        FROM facturacion.auditoria
+        FROM facturacion.factura
         WHERE idAuditoria = #{idAuditoria}
     </select>
 
-    <insert id="insert" parameterType="Auditoria" useGeneratedKeys="true" keyProperty="idAuditoria">
-        INSERT INTO facturacion.auditoria (fecha, accion, nombreUsuario, usuario_cedula)
+    <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">
+        INSERT INTO facturacion.factura (fecha, accion, nombreUsuario, usuario_cedula)
         VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
     </insert>
 
-    <update id="update" parameterType="Auditoria">
-        UPDATE facturacion.auditoria
+    <update id="update" parameterType="Factura">
+        UPDATE facturacion.factura
         SET name = #{name}
         WHERE idAuditoria = #{idAuditoria}
     </update>

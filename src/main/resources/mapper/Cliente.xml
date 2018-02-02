@@ -3,15 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Auditoria">
+<mapper namespace="Cliente">
 
-    <resultMap id="result" type="Auditoria">
+    <resultMap id="result" type="Cliente">
         <!-- property="atributo java" column="columna tabla" -->
-        <result property="idAuditoria" column="idAuditoria"/>
-        <result property="fecha" column="fecha"/>
-        <result property="hora" column="hora"/>
-        <result property="accion" column="accion"/>
-        <result property="nombreUsuario" column="nombreUsuario"/>
+        <result property="cedula" column="cedula"/>
+        <result property="nombres" column="nombres"/>
+        <result property="apellidos" column="apellidos"/>
+        <result property="direccion" column="direccion"/>
+        <result property="telefono" column="telefono"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
@@ -26,12 +26,12 @@
         WHERE idAuditoria = #{idAuditoria}
     </select>
 
-    <insert id="insert" parameterType="Auditoria" useGeneratedKeys="true" keyProperty="idAuditoria">
+    <insert id="insert" parameterType="Cliente" useGeneratedKeys="true" keyProperty="cedula">
         INSERT INTO facturacion.auditoria (fecha, accion, nombreUsuario, usuario_cedula)
         VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
     </insert>
 
-    <update id="update" parameterType="Auditoria">
+    <update id="update" parameterType="Cliente">
         UPDATE facturacion.auditoria
         SET name = #{name}
         WHERE idAuditoria = #{idAuditoria}

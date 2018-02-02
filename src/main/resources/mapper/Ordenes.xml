@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Ordenes">
+
+    <resultMap id="result" type="Ordenes">
+        <!-- property="atributo java" column="columna tabla" -->
+        <result property="idordenes" column="idordenes"/>
+        <result property="nombre" column="nombre"/>
+        <result property="status" column="status"/>
+        <result property="facturacion_idfactura" column="facturacion_idfactura"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="result">
+        SELECT *
+        FROM facturacion.ordenes;
+    </select>
+
+    <select id="selectById" parameterType="int" resultMap="result">
+        SELECT *
+        FROM facturacion.ordenes
+        WHERE idAuditoria = #{idAuditoria}
+    </select>
+
+    <insert id="insert" parameterType="Ordenes" useGeneratedKeys="true" keyProperty="idordenes">
+        INSERT INTO facturacion.ordenes (fecha, accion, nombreUsuario, usuario_cedula)
+        VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
+    </insert>
+
+    <update id="update" parameterType="Ordenes">
+        UPDATE facturacion.ordenes
+        SET name = #{name}
+        WHERE idAuditoria = #{idAuditoria}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM facturacion.ordenes
+        WHERE idAuditoria = #{idAuditoria}
+    </delete>
+</mapper>
