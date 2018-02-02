@@ -16,13 +16,8 @@ public class Estado {
     public static final int DESPEDIDO = 2;
     public static final int DEPERMISO = 3;
 
-    /*// Status Usuario
+    // Status Usuario
     public static final String USUARIO = "Usuario";
     public static final String ADMINISTRADOR = "Administrador";
     public static final String GERENTE = "Gerente";
-    */
-    // Status Usuario
-    public static final int USUARIO = 1;
-    public static final int ADMINISTRADOR = 2;
-    public static final int GERENTE = 3;
 }

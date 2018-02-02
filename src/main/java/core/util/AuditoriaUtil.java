@@ -10,8 +10,8 @@ public class AuditoriaUtil {
 
     private AuditoriaDAO auditoriaDAO;
     private Auditoria auditoria;
-    private String nombreUsuario = Storage.getUsuario().getNombreUsuario();
-    private int idUsuario = Storage.getUsuario().getIdUsuario();
+    private String nombreUsuario = Storage.getUsuario().getNombre();
+    private int idUsuario = Storage.getUsuario().getCedula();
 
     public AuditoriaUtil(String nombreUsuario, int idUsuario) {
         this.nombreUsuario = nombreUsuario;

@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-
 <AnchorPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@../CSS/styles-layout.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.Inicio">
    <children>
       <HBox layoutY="6.0" spacing="10.0" styleClass="layot-color-secondary" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -17,10 +16,12 @@
             <URL value="@../CSS/styles-layout.css" />
          </stylesheets>
          <children>
-            <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Registro Cliente" />
-            <JFXButton fx:id="btnProducto" layoutX="20.0" layoutY="20.0" onAction="#actionProducto" text="Registro Producto" />
-            <JFXButton fx:id="btnStock" layoutX="128.0" layoutY="20.0" onAction="#actionStock" text="Stock" />
+            <JFXButton fx:id="btnServicio" layoutX="20.0" layoutY="20.0" onAction="#actionServicio" text="Servicio" />
+            <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Cliente" />
             <JFXButton fx:id="btnFacturacion" layoutX="236.0" layoutY="20.0" onAction="#actionFacturacion" text="Facturación" />
+            <JFXButton fx:id="btnAdministrador" layoutX="128.0" layoutY="20.0" onAction="#actionAdministrador" text="Administrador" />
+            <JFXButton fx:id="btnUsuario" onAction="#actionUsuario" text="Usuario" />
+            <JFXButton fx:id="btnCerrar" layoutX="547.0" layoutY="25.0" onAction="#actionCerrar" text="Cerrar Sesión" />
             <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">
                <children>
                   <Label fx:id="lblNombreUsuario" alignment="CENTER_RIGHT" text="Nombre Usuario" textFill="WHITE" />

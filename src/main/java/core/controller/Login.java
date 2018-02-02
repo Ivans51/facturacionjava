@@ -39,15 +39,15 @@ public class Login extends ManagerFXML implements Initializable {
     private void validarStatus() throws Myexception {
         switch (usuario.getStatus()) {
             case Estado.USUARIO:
-                abrirStage(inicio, "Preguntas de Seguridad", btnIngresar, null);
+                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
                 auditoria();
                 break;
             case Estado.ADMINISTRADOR:
-                abrirStage(inicio, "Repuestos Cars 21", btnIngresar, null);
+                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
                 auditoria();
                 break;
             case Estado.GERENTE:
-                abrirStage(inicio, "Repuestos Cars 21", btnIngresar, null);
+                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
                 auditoria();
                 break;
             default:
@@ -56,8 +56,8 @@ public class Login extends ManagerFXML implements Initializable {
     }
 
     private void auditoria() throws Myexception {
-        AuditoriaUtil auditoriaUtil = new AuditoriaUtil(usuario.getNombreUsuario(), usuario.getIdUsuario());
-        auditoriaUtil.insertar("Registro usuario " + usuario.getNombreUsuario());
+        AuditoriaUtil auditoriaUtil = new AuditoriaUtil(usuario.getNombre(), usuario.getCedula());
+        auditoriaUtil.insertar("Registro usuario " + usuario.getNombre());
     }
 
     public void actionSalir(ActionEvent actionEvent) {

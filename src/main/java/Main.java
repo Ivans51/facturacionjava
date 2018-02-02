@@ -16,7 +16,6 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        ManagerFXML managerFXML = new ManagerFXML();
-        managerFXML.abrirStage(Route.Login, "Inicio de Sesión", null, null);
+        new ManagerFXML().abrirStage(Route.Login, "Inicio de Sesión", null, null);
     }
 }

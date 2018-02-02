@@ -64,8 +64,12 @@
                 </HBox>
                 <TableView fx:id="tableCliente" prefHeight="406.0" prefWidth="608.0">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="C1" />
-                        <TableColumn prefWidth="75.0" text="C2" />
+                        <TableColumn prefWidth="75.0" text="Cedula" fx:id="tbCedula" />
+                        <TableColumn prefWidth="75.0" text="Nombres" fx:id="tbNombres" />
+                        <TableColumn prefWidth="75.0" text="Apellidos" fx:id="tbApellidos" />
+                        <TableColumn prefWidth="75.0" text="Direccion" fx:id="tbDireccion" />
+                        <TableColumn prefWidth="75.0" text="Teléfono" fx:id="tbTelefono" />
+                        <TableColumn prefWidth="75.0" text="Usuario" fx:id="tbUsuario" />
                     </columns>
                 </TableView>
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">
