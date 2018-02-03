@@ -60,7 +60,7 @@ public class UsuarioDAO {
         } finally {
             session.close();
         }
-        System.out.println("login(" + usuario.getNombreUsuario() + usuario.getClave());
+        System.out.println("login(" + usuario.getNombre() + usuario.getClave());
         if (person == null)
             throw new Myexception("No se encuentra");
         else
@@ -82,7 +82,7 @@ public class UsuarioDAO {
             session.commit();
             session.close();
         }
-        System.out.println("insert(" + usuario + ") --> " + usuario.getIdUsuario());
+        System.out.println("insert(" + usuario + ") --> " + usuario.getCedula());
         return id;
     }
 

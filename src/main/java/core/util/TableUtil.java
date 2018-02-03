@@ -57,8 +57,7 @@ public class TableUtil<T, V> {
         if (tablaUsuarios != null) {
             List<T> tabla = tablaUsuarios.getSelectionModel().getSelectedItems();
             if (tabla.size() == 1) {
-                final T tablaSeleccionada = tabla.get(0);
-                return tablaSeleccionada;
+                return tabla.get(0);
             }
         }
         return null;

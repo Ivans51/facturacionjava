@@ -8,6 +8,10 @@
     <!-- Úsalos y de esa forma no tendrás que escribir constantemente el nombre totalmente cualificado -->
     <typeAliases>
         <typeAlias type="core.vo.Auditoria" alias="Auditoria"/>
+        <typeAlias type="core.vo.Cliente" alias="Cliente"/>
+        <typeAlias type="core.vo.Factura" alias="Factura"/>
+        <typeAlias type="core.vo.Ordenes" alias="Ordenes"/>
+        <typeAlias type="core.vo.Servicios" alias="Servicios"/>
         <typeAlias type="core.vo.Usuario" alias="Usuario"/>
     </typeAliases>
 
@@ -26,6 +30,10 @@
     <!-- In SQL Mapping XML file -->
     <mappers>
         <mapper resource="mapper/Auditoria.xml"/>
+        <mapper resource="mapper/Cliente.xml"/>
+        <mapper resource="mapper/Factura.xml"/>
+        <mapper resource="mapper/Ordenes.xml"/>
+        <mapper resource="mapper/Servicios.xml"/>
         <mapper resource="mapper/Usuario.xml"/>
     </mappers>
 

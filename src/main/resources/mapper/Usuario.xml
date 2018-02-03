@@ -35,7 +35,7 @@
     <select id="login" parameterType="Usuario" resultMap="result">
         SELECT *
         FROM facturacion.usuario
-        WHERE nombreUsuario = #{nombreUsuario} AND clave = #{clave}
+        WHERE nombre = #{nombre} AND clave = #{clave}
     </select>
 
     <select id="nombreUsurio" parameterType="Usuario" resultMap="result">

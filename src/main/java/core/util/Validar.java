@@ -201,7 +201,7 @@ public class Validar {
         }
     }
 
-    public static void isLetterSpeed(String... name) throws Myexception {
+    public static void isLetterOptimo(String... name) throws Myexception {
         for (String s : name) {
             char[] chars = s.toCharArray();
             for (char c : chars) {

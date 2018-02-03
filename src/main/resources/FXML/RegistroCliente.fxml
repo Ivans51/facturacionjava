@@ -31,6 +31,8 @@
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="95.0" text="Apellido" />
                 <TextField fx:id="jApellido" />
+                <Label layoutX="25.0" layoutY="95.0" text="Telefono" />
+                <TextField fx:id="jTelefono" />
                 <Label layoutX="25.0" layoutY="130.0" text="Dirección" />
                 <TextField fx:id="jDireccion" />
                 <Label layoutX="25.0" layoutY="165.0" text="Nombre Ciudad" />

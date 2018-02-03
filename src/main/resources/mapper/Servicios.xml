@@ -23,22 +23,24 @@
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
         FROM facturacion.servicios
-        WHERE idAuditoria = #{idAuditoria}
+        WHERE idservicios = #{idservicios}
     </select>
 
     <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
-        INSERT INTO facturacion.servicios (fecha, accion, nombreUsuario, usuario_cedula)
-        VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
+        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, subservicio_idsubservicio, usuario_cedula)
+        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{subservicio_idsubservicio}, #{usuario_cedula});
     </insert>
 
     <update id="update" parameterType="Servicios">
         UPDATE facturacion.servicios
-        SET name = #{name}
-        WHERE idAuditoria = #{idAuditoria}
+        SET nombre = #{nombre}, precio = #{precio},
+            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado},
+            subservicio_idsubservicio = #{subservicio_idsubservicio}, usuario_cedula = #{usuario_cedula}
+        WHERE idservicios = #{idservicios}
     </update>
 
     <delete id="delete" parameterType="int">
         DELETE FROM facturacion.servicios
-        WHERE idAuditoria = #{idAuditoria}
+        WHERE idservicios = #{idservicios}
     </delete>
 </mapper>

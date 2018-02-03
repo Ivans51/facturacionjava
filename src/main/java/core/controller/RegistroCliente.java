@@ -15,61 +15,93 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class RegistroCliente extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
-    public TextField jCedula, jNombre, jApellido, jDireccion, jNombreCiudad;
+    public TextField jCedula, jNombre, jApellido, jDireccion, jNombreCiudad, jTelefono;
     public JFXButton btnAgregar, btnLimpiar, btnSalir, btnEditar, btnEliminar;
-    public TableView tableCliente;
+    public TableView<Cliente> tableCliente;
     public AnchorPane anchorPane;
     public TableColumn tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono, tbUsuario;
-    private TableUtil table;
-    private List<Cliente> clientes = new ArrayList<>();
-    private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
+
+    private TableUtil<Cliente, String> table;
     private String[] columS = {"cedula", "nombre", "apellido", "direccion", "telefono", "usuario"};
+    private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
+    private List<Cliente> clientes = new ArrayList<>();
+    private Cliente cliente;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        btnEditar.setDisable(false);
         table = new TableUtil(Cliente.class, tableCliente);
         table.inicializarTabla(columS, tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono, tbUsuario);
 
         final ObservableList<Cliente> tablaSelecionada = tableCliente.getSelectionModel().getSelectedItems();
         tablaSelecionada.addListener((ListChangeListener<Cliente>) c -> table.seleccionarTabla(this));
 
-        selectAllEmpleadoContrato();
+        selectAllCliente();
         table.getListTable().addAll(clientes);
     }
 
-    private void selectAllEmpleadoContrato() {
+    private void selectAllCliente() {
         clientes = clienteDAO.selectAll();
-        for (int i = 0; i < clientes.size(); i++) {
-            /*try {
-                String fechaNac = FechaUtil.getDateFormat(clientes.get(i).getFechaNacimiento());
-                String fechaIngreso = FechaUtil.getDateFormat(clientes.get(i).getContratacion().getFechaInicio());
-                String fechaCulminacion = FechaUtil.getDateFormat(clientes.get(i).getContratacion().getFechaCulminacion());
-                empleadoContratacion = new EmpleadoContratacion();
-                empleadoContratacion.setCedula(clientes.get(i).getCedula());
-                empleadoContratacion.setNombreEmpleado(clientes.get(i).getNombreEmpleado());
-                empleadoContratacion.setDireccion(clientes.get(i).getDireccion());
-                empleadoContratacion.setFechaNac(fechaNac);
-                empleadoContratacion.setCargo(clientes.get(i).getCargo());
-                empleadoContratacion.setStatusActual(String.valueOf(clientes.get(i).getStatusLaborando()));
-                empleadoContratacion.setSueldo(String.valueOf(clientes.get(i).getContratacion().getSalario()));
-                empleadoContratacion.setFechaIngreso(fechaIngreso);
-                empleadoContratacion.setFechaCulminacion(fechaCulminacion);
-                empleadoContratacions.add(empleadoContratacion);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }*/
-        }
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
+        try {
+            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
+            Validar.entradaNumerica(jCedula);
+            // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
+            int id = clienteDAO.insert(getClienteSeleccion());
+            Cliente cliente = clienteDAO.selectById(id);
+            table.getListTable().add(cliente);
+            tableCliente.refresh();
+        } catch (Myexception myexception) {
+            new AlertUtil(Estado.ERROR, myexception.getMessage());
+            myexception.printStackTrace();
+        }
+    }
 
+    public void actionEditar(ActionEvent actionEvent) {
+        clienteDAO.update(getClienteSeleccion());
+        selectAllCliente();
+        tableCliente.refresh();
+        btnEditar.setDisable(false);
+        btnAgregar.setDisable(true);
+    }
+
+    private Cliente getClienteSeleccion() {
+        cliente = new Cliente();
+        cliente.setNombres(jNombre.getText());
+        cliente.setCedula(Integer.parseInt(jCedula.getText()));
+        cliente.setDireccion(jDireccion.getText());
+        cliente.setApellidos(jApellido.getText());
+        cliente.setTelefono(jTelefono.getText());
+        cliente.setUsuario_cedula(Storage.getUsuario().getCedula());
+        return cliente;
+    }
+
+    public void actionEliminar(ActionEvent actionEvent) {
+        clienteDAO.delete(cliente.getCedula());
+        table.getListTable().remove(cliente);
+        tableCliente.refresh();
+    }
+
+    @Override
+    public void setStatusControls() {
+        if (table.getModel() != null) {
+            cliente = table.getModel();
+            btnEditar.setDisable(true);
+            jNombre.setText(cliente.getNombres());
+            jApellido.setText(cliente.getApellidos());
+            jCedula.setText(String.valueOf(cliente.getCedula()));
+            jDireccion.setText(cliente.getDireccion());
+            jTelefono.setText(cliente.getTelefono());
+            btnAgregar.setDisable(false);
+        }
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
@@ -82,17 +114,5 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
 
     public void actionSalir(ActionEvent mouseEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
-    }
-
-    public void actionEditar(ActionEvent actionEvent) {
-
-    }
-
-    public void actionEliminar(ActionEvent actionEvent) {
-    }
-
-    @Override
-    public void setStatusControls() {
-
     }
 }

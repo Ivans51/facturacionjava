@@ -26,7 +26,7 @@ public class AuditoriaUtil {
             auditoria.setFecha(FechaUtil.getCurrentDate());
             auditoria.setHora(FechaUtil.getHourMinutes());
             auditoria.setNombreUsuario(nombreUsuario);
-            auditoria.setFK_idUsuario(idUsuario);
+            auditoria.setUsuario_cedula(idUsuario);
             auditoriaDAO.insert(auditoria);
         } catch (ParseException e) {
             e.printStackTrace();

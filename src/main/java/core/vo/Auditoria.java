@@ -9,7 +9,7 @@ public class Auditoria {
     private int hora;
     private String accion;
     private String nombreUsuario;
-    private int FK_idUsuario;
+    private int usuario_cedula;
 
     public int getIdAuditoria() {
         return idAuditoria;
@@ -43,12 +43,12 @@ public class Auditoria {
         this.accion = accion;
     }
 
-    public int getFK_idUsuario() {
-        return FK_idUsuario;
+    public int getUsuario_cedula() {
+        return usuario_cedula;
     }
 
-    public void setFK_idUsuario(int FK_idUsuario) {
-        this.FK_idUsuario = FK_idUsuario;
+    public void setUsuario_cedula(int usuario_cedula) {
+        this.usuario_cedula = usuario_cedula;
     }
 
     public String getNombreUsuario() {
@@ -67,7 +67,7 @@ public class Auditoria {
                 ", hora=" + hora +
                 ", accion='" + accion + '\'' +
                 ", nombreUsuario='" + nombreUsuario + '\'' +
-                ", FK_idUsuario=" + FK_idUsuario +
+                ", usuario_cedula=" + usuario_cedula +
                 '}';
     }
 }

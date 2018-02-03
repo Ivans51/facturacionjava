@@ -25,22 +25,27 @@
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
         FROM facturacion.factura
-        WHERE idAuditoria = #{idAuditoria}
+        WHERE idfactura = #{idfactura}
     </select>
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">
-        INSERT INTO facturacion.factura (fecha, accion, nombreUsuario, usuario_cedula)
-        VALUES (#{fecha}, #{accion}, #{nombreUsuario}, #{usuario_cedula});
+        INSERT INTO facturacion.factura (servicios, forma_pago, fecha_pago, fecha_entrega,
+                                         IVA, total, cliente_cedula, usuario_cedula)
+        VALUES (#{servicios}, #{forma_pago}, #{fecha_pago}, #{fecha_entrega},
+                #{IVA}, #{total}, #{cliente_cedula}, #{usuario_cedula});
     </insert>
 
     <update id="update" parameterType="Factura">
         UPDATE facturacion.factura
-        SET name = #{name}
-        WHERE idAuditoria = #{idAuditoria}
+        SET servicios = #{servicios}, forma_pago = #{forma_pago},
+            fecha_pago = #{fecha_pago}, fecha_entrega = #{fecha_entrega},
+            IVA = #{IVA}, total = #{total},
+            cliente_cedula = #{cliente_cedula}, usuario_cedula = #{usuario_cedula},
+        WHERE idfactura = #{idfactura}
     </update>
 
     <delete id="delete" parameterType="int">
-        DELETE FROM facturacion.auditoria
-        WHERE idAuditoria = #{idAuditoria}
+        DELETE FROM facturacion.factura
+        WHERE idfactura = #{idfactura}
     </delete>
 </mapper>

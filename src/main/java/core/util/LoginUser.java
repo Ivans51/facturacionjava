@@ -9,7 +9,7 @@ public class LoginUser {
     public Usuario iniciarSession(String nombreUsuario, String clave) throws Myexception {
         UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
         Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(nombreUsuario);
+        usuario.setNombre(nombreUsuario);
         usuario.setClave(clave);
         usuario = usuarioDAO.login(usuario);
         if (usuario == null)
