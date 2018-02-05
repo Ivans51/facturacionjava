@@ -26,10 +26,14 @@
                         <Label text="Registro de Usuario" />
                     </children>
                 </HBox>
+                <Label layoutX="25.0" layoutY="25.0" text="Cedula" />
+                <TextField fx:id="jCedula" />
                 <Label layoutX="25.0" layoutY="25.0" text="Nombre" />
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="60.0" text="Clave" />
                 <TextField fx:id="jClave" />
+                <Label layoutX="25.0" layoutY="60.0" text="Correo" />
+                <TextField fx:id="jCorreo" />
                 <Label layoutX="25.0" layoutY="95.0" text="Nivel" />
             <ComboBox fx:id="cNivel" prefWidth="150.0" />
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
@@ -61,8 +65,10 @@
                 </HBox>
                 <TableView fx:id="tableUsuario" prefHeight="406.0" prefWidth="608.0">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="C1" />
-                        <TableColumn prefWidth="75.0" text="C2" />
+                        <TableColumn prefWidth="75.0" text="Cedula" fx:id="tbCedula"/>
+                        <TableColumn prefWidth="75.0" text="Nombre" fx:id="tbNombre"/>
+                        <TableColumn prefWidth="75.0" text="Fecha" fx:id="tbFecha"/>
+                        <TableColumn prefWidth="75.0" text="Status" fx:id="tbStatus"/>
                     </columns>
                 </TableView>
                 <HBox fx:id="btnSalir" alignment="BOTTOM_RIGHT" onDragDetected="#actionSalir" spacing="15.0" VBox.vgrow="ALWAYS">

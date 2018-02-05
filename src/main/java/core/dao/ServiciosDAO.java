@@ -51,6 +51,26 @@ public class ServiciosDAO {
         return person;
     }
 
+    public Servicios selectByNombre(String id) {
+        Servicios person = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            person = session.selectOne("Servicios.selectByNombre", id);
+        } finally {
+            session.close();
+        }
+        System.out.println("selectById(" + id + ") --> " + person);
+        return person;
+    }
+
+    public List<String> selectNombres() {
+        List<String> person = null;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectList("Servicios.selectByNombres");
+        }
+        return person;
+    }
+
     /**
      * Insert an instance of Servicios into the database.
      *

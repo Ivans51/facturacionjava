@@ -59,10 +59,12 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                     </padding>
                 </HBox>
-                <TableView fx:id="table" prefHeight="406.0" prefWidth="608.0">
+                <TableView fx:id="tableServicio" prefHeight="406.0" prefWidth="608.0">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="C1"/>
-                        <TableColumn prefWidth="75.0" text="C2"/>
+                        <TableColumn prefWidth="75.0" text="Nombre" fx:id="tbNombre"/>
+                        <TableColumn prefWidth="75.0" text="Precio"  fx:id="tbPrecio"/>
+                        <TableColumn prefWidth="75.0" text="Fecha"  fx:id="tbFecha"/>
+                        <TableColumn prefWidth="75.0" text="TiempoE"  fx:id="tbTiempoE"/>
                     </columns>
                 </TableView>
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">

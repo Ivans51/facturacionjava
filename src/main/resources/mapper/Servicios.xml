@@ -26,6 +26,17 @@
         WHERE idservicios = #{idservicios}
     </select>
 
+    <select id="selectByNombre" parameterType="string" resultMap="result">
+        SELECT *
+        FROM facturacion.servicios
+        WHERE nombre = #{nombre}
+    </select>
+
+    <select id="selectNombres" resultMap="result">
+        SELECT nombre
+        FROM facturacion.servicios
+    </select>
+
     <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
         INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, subservicio_idsubservicio, usuario_cedula)
         VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{subservicio_idsubservicio}, #{usuario_cedula});

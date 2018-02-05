@@ -15,11 +15,7 @@ public class MyBatisConnection {
     static {
         try {
             Reader reader = Resources.getResourceAsReader("config.xml");
-            if (sqlSessionFactory == null) {
-                sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
-            }
-        } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
+            if (sqlSessionFactory == null) sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
         } catch (IOException iOException) {
             iOException.printStackTrace();
         }
