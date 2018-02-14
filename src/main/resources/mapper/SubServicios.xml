@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="SubServicios">
+
+    <resultMap id="result" type="SubServicios">
+        <!-- property="atributo java" column="columna tabla" -->
+        <result property="idsubservicio" column="idsubservicio"/>
+        <result property="nombre" column="nombre"/>
+        <result property="costo" column="costo"/>
+        <result property="fecha" column="fecha"/>
+        <result property="tiempo_estimado" column="tiempo_estimado"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="result">
+        SELECT *
+        FROM facturacion.subservicio;
+    </select>
+
+    <select id="selectById" parameterType="int" resultMap="result">
+        SELECT *
+        FROM facturacion.subservicio
+        WHERE idsubservicio = #{idsubservicio}
+    </select>
+
+    <select id="selectByNombre" parameterType="string" resultMap="result">
+        SELECT *
+        FROM facturacion.subservicio
+        WHERE nombre = #{nombre}
+    </select>
+
+    <insert id="insert" parameterType="SubServicios" useGeneratedKeys="true" keyProperty="idsubservicio">
+        INSERT INTO facturacion.subservicio (idsubservicio, nombre, costo, fecha, tiempo_estimado)
+        VALUES (#{idsubservicio}, #{nombre}, #{costo}, #{fecha}, #{tiempo_estimado});
+    </insert>
+
+    <update id="update" parameterType="SubServicios">
+        UPDATE facturacion.subservicio
+        SET nombre = #{nombre}, costo = #{costo},
+            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
+        WHERE idsubservicio = #{idsubservicio}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM facturacion.subservicio
+        WHERE idsubservicio = #{idsubservicio}
+    </delete>
+</mapper>

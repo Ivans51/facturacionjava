@@ -25,8 +25,6 @@
                 <TextField fx:id="jNombre"/>
                 <Label layoutX="25.0" layoutY="60.0" text="Precio"/>
                 <TextField fx:id="jPrecio"/>
-                <Label layoutX="25.0" layoutY="95.0" text="Fecha"/>
-                <TextField fx:id="jFecha"/>
                 <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado"/>
                 <TextField fx:id="jTiempoE"/>
                 <Label layoutX="25.0" layoutY="165.0" text="Subservicio"/>

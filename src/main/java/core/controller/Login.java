@@ -5,6 +5,7 @@ import core.util.*;
 import core.vo.Usuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
@@ -13,7 +14,8 @@ import java.util.ResourceBundle;
 public class Login extends ManagerFXML implements Initializable {
 
     public JFXButton btnIngresar, btnSalir;
-    public TextField jUsuario, jClave;
+    public TextField jUsuario;
+    public PasswordField jPassword;
 
     private final LoginUser loginUser = new LoginUser();
     private Usuario usuario;
@@ -26,8 +28,8 @@ public class Login extends ManagerFXML implements Initializable {
 
     public void actionIngresar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jUsuario, jClave);
-            usuario = loginUser.iniciarSession(jUsuario.getText(), jClave.getText());
+            Validar.campoVacio(jUsuario);
+            usuario = loginUser.iniciarSession(jUsuario.getText(), jPassword.getText());
             Storage.setUsuario(usuario);
             validarStatus();
         } catch (Myexception ex) {

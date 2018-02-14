@@ -1,12 +1,12 @@
 package core.util;
 
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by WAMS-10 on 26/07/2017.
@@ -24,6 +24,13 @@ public class Validar {
             return esValido;
         else
             throw new Myexception("Campo Vacío");
+    }
+
+    public static void checkValor(String entrada, List<String> list) throws Myexception {
+        for (String i : list) {
+            if (entrada.equals(i))
+                throw new Myexception("Ingreso un nombre único de servicio");
+        }
     }
 
     public static boolean limmpiarCampos(TextField... txt) throws Myexception {

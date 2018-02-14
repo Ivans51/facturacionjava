@@ -3,6 +3,7 @@ package core.controller;
 import com.jfoenix.controls.JFXButton;
 import core.util.ManagerFXML;
 import core.util.Route;
+import core.util.Storage;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        lblNombreUsuario.setText(Storage.getUsuario().getNombre());
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
@@ -43,5 +45,9 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     public void actionCerrar(ActionEvent actionEvent) {
         abrirStage(Route.Login, "Inicio de Sesión", btnCerrar, null);
+    }
+
+    public void actionSubServicio(ActionEvent actionEvent) {
+        cambiarEscena(Route.RegistroSubServicio, anchorPane);
     }
 }

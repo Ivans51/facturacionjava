@@ -36,12 +36,9 @@ public class FechaUtil {
         return hours;
     }
 
-    public static String getDateFormat(Date date) throws ParseException {
+    public static String getDateFormat(Date date) {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        if (date == null)
-            return dateFormat.format(FechaUtil.date);
-        else
-            return dateFormat.format(date);
+        return date == null ? dateFormat.format(FechaUtil.date) : dateFormat.format(date);
     }
 
     public static String getDateFormatTime() {

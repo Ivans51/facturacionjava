@@ -1,11 +1,13 @@
 package core.vo;
 
+import java.util.Date;
+
 public class Servicios {
 
     private int idservicios;
     private String nombre;
     private Double precio;
-    private String fecha;
+    private Date fecha;
     private String tiempo_estimado;
     private int subservicio_idsubservicio;
     private int usuario_cedula;
@@ -34,11 +36,11 @@ public class Servicios {
         this.precio = precio;
     }
 
-    public String getFecha() {
+    public Date getFecha() {
         return fecha;
     }
 
-    public void setFecha(String fecha) {
+    public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
 

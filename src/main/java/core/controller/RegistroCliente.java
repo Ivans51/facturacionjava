@@ -28,14 +28,20 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     public TableColumn tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono, tbUsuario;
 
     private TableUtil<Cliente, String> table;
-    private String[] columS = {"cedula", "nombre", "apellido", "direccion", "telefono", "usuario"};
+    private String[] columS = {"cedula", "nombres", "apellidos", "direccion", "telefono", "usuario_cedula"};
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private List<Cliente> clientes = new ArrayList<>();
+    private List<String> cedulas = new ArrayList<>();
     private Cliente cliente;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnEditar.setDisable(false);
+        setTable();
+    }
+
+    private void setTable() {
+        tableCliente.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Cliente.class, tableCliente);
         table.inicializarTabla(columS, tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono, tbUsuario);
 
@@ -48,17 +54,20 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
 
     private void selectAllCliente() {
         clientes = clienteDAO.selectAll();
+        clientes.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
             Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
             Validar.entradaNumerica(jCedula);
+            Validar.checkValor(jCedula.getText(), cedulas);
             // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
-            int id = clienteDAO.insert(getClienteSeleccion());
-            Cliente cliente = clienteDAO.selectById(id);
+            clienteDAO.insert(getClienteSeleccion());
+            Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(cliente);
             tableCliente.refresh();
+            Validar.limmpiarCampos(jNombre, jCedula, jNombreCiudad, jDireccion, jApellido, jTelefono);
         } catch (Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
@@ -66,11 +75,19 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     }
 
     public void actionEditar(ActionEvent actionEvent) {
-        clienteDAO.update(getClienteSeleccion());
-        selectAllCliente();
-        tableCliente.refresh();
-        btnEditar.setDisable(false);
-        btnAgregar.setDisable(true);
+        try {
+            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
+            Validar.entradaNumerica(jCedula);
+            clienteDAO.update(getClienteSeleccion());
+            selectAllCliente();
+            tableCliente.refresh();
+            btnEditar.setDisable(false);
+            btnAgregar.setDisable(true);
+            Validar.limmpiarCampos(jNombre, jCedula, jNombreCiudad, jDireccion, jApellido, jTelefono);
+        } catch (Myexception myexception) {
+            new AlertUtil(Estado.ERROR, myexception.getMessage());
+            myexception.printStackTrace();
+        }
     }
 
     private Cliente getClienteSeleccion() {
@@ -85,9 +102,14 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     }
 
     public void actionEliminar(ActionEvent actionEvent) {
-        clienteDAO.delete(cliente.getCedula());
-        table.getListTable().remove(cliente);
-        tableCliente.refresh();
+        try {
+            clienteDAO.delete(cliente.getCedula());
+            table.getListTable().remove(cliente);
+            tableCliente.refresh();
+            Validar.limmpiarCampos(jCedula, jNombre, jApellido, jDireccion, jNombreCiudad);
+        } catch (Myexception myexception) {
+            myexception.printStackTrace();
+        }
     }
 
     @Override

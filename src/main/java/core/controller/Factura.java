@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -43,9 +44,9 @@ public class Factura extends ManagerFXML implements Initializable{
 
     public void actionMostrar(ActionEvent actionEvent) {
         Servicios servicios = serviciosDAO.selectByNombre(cServiciosAgregados.getSelectionModel().getSelectedItem());
-        // TODO: 2/4/2018 Fix Date
-        lblFecha.setText(servicios.getFecha());
+        lblFecha.setText(FechaUtil.getDateFormat(servicios.getFecha()));
         lblPrecio.setText(String.valueOf(servicios.getPrecio()));
+        // TODO: 2/4/2018 Fix Date
         lblTotal.setText("");
     }
 

@@ -17,6 +17,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -32,13 +34,19 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     private TableUtil<Usuario, String> table;
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
-    private List<Usuario> usuarios;
+    private List<Usuario> usuarios = new ArrayList<>();
+    private List<String> cedulas = new ArrayList<>();
     private Usuario usuario;
     private String[] columS = {"Cedula", "Nombre", "Fecha", "Status"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnEditar.setDisable(false);
+        setTable();
+    }
+
+    private void setTable() {
+        tableUsuario.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Usuario.class, tableUsuario);
         table.inicializarTabla(columS, tbCedula, tbNombre, tbFecha, tbStatus);
 
@@ -51,41 +59,58 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     private void selectAllUsuario() {
         usuarios = usuarioDAO.selectAll();
+        usuarios.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
             Validar.campoVacio(jNombre, jCorreo, jClave);
+            Validar.checkValor(jCedula.getText(), cedulas);
             // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
-            int id = usuarioDAO.insert(getUsuarioSelect());
-            Usuario usuario = usuarioDAO.selectById(id);
+            Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(usuario );
             tableUsuario.refresh();
+            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
         } catch (Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
         }
     }
 
-    private Usuario getUsuarioSelect() {
+    public void actionEditar(ActionEvent actionEvent) {
+        try {
+            Validar.campoVacio(jNombre, jCorreo, jClave);
+            usuarioDAO.update(getUsuarioSelect());
+            selectAllUsuario();
+            tableUsuario.refresh();
+            btnEditar.setDisable(false);
+            btnAgregar.setDisable(true);
+            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
+        } catch (ParseException | Myexception e) {
+            new AlertUtil(Estado.ERROR, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private Usuario getUsuarioSelect() throws ParseException {
         usuario.setNombre(jNombre.getText());
         usuario.setCedula(Integer.parseInt(jCedula.getText()));
         usuario.setClave(jClave.getText());
         usuario.setCorreo(jCorreo.getText());
-        // TODO: 2/4/2018 Colocar fecha
-        usuario.setFecha(new Date());
+        usuario.setFecha(FechaUtil.getCurrentDate());
         usuario.setStatus(cNivel.getSelectionModel().getSelectedItem().toString());
         return usuario;
     }
 
-    public void actionEditar(ActionEvent actionEvent) {
-
-    }
-
     public void actionEliminar(ActionEvent actionEvent) {
-        usuarioDAO.delete(usuario.getCedula());
-        table.getListTable().remove(usuario);
-        tableUsuario.refresh();
+        try {
+            usuarioDAO.delete(usuario.getCedula());
+            table.getListTable().remove(usuario);
+            tableUsuario.refresh();
+            Validar.limmpiarCampos(jNombre, jClave, jCorreo);
+        } catch (Myexception myexception) {
+            myexception.printStackTrace();
+        }
     }
 
     @Override

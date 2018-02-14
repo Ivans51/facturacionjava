@@ -16,6 +16,7 @@
             <URL value="@../CSS/styles-layout.css" />
          </stylesheets>
          <children>
+            <JFXButton fx:id="btnSubServicio" layoutX="25.0" layoutY="25.0" onAction="#actionSubServicio" text="SubServicio" />
             <JFXButton fx:id="btnServicio" layoutX="20.0" layoutY="20.0" onAction="#actionServicio" text="Servicio" />
             <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Cliente" />
             <JFXButton fx:id="btnFacturacion" layoutX="236.0" layoutY="20.0" onAction="#actionFacturacion" text="Facturación" />

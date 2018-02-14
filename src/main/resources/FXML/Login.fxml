@@ -4,6 +4,7 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -23,7 +24,7 @@
             <Label text="Usuario" textFill="WHITE" />
             <TextField fx:id="jUsuario" prefHeight="25.0" prefWidth="264.0" />
             <Label text="Clave" textFill="WHITE" />
-            <TextField fx:id="jClave" prefHeight="25.0" prefWidth="264.0" />
+            <PasswordField fx:id="jPassword" />
          </children>
          <padding>
             <Insets left="20.0" right="20.0" />

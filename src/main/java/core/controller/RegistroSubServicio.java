@@ -2,17 +2,13 @@ package core.controller;
 
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
-import core.dao.ServiciosDAO;
 import core.dao.SubServiciosDAO;
 import core.util.*;
-import core.vo.Servicios;
 import core.vo.SubServicios;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -24,59 +20,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class RegistroServicio extends ManagerFXML implements Initializable, TableUtil.StatusControles {
+public class RegistroSubServicio extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
     public TextField jNombre, jPrecio, jTiempoE;
-    public ComboBox<String> cSubservicio;
     public JFXButton btnAgregar, btnLimpiar, btnEditar, btnEliminar, btnSalir;
-    public TableView<Servicios> tableServicio;
+    public TableView<SubServicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
 
-    private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
-    private TableUtil<Servicios, String> table;
-    private Servicios servicios = new Servicios();
-    private String[] columS = {"nombre", "precio", "fecha", "tiempo_estimado"};
-    private List<Servicios> serviciosList = new ArrayList<>();
+    private TableUtil<SubServicios, String> table;
+    private SubServicios subServicios = new SubServicios();
+    private String[] columS = {"Nombre", "Costo", "Fecha", "tiempo_estimado"};
+    private List<SubServicios> subServiciosList = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
-    private int idservicios;
+    private int count;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setCombo();
         setTable();
-        idservicios = serviciosList.get(serviciosList.size() - 1).getIdservicios();
-    }
-
-    private void setCombo() {
-        List<SubServicios> subServicios = subServiciosDAO.selectAll();
-        String[] cargos = new String[subServicios.size()];
-        for (int i = 0; i < subServicios.size(); i++)
-            cargos[i] = subServicios.get(i).getNombre();
-        cSubservicio.setItems(FXCollections.observableArrayList(cargos));
-        /*cSubservicio.valueProperty().addListener((observable, oldValue, newValue) -> {
-            contratacion = contratacionDAO.selectByCargo(newValue.toString());
-        });*/
     }
 
     private void setTable() {
         // To adjust widt column
         tableServicio.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         btnEditar.setDisable(false);
-        table = new TableUtil(Servicios.class, tableServicio);
+        table = new TableUtil(SubServicios.class, tableServicio);
         table.inicializarTabla(columS, tbNombre, tbPrecio, tbFecha, tbTiempoE);
 
-        final ObservableList<Servicios> tablaSelecionada = tableServicio.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Servicios>) c -> table.seleccionarTabla(this));
+        final ObservableList<SubServicios> tablaSelecionada = tableServicio.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<SubServicios>) c -> table.seleccionarTabla(this));
 
         selectAllServicio();
-        table.getListTable().addAll(serviciosList);
+        table.getListTable().addAll(subServiciosList);
+        count = subServiciosList.get(subServiciosList.size() - 1).getIdsubservicio() + 1;
     }
 
     private void selectAllServicio() {
-        serviciosList = serviciosDAO.selectAll();
-        serviciosList.forEach(it -> nombres.add(it.getNombre()));
+        subServiciosList.forEach(it -> nombres.add(it.getNombre()));
+        subServiciosList = subServiciosDAO.selectAll();
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
@@ -84,9 +66,8 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             Validar.campoVacio(jNombre, jTiempoE);
             Validar.entradaNumerica(jPrecio, jTiempoE);
             Validar.checkValor(jNombre.getText(), nombres);
-            // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
-            serviciosDAO.insert(getServicios());
-            table.getListTable().add(serviciosDAO.selectById(++idservicios));
+            int id = subServiciosDAO.insert(getServicios());
+            table.getListTable().add(subServiciosDAO.selectById(count - 1));
             tableServicio.refresh();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
@@ -100,7 +81,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             Validar.campoVacio(jNombre, jTiempoE);
             Validar.entradaNumerica(jPrecio, jTiempoE);
             Validar.checkValor(jNombre.getText(), nombres);
-            serviciosDAO.update(getServicios());
+            subServiciosDAO.update(getServicios());
             selectAllServicio();
             tableServicio.refresh();
             btnEditar.setDisable(false);
@@ -112,21 +93,20 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         }
     }
 
-    private Servicios getServicios() throws ParseException {
-        servicios.setNombre(jNombre.getText());
-        servicios.setFecha(FechaUtil.getCurrentDate());
-        servicios.setPrecio(Double.valueOf(jPrecio.getText()));
-        servicios.setTiempo_estimado(jTiempoE.getText());
-        servicios.setUsuario_cedula(Storage.getUsuario().getCedula());
-        int id = subServiciosDAO.selectByNombre(cSubservicio.getSelectionModel().getSelectedItem()).getIdsubservicio();
-        servicios.setSubservicio_idsubservicio(id);
-        return servicios;
+    private SubServicios getServicios() throws ParseException {
+        // TODO: 2/13/2018 Delete
+        subServicios.setIdsubservicio(count++);
+        subServicios.setNombre(jNombre.getText());
+        subServicios.setFecha(FechaUtil.getCurrentDate());
+        subServicios.setCosto(Double.valueOf(jPrecio.getText()));
+        subServicios.setTiempo_estimado(Integer.parseInt(jTiempoE.getText()));
+        return subServicios;
     }
 
     public void actionEliminar(ActionEvent actionEvent) {
         try {
-            serviciosDAO.delete(servicios.getIdservicios());
-            table.getListTable().remove(servicios);
+            subServiciosDAO.delete(subServicios.getIdsubservicio());
+            table.getListTable().remove(subServicios);
             tableServicio.refresh();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception myexception) {
@@ -137,11 +117,11 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     @Override
     public void setStatusControls() {
         if (table.getModel() != null) {
-            servicios = table.getModel();
+            subServicios = table.getModel();
             btnEditar.setDisable(true);
-            jNombre.setText(servicios.getNombre());
-            jPrecio.setText(String.valueOf(servicios.getPrecio()));
-            jTiempoE.setText(servicios.getTiempo_estimado());
+            jNombre.setText(subServicios.getNombre());
+            jPrecio.setText(String.valueOf(subServicios.getCosto()));
+            jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimado()));
             btnAgregar.setDisable(false);
         }
     }
