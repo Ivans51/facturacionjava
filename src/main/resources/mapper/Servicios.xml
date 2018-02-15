@@ -26,6 +26,12 @@
         WHERE idservicios = #{idservicios}
     </select>
 
+    <select id="selectAllNombres" parameterType="string" resultMap="result">
+        SELECT *
+        FROM facturacion.servicios
+        WHERE nombre = #{nombre}
+    </select>
+
     <select id="selectByNombre" parameterType="string" resultMap="result">
         SELECT *
         FROM facturacion.servicios

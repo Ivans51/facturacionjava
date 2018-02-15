@@ -16,33 +16,32 @@ public class TableUtil<T, V> {
     public TableColumn[] tableColumns;
     private T model;
     private ObservableList<T> listTable;
-    private TableView<T> tablaUsuarios;
+    private TableView<T> table;
     private int posicionPersonaEnTabla;
 
-    public TableUtil(T model, TableView<T> tablaUsuarios) {
+    public TableUtil(T model, TableView<T> table) {
         this.model = model;
-        this.tablaUsuarios = tablaUsuarios;
+        this.table = table;
     }
 
     /**
      * Método para inicializar la tabla
      *
-     * @param s
+     * @param value
      * @param columns
      */
-    public void inicializarTabla(String[] s, TableColumn... columns) {
-        for (int i = 0; i < columns.length; i++) {
-            columns[i].setCellValueFactory(new PropertyValueFactory<T, V>(s[i]));
-        }
+    public void inicializarTabla(String[] value, TableColumn... columns) {
+        for (int i = 0; i < columns.length; i++)
+            columns[i].setCellValueFactory(new PropertyValueFactory<T, V>(value[i]));
         listTable = FXCollections.observableArrayList();
-        this.tablaUsuarios.setItems(listTable);
+        this.table.setItems(listTable);
     }
 
     /**
      * Método para poner en los textFields la tupla que seleccionemos
      */
     public void seleccionarTabla(@Nullable StatusControles statusControles) {
-        model = getTablaSeleccionada(tablaUsuarios);
+        model = getTablaSeleccionada(table);
         posicionPersonaEnTabla = listTable.indexOf(model);
         if (statusControles != null)
             statusControles.setStatusControls();
