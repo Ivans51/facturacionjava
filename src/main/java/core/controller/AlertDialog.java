@@ -15,11 +15,13 @@ import java.util.ResourceBundle;
 public class AlertDialog extends ManagerFXML implements Initializable {
 
     public Label descripcionAlert;
-    // public ImageView imagenAlert;
     public Label closeAlert;
+    private Close close;
+    // public ImageView imagenAlert;
 
-    public void initData(AlertModel alertModel){
+    public void initData(AlertModel alertModel, Close close) {
         elegirMensaje(alertModel.getEleccion(), alertModel.getTitle());
+        this.close = close;
     }
 
     @Override
@@ -45,6 +47,13 @@ public class AlertDialog extends ManagerFXML implements Initializable {
     }
 
     public void closeAlert(MouseEvent mouseEvent) {
-        cerrarStage(closeAlert);
+        if (close != null)
+            close.stage(closeAlert);
+        else
+            cerrarStage(closeAlert);
+    }
+
+    public interface Close {
+        void stage(Label closeAlert);
     }
 }

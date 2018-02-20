@@ -9,10 +9,18 @@ public class AlertUtil extends ManagerFXML {
 
     private int eleccion;
     private String title;
+    private AlertDialog.Close close;
 
     public AlertUtil(int eleccion, String title) {
         this.eleccion = eleccion;
         this.title = title;
+        dilog();
+    }
+
+    public AlertUtil(int eleccion, String title, AlertDialog.Close close) {
+        this.eleccion = eleccion;
+        this.title = title;
+        this.close = close;
         dilog();
     }
 
@@ -24,6 +32,6 @@ public class AlertUtil extends ManagerFXML {
     private void elegir() {
         AlertModel alertModel = new AlertModel(eleccion, title);
         AlertDialog dialog = ManagerFXML.getFxmlLoader().getController();
-        dialog.initData(alertModel);
+        dialog.initData(alertModel, close);
     }
 }

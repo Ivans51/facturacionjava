@@ -10,17 +10,19 @@ import core.dao.ServiciosDAO;
 import core.util.*;
 import core.vo.Cliente;
 import core.vo.Servicios;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -28,33 +30,37 @@ import java.util.ResourceBundle;
 public class Factura extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
-    public ComboBox<String> cServicios, cServiciosAgregados;
+    public ComboBox<String> cServicios, cServiciosAgregados, cSubServicio;
     public TextField jPrecio, jFecha, jCedula;
     public JFXButton btnAgregar, btnSalir, btnMostrarProducto, btnBuscar, btnImprimir;
-    public Label lblFecha, lblPrecio, lblTotal, lblNombre, lblCiudad, lblTelefono;
+    public Label lblFecha, lblPrecio, lblTotal, lblNombre, lblCiudad, lblTelefono, lblSub;
 
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
-    private int totalPagar;
-    private HashMap<String, String> totalArt;
+    private double totalPagar;
+    private HashMap<String, String> totalArt = new HashMap<>();
+    private String nombreProducto;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        List<String> nombres = serviciosDAO.selectNombres();
-        // cServicios.setItems(FXCollections.observableArrayList(nombres));
-        nombres.forEach(nombre -> cServicios.getItems().addAll(nombre));
+        List<String> nombres = new ArrayList<>();
+        List<Servicios> servicios = serviciosDAO.selectAll();
+        servicios.forEach(servicio -> nombres.add(servicio.getNombre()));
+        cServicios.getItems().addAll(nombres);
+        cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
+            for (Servicios servicio : servicios) {
+                nombreProducto = newValue;
+                if (nombreProducto.equals(servicio.getNombre())) {
+                    jPrecio.setText(String.valueOf(servicio.getPrecio()));
+                    jFecha.setText(FechaUtil.getDateFormat(servicio.getFecha()));
+                }
+            }
+        });
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
-        setTotal();
         setCombo();
-    }
-
-    private void setTotal() {
-        totalArt = new HashMap<>();
-        Servicios serv = serviciosDAO.selectAllNombres(cServicios.getSelectionModel().getSelectedItem());
-        totalArt.put(serv.getNombre(), String.valueOf(serv.getPrecio()));
-        totalArt.forEach((key, value) -> totalPagar += Integer.valueOf(value));
+        setTotal();
     }
 
     private void setCombo() {
@@ -67,6 +73,12 @@ public class Factura extends ManagerFXML implements Initializable {
         });
     }
 
+    private void setTotal() {
+        Servicios serv = serviciosDAO.selectAllNombres(cServicios.getSelectionModel().getSelectedItem());
+        totalArt.put(serv.getNombre(), String.valueOf(serv.getPrecio()));
+        totalArt.forEach((key, value) -> totalPagar += Double.valueOf(value));
+    }
+
     public void borrarItem(ActionEvent actionEvent) {
         String item = cServicios.getSelectionModel().getSelectedItem();
         cServiciosAgregados.getItems().remove(item);
@@ -77,7 +89,11 @@ public class Factura extends ManagerFXML implements Initializable {
     public void actionBuscar(ActionEvent actionEvent) {
         Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
         if (cliente == null)
-            new ClienteDialog();
+            abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
+                    false, StageStyle.TRANSPARENT, () -> {
+                        ClienteDialog display = ManagerFXML.getFxmlLoader().getController();
+                        display.setModel(jCedula.getText(), lblNombre, lblCiudad, lblTelefono);
+                    });
         else {
             new AlertUtil(Estado.EXITOSA, "Usuario registrado en el sistema");
             lblNombre.setText(cliente.getNombres());
@@ -116,5 +132,9 @@ public class Factura extends ManagerFXML implements Initializable {
 
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
+    }
+
+    public interface Controls {
+        void send();
     }
 }

@@ -3,47 +3,52 @@ package core.controller;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ClienteDAO;
-import core.model.AlertModel;
 import core.util.*;
 import core.vo.Cliente;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ClienteDialog extends ManagerFXML implements Initializable{
+public class ClienteDialog extends ManagerFXML implements Initializable {
 
     public TextField jCedula, jNombre, jApellido, jDireccion, jNombreCiudad, jTelefono;
     public JFXButton btnAgregar, btnLimpiar, btnSalir;
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
-
-    public ClienteDialog() {
-        initData();
-    }
+    private Label lblNombre, lblCiudad, lblTelefono;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
     }
 
-    private void initData() {
-        abrirStageStyle(Route.ClienteDialog, "", Modality.NONE, null,
-                false, StageStyle.TRANSPARENT, null);
+    void setModel(String text, Label lblNombre, Label lblCiudad, Label lblTelefono) {
+        this.lblNombre = lblNombre;
+        this.lblCiudad = lblCiudad;
+        this.lblTelefono = lblTelefono;
+        jCedula.setEditable(false);
+        jNombre.setFocusTraversable(true);
+        jCedula.setText(text);
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
             Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
-            Validar.entradaNumerica(jCedula);
-            // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
+            Validar.entradaNumerica(jCedula, jTelefono);
+            Validar.isLetter(jNombre.getText(), jApellido.getText());
             clienteDAO.insert(getClienteSeleccion());
-            cerrarStage(btnAgregar);
+            new AlertUtil(Estado.EXITOSA, "Usuario registrado", lblClose -> {
+                cerrarStage(lblClose);
+                cerrarStage(btnAgregar);
+                lblNombre.setText(jNombre.getText());
+                lblCiudad.setText(jNombreCiudad.getText());
+                lblTelefono.setText(jTelefono.getText());
+            });
         } catch (Myexception myexception) {
-            new AlertUtil(Estado.ERROR, myexception.getMessage());
+            new AlertUtil(Estado.ERROR, "Hubo un error, asegurese que la información ingresada sea correcta");
             myexception.printStackTrace();
         }
     }
@@ -61,7 +66,7 @@ public class ClienteDialog extends ManagerFXML implements Initializable{
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            Validar.limmpiarCampos(jCedula, jNombre, jApellido, jDireccion, jNombreCiudad);
+            Validar.limmpiarCampos(jCedula, jNombre, jApellido, jTelefono, jDireccion, jNombreCiudad);
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }

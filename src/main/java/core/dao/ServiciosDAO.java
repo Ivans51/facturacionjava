@@ -77,8 +77,8 @@ public class ServiciosDAO {
         return person;
     }
 
-    public List<String> selectNombres() {
-        List<String> person = null;
+    public List<Servicios> selectNombres() {
+        List<Servicios> person = null;
         try (SqlSession session = sqlSessionFactory.openSession()) {
             person = session.selectList("Servicios.selectByNombres");
         }
