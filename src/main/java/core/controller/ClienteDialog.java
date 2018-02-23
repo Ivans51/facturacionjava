@@ -40,7 +40,7 @@ public class ClienteDialog extends ManagerFXML implements Initializable {
             Validar.entradaNumerica(jCedula, jTelefono);
             Validar.isLetter(jNombre.getText(), jApellido.getText());
             clienteDAO.insert(getClienteSeleccion());
-            new AlertUtil(Estado.EXITOSA, "Usuario registrado", lblClose -> {
+            new AlertUtil(Estado.EXITOSA, "Cliente registrado", lblClose -> {
                 cerrarStage(lblClose);
                 cerrarStage(btnAgregar);
                 lblNombre.setText(jNombre.getText());

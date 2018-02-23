@@ -48,6 +48,18 @@ public class ServiciosDAO {
 
     }
 
+    public List<Servicios> selectJoinSub(String newValue) {
+        List<Servicios> list;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Servicios.selectJoinSub", newValue);
+        } finally {
+            session.close();
+        }
+        System.out.println("selectAll() --> " + list);
+        return list;
+    }
+
     /**
      * Select instance of Servicios from the database.
      *

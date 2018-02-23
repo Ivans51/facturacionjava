@@ -1,6 +1,8 @@
 package core.vo;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Servicios {
 
@@ -11,6 +13,8 @@ public class Servicios {
     private String tiempo_estimado;
     private int subservicio_idsubservicio;
     private int usuario_cedula;
+    private SubServicios subServicios;
+    /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
 
     public int getIdservicios() {
         return idservicios;
@@ -67,4 +71,20 @@ public class Servicios {
     public void setUsuario_cedula(int usuario_cedula) {
         this.usuario_cedula = usuario_cedula;
     }
+
+    public SubServicios getSubServicios() {
+        return subServicios;
+    }
+
+    public void setSubServicios(SubServicios subServicios) {
+        this.subServicios = subServicios;
+    }
+
+    /*public List<SubServicios> getSubServiciosList() {
+        return subServiciosList;
+    }
+
+    public void setSubServiciosList(List<SubServicios> subServiciosList) {
+        this.subServiciosList = subServiciosList;
+    }*/
 }

@@ -1,10 +1,15 @@
 package core.util;
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+
+import java.awt.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class PDFCreator {
 
@@ -12,12 +17,19 @@ public class PDFCreator {
     public int size = 16;
     public int style = Font.ITALIC;
     public BaseColor background = BaseColor.DARK_GRAY;
-    private String name, sub, title;
+    private String nameFile, sub, title;
     private Font fontTitle, fontSub;
+    private boolean openPDF = true;
+
+    public PDFCreator(String nameFile, String title, String sub) {
+        this.nameFile = nameFile;
+        this.title = title;
+        this.sub = sub;
+    }
 
     public void crearPDF(int numColumns, PDFTabla pdfTabla) throws FileNotFoundException, DocumentException {
         Document documento = new Document();
-        PdfWriter.getInstance(documento, new FileOutputStream(name));
+        PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
         documento.open();
         Paragraph title = new Paragraph(this.title, fontTitle);
         title.setPaddingTop(10);
@@ -34,20 +46,28 @@ public class PDFCreator {
         documento.add(tabla);
         documento.close();
         System.out.println("Hola");
+        openPDF();
+    }
+
+    private void openPDF() {
+        if (Desktop.isDesktopSupported() && openPDF) try {
+            File myFile = new File(this.nameFile);
+            Desktop.getDesktop().open(myFile);
+        } catch (IOException ex) {
+            System.out.println("No se pudo crear");
+        }
     }
 
     public void setFontTitle(Font.FontFamily family, int size, int style, BaseColor background) {
         fontTitle = new Font(family, size, style, background);
     }
 
-    public PDFCreator(String name, String title, String sub) {
-        this.name = name;
-        this.sub = sub;
-        this.title = title;
-    }
-
     public void setFontSub(Font.FontFamily family, int size, int style, BaseColor background) {
         fontSub = new Font(family, size, style, background);
+    }
+
+    public void setOpenPDF(boolean openPDF) {
+        this.openPDF = openPDF;
     }
 
     public interface PDFTabla {

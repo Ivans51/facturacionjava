@@ -53,7 +53,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         List<SubServicios> subServicios = subServiciosDAO.selectAll();
         String[] cargos = new String[subServicios.size()];
         for (int i = 0; i < subServicios.size(); i++)
-            cargos[i] = subServicios.get(i).getNombre();
+            cargos[i] = subServicios.get(i).getNombreSub();
         cSubservicio.setItems(FXCollections.observableArrayList(cargos));
         /*cSubservicio.valueProperty().addListener((observable, oldValue, newValue) -> {
             contratacion = contratacionDAO.selectByCargo(newValue.toString());

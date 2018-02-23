@@ -175,10 +175,10 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         List<SubServicios> subServiciosList = subServiciosDAO.selectAll();
         subServiciosList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdsubservicio()));
-            valuesReport.add(String.valueOf(it.getNombre()));
-            valuesReport.add(String.valueOf(it.getCosto()));
-            valuesReport.add(String.valueOf(it.getFecha()));
-            valuesReport.add(String.valueOf(it.getTiempo_estimado()));
+            valuesReport.add(String.valueOf(it.getNombreSub()));
+            valuesReport.add(String.valueOf(it.getPrecioSub()));
+            valuesReport.add(String.valueOf(it.getFechaSub()));
+            valuesReport.add(String.valueOf(it.getTiempo_estimadoSub()));
         });
         table.getListTable().addAll(subServiciosList);
     }

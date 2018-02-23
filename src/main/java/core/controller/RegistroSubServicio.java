@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 public class RegistroSubServicio extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public TextField jNombre, jPrecio, jTiempoE;
+    public TextField jNombreSub, jPrecio, jTiempoE;
     public JFXButton btnAgregar, btnLimpiar, btnEditar, btnEliminar, btnSalir;
     public TableView<SubServicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
@@ -57,19 +57,19 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
     }
 
     private void selectAllServicio() {
-        subServiciosList.forEach(it -> nombres.add(it.getNombre()));
+        subServiciosList.forEach(it -> nombres.add(it.getNombreSub()));
         subServiciosList = subServiciosDAO.selectAll();
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jTiempoE);
+            Validar.campoVacio(jNombreSub, jTiempoE);
             Validar.entradaNumerica(jPrecio, jTiempoE);
-            Validar.checkValor(jNombre.getText(), nombres);
+            Validar.checkValor(jNombreSub.getText(), nombres);
             int id = subServiciosDAO.insert(getServicios());
             table.getListTable().add(subServiciosDAO.selectById(count - 1));
             tableServicio.refresh();
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+            Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
@@ -78,15 +78,15 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
 
     public void actionEditar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jTiempoE);
+            Validar.campoVacio(jNombreSub, jTiempoE);
             Validar.entradaNumerica(jPrecio, jTiempoE);
-            Validar.checkValor(jNombre.getText(), nombres);
+            Validar.checkValor(jNombreSub.getText(), nombres);
             subServiciosDAO.update(getServicios());
             selectAllServicio();
             tableServicio.refresh();
             btnEditar.setDisable(false);
             btnAgregar.setDisable(true);
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+            Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
         } catch (ParseException | Myexception e) {
             new AlertUtil(Estado.ERROR, e.getMessage());
             e.printStackTrace();
@@ -96,10 +96,10 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
     private SubServicios getServicios() throws ParseException {
         // TODO: 2/13/2018 Delete
         subServicios.setIdsubservicio(count++);
-        subServicios.setNombre(jNombre.getText());
-        subServicios.setFecha(FechaUtil.getCurrentDate());
-        subServicios.setCosto(Double.valueOf(jPrecio.getText()));
-        subServicios.setTiempo_estimado(Integer.parseInt(jTiempoE.getText()));
+        subServicios.setNombreSub(jNombreSub.getText());
+        subServicios.setFechaSub(FechaUtil.getCurrentDate());
+        subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
+        subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
         return subServicios;
     }
 
@@ -108,7 +108,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             subServiciosDAO.delete(subServicios.getIdsubservicio());
             table.getListTable().remove(subServicios);
             tableServicio.refresh();
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+            Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }
@@ -119,16 +119,16 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         if (table.getModel() != null) {
             subServicios = table.getModel();
             btnEditar.setDisable(true);
-            jNombre.setText(subServicios.getNombre());
-            jPrecio.setText(String.valueOf(subServicios.getCosto()));
-            jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimado()));
+            jNombreSub.setText(subServicios.getNombreSub());
+            jPrecio.setText(String.valueOf(subServicios.getPrecioSub()));
+            jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimadoSub()));
             btnAgregar.setDisable(false);
         }
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+            Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }

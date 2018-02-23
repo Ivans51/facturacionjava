@@ -7,7 +7,7 @@
 
     <resultMap id="result" type="Servicios">
         <!-- property="atributo java" column="columna tabla" -->
-        <result property="idservicios" column="idservicios"/>
+        <result property="idservicios" column="idservicio"/>
         <result property="nombre" column="nombre"/>
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
@@ -15,15 +15,45 @@
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
+    <resultMap id="serviciosSub" type="Servicios">
+        <!-- property="atributo java" column="columna tabla" -->
+        <id property="idservicios" column="idservicio"/>
+        <result property="nombre" column="nombre"/>
+        <result property="precio" column="precio"/>
+        <result property="fecha" column="fecha"/>
+        <result property="tiempo_estimado" column="tiempo_estimado"/>
+        <result property="usuario_cedula" column="usuario_cedula"/>
+        <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
+        <association property="subServicios" resultMap="subServicioResult"/>
+        <!--<collection property="subServiciosList" ofType="SubServicios" resultMap="subServicioResult"
+                    columnPrefix="post_"/>-->
+    </resultMap>
+
+    <resultMap id="subServicioResult" type="SubServicios">
+        <!-- property="atributo java" column="columna tabla" -->
+        <id  property="idsubservicio" column="idsubservicios"/>
+        <result property="nombreSub" column="nombreSub"/>
+        <result property="precioSub" column="precioSub"/>
+        <result property="fechaSub" column="fechaSub"/>
+        <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
+    </resultMap>
+
     <select id="selectAll" resultMap="result">
         SELECT *
         FROM facturacion.servicios;
     </select>
 
+    <select id="selectJoinSub" parameterType="string" resultMap="serviciosSub">
+        SELECT a1.nombre, a1.precio, a1.fecha, a2.nombreSub, a2.fechaSub, a2.precioSub
+        FROM facturacion.servicios a1
+        INNER JOIN facturacion.serviciosub a2 ON a1.idservicio = a2.subservicio_idsubservicio
+        WHERE a1.nombre = #{nombre}
+    </select>
+
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
         FROM facturacion.servicios
-        WHERE idservicios = #{idservicios}
+        WHERE idservicio = #{idservicios}
     </select>
 
     <select id="selectAllNombres" parameterType="string" resultMap="result">
@@ -44,20 +74,19 @@
     </select>
 
     <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
-        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, subservicio_idsubservicio, usuario_cedula)
-        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{subservicio_idsubservicio}, #{usuario_cedula});
+        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado)
+        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado});
     </insert>
 
     <update id="update" parameterType="Servicios">
         UPDATE facturacion.servicios
         SET nombre = #{nombre}, precio = #{precio},
-            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado},
-            subservicio_idsubservicio = #{subservicio_idsubservicio}, usuario_cedula = #{usuario_cedula}
-        WHERE idservicios = #{idservicios}
+            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
+        WHERE idservicio = #{idservicios}
     </update>
 
     <delete id="delete" parameterType="int">
         DELETE FROM facturacion.servicios
-        WHERE idservicios = #{idservicios}
+        WHERE idservicio = #{idservicios}
     </delete>
 </mapper>
