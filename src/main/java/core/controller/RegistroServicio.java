@@ -28,7 +28,6 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public AnchorPane anchorPane;
     public TextField jNombre, jPrecio, jTiempoE;
-    public ComboBox<String> cSubservicio;
     public JFXButton btnAgregar, btnLimpiar, btnEditar, btnEliminar, btnSalir;
     public TableView<Servicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
@@ -44,20 +43,9 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setCombo();
         setTable();
+        if (serviciosList.size() > 0)
         idservicios = serviciosList.get(serviciosList.size() - 1).getIdservicios();
-    }
-
-    private void setCombo() {
-        List<SubServicios> subServicios = subServiciosDAO.selectAll();
-        String[] cargos = new String[subServicios.size()];
-        for (int i = 0; i < subServicios.size(); i++)
-            cargos[i] = subServicios.get(i).getNombreSub();
-        cSubservicio.setItems(FXCollections.observableArrayList(cargos));
-        /*cSubservicio.valueProperty().addListener((observable, oldValue, newValue) -> {
-            contratacion = contratacionDAO.selectByCargo(newValue.toString());
-        });*/
     }
 
     private void setTable() {
@@ -117,9 +105,6 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         servicios.setFecha(FechaUtil.getCurrentDate());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
-        servicios.setUsuario_cedula(Storage.getUsuario().getCedula());
-        int id = subServiciosDAO.selectByNombre(cSubservicio.getSelectionModel().getSelectedItem()).getIdsubservicio();
-        servicios.setSubservicio_idsubservicio(id);
         return servicios;
     }
 

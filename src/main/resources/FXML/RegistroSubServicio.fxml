@@ -3,6 +3,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="545.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.RegistroSubServicio">
+<AnchorPane fx:id="anchorPane" prefHeight="545.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.RegistroSubServicio">
     <stylesheets>
         <URL value="@../CSS/styles-label.css" />
         <URL value="@../CSS/styles-button.css" />
@@ -31,6 +32,8 @@
                 <TextField fx:id="jPrecio" />
                 <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado" />
                 <TextField fx:id="jTiempoE" />
+            <Label text="Servicio" />
+            <ComboBox fx:id="cServicio" prefWidth="150.0" />
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />

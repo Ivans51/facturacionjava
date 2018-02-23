@@ -12,7 +12,6 @@
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
         <result property="tiempo_estimado" column="tiempo_estimado"/>
-        <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
     <resultMap id="serviciosSub" type="Servicios">
@@ -22,8 +21,6 @@
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
         <result property="tiempo_estimado" column="tiempo_estimado"/>
-        <result property="usuario_cedula" column="usuario_cedula"/>
-        <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
         <association property="subServicios" resultMap="subServicioResult"/>
         <!--<collection property="subServiciosList" ofType="SubServicios" resultMap="subServicioResult"
                     columnPrefix="post_"/>-->
@@ -36,6 +33,8 @@
         <result property="precioSub" column="precioSub"/>
         <result property="fechaSub" column="fechaSub"/>
         <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
+        <result property="usuario_cedula" column="usuario_cedula"/>
+        <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">

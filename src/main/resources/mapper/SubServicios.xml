@@ -12,34 +12,9 @@
         <result property="precioSub" column="precioSub"/>
         <result property="fechaSub" column="fechaSub"/>
         <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
-    </resultMap>
-
-    <resultMap id="serviciosSub" type="Servicios">
-        <!-- property="atributo java" column="columna tabla" -->
-        <id property="idservicios" column="idservicio"/>
-        <result property="nombre" column="nombre"/>
-        <result property="precio" column="precio"/>
-        <result property="fecha" column="fecha"/>
-        <result property="tiempo_estimado" column="tiempo_estimado"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
         <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
     </resultMap>
-
-    <resultMap id="subServicioResult" type="SubServicios">
-        <!-- property="atributo java" column="columna tabla" -->
-        <id  property="idsubservicio" column="idsubservicios"/>
-        <result property="nombreSub" column="nombre"/>
-        <result property="precioSub" column="precio"/>
-        <result property="fechaSub" column="fecha"/>
-        <result property="tiempo_estimadoSub" column="tiempo_estimado"/>
-    </resultMap>
-
-    <!--<select id="selectJoinSub" parameterType="int" resultMap="serviciosSub">
-        SELECT a1.nombre, a1.precio, a1.fecha, a2.nombre, a2.fecha, a2.precio
-        FROM facturacion.servicios a1
-        INNER JOIN facturacion.serviciosub a2 ON a1.idsubservicio = a2.subservicio_idsubservicio
-        where a1.idservicio = #{}
-    </select>-->
 
     <select id="selectAll" resultMap="result">
         SELECT *
@@ -59,14 +34,15 @@
     </select>
 
     <insert id="insert" parameterType="SubServicios" useGeneratedKeys="true" keyProperty="idsubservicio">
-        INSERT INTO facturacion.serviciosub (idsubservicios, nombreSub, precioSub, fechaSub, tiempo_estimadoSub)
-        VALUES (#{idsubservicio}, #{nombreSub}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub});
+        INSERT INTO facturacion.serviciosub (idsubservicios, nombreSub, precioSub, fechaSub, tiempo_estimadoSub, usuario_cedula, subservicio_idsubservicio)
+        VALUES (#{idsubservicio}, #{nombreSub}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub}, #{usuario_cedula}, #{subservicio_idsubservicio});
     </insert>
 
     <update id="update" parameterType="SubServicios">
         UPDATE facturacion.serviciosub
         SET nombreSub = #{nombre}, precioSub = #{precio},
-            fechaSub = #{fecha}, tiempo_estimadoSub = #{tiempo_estimado}
+            fechaSub = #{fecha}, tiempo_estimadoSub = #{tiempo_estimado},
+            usuario_cedula = #{usuario_cedula}, subservicio_idsubservicio = #{subservicio_idsubservicio}
         WHERE idsubservicios = #{idsubservicio}
     </update>
 

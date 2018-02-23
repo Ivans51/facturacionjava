@@ -11,8 +11,6 @@ public class Servicios {
     private Double precio;
     private Date fecha;
     private String tiempo_estimado;
-    private int subservicio_idsubservicio;
-    private int usuario_cedula;
     private SubServicios subServicios;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
 
@@ -54,22 +52,6 @@ public class Servicios {
 
     public void setTiempo_estimado(String tiempo_estimado) {
         this.tiempo_estimado = tiempo_estimado;
-    }
-
-    public int getSubservicio_idsubservicio() {
-        return subservicio_idsubservicio;
-    }
-
-    public void setSubservicio_idsubservicio(int subservicio_idsubservicio) {
-        this.subservicio_idsubservicio = subservicio_idsubservicio;
-    }
-
-    public int getUsuario_cedula() {
-        return usuario_cedula;
-    }
-
-    public void setUsuario_cedula(int usuario_cedula) {
-        this.usuario_cedula = usuario_cedula;
     }
 
     public SubServicios getSubServicios() {

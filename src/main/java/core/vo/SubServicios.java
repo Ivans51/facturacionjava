@@ -9,6 +9,8 @@ public class SubServicios {
     private double precioSub;
     private Date fechaSub;
     private int tiempo_estimadoSub;
+    private int usuario_cedula;
+    private int subservicio_idsubservicio;
 
     public int getIdsubservicio() {
         return idsubservicio;
@@ -48,5 +50,21 @@ public class SubServicios {
 
     public void setTiempo_estimadoSub(int tiempo_estimadoSub) {
         this.tiempo_estimadoSub = tiempo_estimadoSub;
+    }
+
+    public int getUsuario_cedula() {
+        return usuario_cedula;
+    }
+
+    public void setUsuario_cedula(int usuario_cedula) {
+        this.usuario_cedula = usuario_cedula;
+    }
+
+    public int getSubservicio_idsubservicio() {
+        return subservicio_idsubservicio;
+    }
+
+    public void setSubservicio_idsubservicio(int subservicio_idsubservicio) {
+        this.subservicio_idsubservicio = subservicio_idsubservicio;
     }
 }
