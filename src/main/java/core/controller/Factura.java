@@ -58,15 +58,12 @@ public class Factura extends ManagerFXML implements Initializable {
             List<Servicios> list = serviciosDAO.selectJoinSub(newValue);
             if (list.size() > 0) {
                 setStatusSubServicio();
-                setComboSubServicio(newValue, list);
-            } else {
-                setStatusSubServicio();
-                setValorProductoInicial(newValue, servicios);
+                setComboSubServicio(list);
             }
         });
     }
 
-    private void setComboSubServicio(String newValue, List<Servicios> list) {
+    private void setComboSubServicio(List<Servicios> list) {
         List<String> nombresSub = new ArrayList<>();
         list.forEach(serv -> nombresSub.add(serv.getSubServicios().getNombreSub()));
         cSubServicio.getItems().addAll(nombresSub);
@@ -85,43 +82,54 @@ public class Factura extends ManagerFXML implements Initializable {
         lblSub.setVisible(!lblSub.isVisible());
     }
 
-    private void setValorProductoInicial(String newValue, List<Servicios> list) {
-        Servicios servicios = serviciosDAO.selectByNombre(newValue);
-        if (servicios != null) {
-            jPrecio.setText(String.valueOf(servicios.getPrecio()));
-            jFecha.setText(FechaUtil.getDateFormat(servicios.getFecha()));
+    public void actionAgregar(ActionEvent actionEvent) {
+        String item = cSubServicio.getSelectionModel().getSelectedItem();
+        if (item != null && !"".equals(item)) {
+            setComboAgregados(item);
+            setTotal(item);
+            limpiar();
+        } else {
+            new AlertUtil(Estado.ERROR, "Selecciona un servicio y subservicio");
         }
     }
 
-    public void actionAgregar(ActionEvent actionEvent) {
-        setComboAgregados();
-        setTotal();
-    }
-
-    private void setComboAgregados() {
-        cServiciosAgregados.getItems().add(cServicios.getSelectionModel().getSelectedItem());
+    private void setComboAgregados(String item) {
+        cServiciosAgregados.getItems().add(item);
         cServiciosAgregados.valueProperty().addListener((observable, oldValue, newValue) -> {
-            Servicios servicios = serviciosDAO.selectAllNombres(newValue);
+            SubServicios servicios = subServiciosDAO.selectByNombre(newValue);
             if (servicios != null) {
-                lblFecha.setText(servicios.getTiempo_estimado());
-                lblPrecio.setText(String.valueOf(servicios.getPrecio()));
+                lblFecha.setText(String.valueOf(servicios.getTiempo_estimadoSub()));
+                lblPrecio.setText(String.valueOf(servicios.getPrecioSub()));
                 lblTotal.setText(String.valueOf(totalPagar));
             }
         });
     }
 
-    private void setTotal() {
-        Servicios serv = serviciosDAO.selectAllNombres(cServicios.getSelectionModel().getSelectedItem());
-        totalArt.put(serv.getNombre(), String.valueOf(serv.getPrecio()));
-        totalArt.forEach((key, value) -> totalPagar += Double.valueOf(value));
+    private void setTotal(String item) {
+        SubServicios serv = subServiciosDAO.selectByNombre(item);
+        totalArt.put(serv.getNombreSub(), String.valueOf(serv.getPrecioSub()));
+        totalPagar += serv.getPrecioSub();
+        lblTotal.setText(String.valueOf(totalPagar));
+    }
+
+    private void limpiar() {
+        jPrecio.setText("");
+        jFecha.setText("");
+        cServicios.getSelectionModel().clearSelection();
+        setStatusSubServicio();
     }
 
     public void borrarItem(ActionEvent actionEvent) {
-        String item = cServicios.getSelectionModel().getSelectedItem();
-        cServiciosAgregados.getSelectionModel().clearSelection();
-        cServiciosAgregados.getItems().remove(item);
-        Servicios serv = serviciosDAO.selectAllNombres(item);
-        totalPagar -= serv.getPrecio();
+        String item = cServiciosAgregados.getSelectionModel().getSelectedItem();
+        if (item != null && !"".equals(item)) {
+            cServiciosAgregados.getSelectionModel().clearSelection();
+            cServiciosAgregados.getItems().remove(item);
+            totalArt.remove(item);
+            totalPagar -= subServiciosDAO.selectByNombre(item).getPrecioSub();
+            lblFecha.setText("");
+            lblPrecio.setText("");
+            lblTotal.setText(String.valueOf(totalPagar));
+        }
     }
 
     public void actionBuscar(ActionEvent actionEvent) {

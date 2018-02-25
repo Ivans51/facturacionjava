@@ -32,7 +32,7 @@ CREATE TABLE `auditoria` (
   PRIMARY KEY (`idauditoria`,`usuario_cedula`),
   KEY `fk_auditoria_usuario_idx` (`usuario_cedula`),
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_cedula`) REFERENCES `usuario` (`cedula`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,7 @@ CREATE TABLE `auditoria` (
 
 LOCK TABLES `auditoria` WRITE;
 /*!40000 ALTER TABLE `auditoria` DISABLE KEYS */;
-INSERT INTO `auditoria` VALUES (88,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(89,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(90,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(91,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(92,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(93,'2018-02-23',NULL,'Registro usuario admin','admin',2345678),(94,'2018-02-24',NULL,'Registro usuario admin','admin',2345678),(95,'2018-02-24',NULL,'Registro usuario admin','admin',2345678),(96,'2018-02-24',NULL,'Registro usuario admin','admin',2345678),(97,'2018-02-24',NULL,'Registro usuario admin','admin',2345678);
+INSERT INTO `auditoria` VALUES (88,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(89,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(90,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(91,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(92,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(93,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(94,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(95,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(96,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(97,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(98,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(99,'2018-02-25',NULL,'Registro usuario admin','admin',1234),(100,'2018-02-25',NULL,'Registro usuario admin','admin',1234);
 /*!40000 ALTER TABLE `auditoria` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,6 +59,7 @@ CREATE TABLE `cliente` (
   `direccion` varchar(45) DEFAULT NULL,
   `telefono` varchar(45) DEFAULT NULL,
   `usuario_cedula` int(11) NOT NULL,
+  `nacionalidad` text,
   PRIMARY KEY (`cedula`,`usuario_cedula`),
   KEY `fk_cliente_usuario1_idx` (`usuario_cedula`),
   CONSTRAINT `fk_cliente_usuario1` FOREIGN KEY (`usuario_cedula`) REFERENCES `usuario` (`cedula`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -71,7 +72,7 @@ CREATE TABLE `cliente` (
 
 LOCK TABLES `cliente` WRITE;
 /*!40000 ALTER TABLE `cliente` DISABLE KEYS */;
-INSERT INTO `cliente` VALUES (1234,'Pepito','Rodriguez','Maracya','12343',2345678);
+INSERT INTO `cliente` VALUES (123,'Ivans','del pino','marcay','23123',1234,'V'),(1234,'Pedro','dlkfj','Maracay','12321',1234,NULL);
 /*!40000 ALTER TABLE `cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,9 +150,10 @@ CREATE TABLE `servicios` (
   `precio` double DEFAULT NULL,
   `fecha` date DEFAULT NULL,
   `tiempo_estimado` int(45) DEFAULT NULL,
+  `estado` text,
   PRIMARY KEY (`idservicio`),
   UNIQUE KEY `nombre_UNIQUE` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +162,7 @@ CREATE TABLE `servicios` (
 
 LOCK TABLES `servicios` WRITE;
 /*!40000 ALTER TABLE `servicios` DISABLE KEYS */;
-INSERT INTO `servicios` VALUES (1,'Carro',20,'2018-02-23',12);
+INSERT INTO `servicios` VALUES (1,'Carro',14,'2018-02-25',15,NULL),(2,'Camioneta',12,'2018-02-25',4,'1'),(3,'Moto',12,'2018-02-25',32,NULL),(4,'Prada',12,'2018-02-25',42,NULL);
 /*!40000 ALTER TABLE `servicios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,6 +179,7 @@ CREATE TABLE `serviciosub` (
   `precioSub` double DEFAULT NULL,
   `fechaSub` date DEFAULT NULL,
   `tiempo_estimadoSub` varchar(45) DEFAULT NULL,
+  `estado` text,
   `usuario_cedula` int(11) NOT NULL,
   `subservicio_idsubservicio` int(11) NOT NULL,
   PRIMARY KEY (`idsubservicios`,`usuario_cedula`,`subservicio_idsubservicio`),
@@ -185,7 +188,7 @@ CREATE TABLE `serviciosub` (
   KEY `fk_serviciosub_servicios1_idx` (`subservicio_idsubservicio`),
   CONSTRAINT `fk_servicios_usuario1` FOREIGN KEY (`usuario_cedula`) REFERENCES `usuario` (`cedula`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_serviciosub_servicios1` FOREIGN KEY (`subservicio_idsubservicio`) REFERENCES `servicios` (`idservicio`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,7 +197,7 @@ CREATE TABLE `serviciosub` (
 
 LOCK TABLES `serviciosub` WRITE;
 /*!40000 ALTER TABLE `serviciosub` DISABLE KEYS */;
-INSERT INTO `serviciosub` VALUES (5,'Aire',20,'2018-02-23','12',2345678,1);
+INSERT INTO `serviciosub` VALUES (1,'Default',0,'2018-02-24','0','1',1234,1),(5,'Ventana',14,'2018-02-25','115',NULL,1234,1),(6,'Pared',12,'2018-02-25','12',NULL,1234,1),(7,'Prada',12,'2018-02-25','42',NULL,1234,4),(8,'Techo',15,'2018-02-25','20',NULL,1234,4),(9,'Ventilador',12,'2018-02-25','19',NULL,1234,1),(10,'Cajon',12,'2018-02-25','23',NULL,1234,2),(11,'Taurus',13,'2018-02-25','2',NULL,1234,3);
 /*!40000 ALTER TABLE `serviciosub` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -207,6 +210,7 @@ DROP TABLE IF EXISTS `usuario`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `usuario` (
   `cedula` int(11) NOT NULL,
+  `nacionalidad` text,
   `nombre` varchar(45) DEFAULT NULL,
   `clave` varchar(45) DEFAULT NULL,
   `correo` varchar(45) DEFAULT NULL,
@@ -222,7 +226,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (2345678,'admin','1234','desarrollo.theroom@gmail.com','2018-02-22','Administrador');
+INSERT INTO `usuario` VALUES (1234,'V','admin','1234','desarrollo.theroom@gmail.com','2018-02-24','Administrador'),(12345,'V','Ivans',NULL,'Ivans@mail.com','2018-02-25','Administrador');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -235,4 +239,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-02-24 18:03:03
+-- Dump completed on 2018-02-25 18:48:16

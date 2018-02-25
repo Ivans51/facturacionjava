@@ -66,7 +66,7 @@
                         <HBox spacing="10.0">
                             <children>
                                 <Label text="Fecha Entrega" />
-                                <Label fx:id="lblFecha" text="Label">
+                                <Label fx:id="lblFecha" text="">
                                     <HBox.margin>
                                         <Insets />
                                     </HBox.margin>
@@ -76,13 +76,13 @@
                         <HBox layoutX="20.0" layoutY="200.0" spacing="10.0">
                             <children>
                                 <Label text="Precio Servicio" />
-                                <Label fx:id="lblPrecio" text="Label" />
+                                <Label fx:id="lblPrecio" text="" />
                             </children>
                         </HBox>
                         <HBox layoutX="20.0" layoutY="310.0" spacing="10.0">
                             <children>
                                 <Label text="Precio Total" />
-                                <Label fx:id="lblTotal" text="Label">
+                                <Label fx:id="lblTotal" text="">
                                     <HBox.margin>
                                         <Insets left="20.0" />
                                     </HBox.margin>

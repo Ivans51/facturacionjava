@@ -30,8 +30,6 @@
             <Label layoutX="25.0" layoutY="130.0" text="Dirección" />
             <TextField fx:id="jDireccion" />
             <Label layoutX="25.0" layoutY="165.0" text="Nombre Ciudad" />
-            <TextField fx:id="jNombreCiudad" />
-            <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                <children>
                   <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
                   <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />

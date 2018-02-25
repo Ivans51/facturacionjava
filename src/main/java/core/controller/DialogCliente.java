@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
 
 public class DialogCliente extends ManagerFXML implements Initializable {
 
-    public TextField jCedula, jNombre, jApellido, jDireccion, jNombreCiudad, jTelefono;
+    public TextField jCedula, jNombre, jApellido, jDireccion, jTelefono;
     public JFXButton btnAgregar, btnLimpiar, btnSalir;
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private Label lblNombre, lblCiudad, lblTelefono;
@@ -36,7 +36,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
+            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion);
             Validar.isNumber(jCedula, jTelefono);
             Validar.isLetter(jNombre.getText(), jApellido.getText());
             clienteDAO.insert(getClienteSeleccion());
@@ -44,7 +44,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
                 cerrarStage(lblClose);
                 cerrarStage(btnAgregar);
                 lblNombre.setText(jNombre.getText());
-                lblCiudad.setText(jNombreCiudad.getText());
+                lblCiudad.setText(jDireccion.getText());
                 lblTelefono.setText(jTelefono.getText());
             });
         } catch (Myexception myexception) {
@@ -66,7 +66,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            Validar.limmpiarCampos(jCedula, jNombre, jApellido, jTelefono, jDireccion, jNombreCiudad);
+            Validar.limmpiarCampos(jNombre, jApellido, jTelefono, jDireccion);
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }

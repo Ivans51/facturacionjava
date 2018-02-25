@@ -89,6 +89,7 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
                 stateViewEdit(false);
             }
             tableUsuario.refresh();
+            cNacionalidad.getSelectionModel().clearSelection();
             Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
         } catch (ParseException | Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
@@ -143,6 +144,7 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
             Validar.limmpiarCampos(jNombre, jClave, jCorreo);
+            cNacionalidad.getSelectionModel().clearSelection();
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }

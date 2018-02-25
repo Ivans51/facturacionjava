@@ -91,6 +91,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             }
             tableServicio.refresh();
             Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
+            cServicio.getSelectionModel().clearSelection();
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
@@ -102,10 +103,11 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         subServicios.setIdsubservicio(this.subServicios.getIdsubservicio());
         subServicios.setEstado(this.subServicios.isEstado() == 0 ? 1 : 0);
         subServiciosDAO.updateEstado(subServicios);
-        new AlertUtil(Estado.ERROR, "Se guardo el cambio", null);
         btnDesactivar.setText(subServicios.isEstado() == 1 ? "Desactivar" : "Activar");
+        cServicio.getSelectionModel().clearSelection();
         selectAllServicio();
         tableServicio.refresh();
+        new AlertUtil(Estado.ERROR, "Se guardo el cambio", null);
     }
 
     private SubServicios getSubServicios() throws ParseException {
@@ -127,7 +129,8 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             jPrecio.setText(String.valueOf(subServicios.getPrecioSub()));
             jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimadoSub()));
             btnDesactivar.setText(subServicios.isEstado() == 1 ? "Desactivar" : "Activar");
-            cServicio.getSelectionModel().select(subServicios.getNombreSub());
+            Servicios servicios = serviciosDAO.selectByNombre(subServicios.getNombreSub());
+            cServicio.getSelectionModel().select(servicios.getNombre());
             stateViewEdit(true);
         }
     }
@@ -143,6 +146,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         try {
             if (stateEdit) stateViewEdit(false);
             Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
+            cServicio.getSelectionModel().clearSelection();
         } catch (Myexception myexception) {
             myexception.printStackTrace();
         }
