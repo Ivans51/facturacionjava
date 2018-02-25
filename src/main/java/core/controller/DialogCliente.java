@@ -13,7 +13,7 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ClienteDialog extends ManagerFXML implements Initializable {
+public class DialogCliente extends ManagerFXML implements Initializable {
 
     public TextField jCedula, jNombre, jApellido, jDireccion, jNombreCiudad, jTelefono;
     public JFXButton btnAgregar, btnLimpiar, btnSalir;
@@ -37,7 +37,7 @@ public class ClienteDialog extends ManagerFXML implements Initializable {
     public void actionAgregar(ActionEvent actionEvent) {
         try {
             Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion, jNombreCiudad);
-            Validar.entradaNumerica(jCedula, jTelefono);
+            Validar.isNumber(jCedula, jTelefono);
             Validar.isLetter(jNombre.getText(), jApellido.getText());
             clienteDAO.insert(getClienteSeleccion());
             new AlertUtil(Estado.EXITOSA, "Cliente registrado", lblClose -> {

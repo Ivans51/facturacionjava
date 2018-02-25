@@ -4,51 +4,56 @@ import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.UsuarioDAO;
 import core.util.*;
-import core.vo.Servicios;
 import core.vo.Usuario;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class RegistroUsuario extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
-    public TextField jNombre, jClave, jCorreo, jCedula;
-    public JFXButton btnAgregar, btnLimpiar, btnSalir,btnEditar, btnEliminar;
+    public TextField jNombre, jCorreo, jCedula;
+    public PasswordField jClave;
+    public JFXButton btnAgregar, btnLimpiar, btnSalir, btnEditar;
     public AnchorPane anchorPane;
     public TableView<Usuario> tableUsuario;
-    public TableColumn tbCedula, tbNombre, tbFecha, tbStatus;
-    public ComboBox cNivel;
+    public TableColumn tbNacionalidad, tbCedula, tbNombre, tbFecha, tbStatus;
+    public ComboBox<String> cNivel;
+    public ComboBox<String> cNacionalidad;
 
+    private String[] niveles = {"Usuario", "Administrador", "Gerente"};
+    private String[] nacionalidades = {"V", "E"};
     private TableUtil<Usuario, String> table;
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
     private List<Usuario> usuarios = new ArrayList<>();
     private List<String> cedulas = new ArrayList<>();
+    private List<String> correos = new ArrayList<>();
+    private List<String> nombres = new ArrayList<>();
     private Usuario usuario;
-    private String[] columS = {"Cedula", "Nombre", "Fecha", "Status"};
+    private String[] columS = {"Nacionalidad", "Cedula", "Nombre", "Fecha", "Status"};
+    private boolean stateEdit = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnEditar.setDisable(false);
+        cNivel.getItems().addAll(niveles);
+        cNacionalidad.getItems().addAll(nacionalidades);
         setTable();
     }
 
     private void setTable() {
         tableUsuario.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Usuario.class, tableUsuario);
-        table.inicializarTabla(columS, tbCedula, tbNombre, tbFecha, tbStatus);
+        table.inicializarTabla(columS, tbNacionalidad, tbCedula, tbNombre, tbFecha, tbStatus);
 
         final ObservableList<Usuario> tablaSelecionada = tableUsuario.getSelectionModel().getSelectedItems();
         tablaSelecionada.addListener((ListChangeListener<Usuario>) c -> table.seleccionarTabla(this));
@@ -60,56 +65,56 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     private void selectAllUsuario() {
         usuarios = usuarioDAO.selectAll();
         usuarios.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
+        usuarios.forEach(it -> nombres.add(it.getNombre()));
+        usuarios.forEach(it -> correos.add(it.getCorreo()));
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
             Validar.campoVacio(jNombre, jCorreo, jClave);
-            Validar.checkValor(jCedula.getText(), cedulas);
-            // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
-            Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
-            table.getListTable().add(usuario );
+            Validar.isNumber(jCedula);
+            String nac = cNacionalidad.getSelectionModel().getSelectedItem();
+            String nivel = cNivel.getSelectionModel().getSelectedItem();
+            Validar.stringVacio(nac, nivel);
+            if (!stateEdit) {
+                Validar.checkValor(jCedula.getText(), cedulas, "cédula");
+                Validar.checkValor(jCorreo.getText(), correos, "correo");
+                Validar.checkValor(jNombre.getText(), nombres, "nombre");
+                usuarioDAO.insert(getUsuarioSelect());
+                Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
+                table.getListTable().add(usuario);
+            } else {
+                usuarioDAO.update(getUsuarioSelect());
+                selectAllUsuario();
+                stateViewEdit(false);
+            }
             tableUsuario.refresh();
             Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
-        } catch (Myexception myexception) {
+        } catch (ParseException | Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
         }
     }
 
-    public void actionEditar(ActionEvent actionEvent) {
-        try {
-            Validar.campoVacio(jNombre, jCorreo, jClave);
-            usuarioDAO.update(getUsuarioSelect());
-            selectAllUsuario();
-            tableUsuario.refresh();
-            btnEditar.setDisable(false);
-            btnAgregar.setDisable(true);
-            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
-        } catch (ParseException | Myexception e) {
-            new AlertUtil(Estado.ERROR, e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     private Usuario getUsuarioSelect() throws ParseException {
+        usuario = new Usuario();
+        if (!stateEdit) usuario.setCedula(Integer.parseInt(jCedula.getText()));
+        usuario.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
         usuario.setNombre(jNombre.getText());
-        usuario.setCedula(Integer.parseInt(jCedula.getText()));
         usuario.setClave(jClave.getText());
         usuario.setCorreo(jCorreo.getText());
         usuario.setFecha(FechaUtil.getCurrentDate());
-        usuario.setStatus(cNivel.getSelectionModel().getSelectedItem().toString());
+        usuario.setStatus(cNivel.getSelectionModel().getSelectedItem());
         return usuario;
     }
 
-    public void actionEliminar(ActionEvent actionEvent) {
+    public void actionEditar(ActionEvent actionEvent) {
         try {
-            usuarioDAO.delete(usuario.getCedula());
-            table.getListTable().remove(usuario);
-            tableUsuario.refresh();
-            Validar.limmpiarCampos(jNombre, jClave, jCorreo);
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
+            stateViewEdit(false);
+            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
+        } catch (Myexception e) {
+            new AlertUtil(Estado.ERROR, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -117,12 +122,22 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     public void setStatusControls() {
         if (table.getModel() != null) {
             usuario = table.getModel();
-            btnEditar.setDisable(true);
+            jCedula.setText(String.valueOf(usuario.getCedula()));
             jNombre.setText(usuario.getNombre());
-            jClave.setText("*****");
-            jCorreo.setText(usuario.getClave());
-            btnAgregar.setDisable(false);
+            jClave.setText(usuario.getClave());
+            jCorreo.setText(usuario.getCorreo());
+            cNacionalidad.getSelectionModel().select(usuario.getNacionalidad());
+            stateViewEdit(true);
         }
+    }
+
+    private void stateViewEdit(boolean value) {
+        stateEdit = value;
+        btnEditar.setVisible(value);
+        jNombre.setDisable(value);
+        jCedula.setDisable(value);
+        cNacionalidad.setDisable(value);
+        btnAgregar.setText(value ? "Editar" : "Agregar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {

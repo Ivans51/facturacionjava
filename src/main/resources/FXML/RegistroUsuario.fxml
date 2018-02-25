@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -26,19 +27,34 @@
                         <Label text="Registro de Usuario" />
                     </children>
                 </HBox>
-                <Label layoutX="25.0" layoutY="25.0" text="Cedula" />
-                <TextField fx:id="jCedula" />
+            <HBox layoutX="25.0" layoutY="25.0" spacing="20.0">
+               <children>
+                  <VBox>
+                     <children>
+                        <Label text="Nac." />
+                        <ComboBox fx:id="cNacionalidad" />
+                     </children>
+                  </VBox>
+                  <VBox HBox.hgrow="ALWAYS">
+                     <children>
+                            <Label text="Cedula" />
+                            <TextField fx:id="jCedula" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
                 <Label layoutX="25.0" layoutY="25.0" text="Nombre" />
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="60.0" text="Clave" />
-                <TextField fx:id="jClave" />
+                <PasswordField fx:id="jClave" />
                 <Label layoutX="25.0" layoutY="60.0" text="Correo" />
                 <TextField fx:id="jCorreo" />
                 <Label layoutX="25.0" layoutY="95.0" text="Nivel" />
-            <ComboBox fx:id="cNivel" prefWidth="150.0" />
+                <ComboBox fx:id="cNivel" prefWidth="150.0" />
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
+                        <JFXButton fx:id="btnEditar" onAction="#actionEditar" text="Cancel E" visible="false"/>
                         <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />
                     </children>
                     <padding>
@@ -65,17 +81,16 @@
                 </HBox>
                 <TableView fx:id="tableUsuario" prefHeight="406.0" prefWidth="608.0">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="Cedula" fx:id="tbCedula"/>
-                        <TableColumn prefWidth="75.0" text="Nombre" fx:id="tbNombre"/>
-                        <TableColumn prefWidth="75.0" text="Fecha" fx:id="tbFecha"/>
-                        <TableColumn prefWidth="75.0" text="Status" fx:id="tbStatus"/>
+                        <TableColumn fx:id="tbNacionalidad" prefWidth="75.0" text="Nacionalidad" />
+                        <TableColumn fx:id="tbCedula" prefWidth="75.0" text="Cedula" />
+                        <TableColumn fx:id="tbNombre" prefWidth="75.0" text="Nombre" />
+                        <TableColumn fx:id="tbFecha" prefWidth="75.0" text="Fecha" />
+                        <TableColumn fx:id="tbStatus" prefWidth="75.0" text="Status" />
                     </columns>
                 </TableView>
-                <HBox fx:id="btnSalir" alignment="BOTTOM_RIGHT" onDragDetected="#actionSalir" spacing="15.0" VBox.vgrow="ALWAYS">
+                <HBox alignment="BOTTOM_RIGHT" onDragDetected="#actionSalir" spacing="15.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <JFXButton fx:id="btnEditar" onAction="#actionEditar" text="Editar" />
-                        <JFXButton fx:id="btnEliminar" onAction="#actionEliminar" text="Eliminar" />
-                        <JFXButton text="Salir" />
+                        <JFXButton fx:id="btnSalir" text="Salir" />
                     </children>
                     <VBox.margin>
                         <Insets />

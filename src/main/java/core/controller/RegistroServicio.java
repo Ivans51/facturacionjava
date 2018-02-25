@@ -7,12 +7,10 @@ import core.dao.SubServiciosDAO;
 import core.util.*;
 import core.vo.Servicios;
 import core.vo.SubServicios;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -28,7 +26,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public AnchorPane anchorPane;
     public TextField jNombre, jPrecio, jTiempoE;
-    public JFXButton btnAgregar, btnLimpiar, btnEditar, btnEliminar, btnSalir;
+    public JFXButton btnAgregar, btnLimpiar, btnDesactivar, btnSalir;
     public TableView<Servicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
 
@@ -39,19 +37,17 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     private String[] columS = {"nombre", "precio", "fecha", "tiempo_estimado"};
     private List<Servicios> serviciosList = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
-    private int idservicios;
+    private boolean stateEdit = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setTable();
-        if (serviciosList.size() > 0)
-        idservicios = serviciosList.get(serviciosList.size() - 1).getIdservicios();
     }
 
     private void setTable() {
         // To adjust widt column
         tableServicio.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        btnEditar.setDisable(false);
+        btnDesactivar.setDisable(false);
         table = new TableUtil(Servicios.class, tableServicio);
         table.inicializarTabla(columS, tbNombre, tbPrecio, tbFecha, tbTiempoE);
 
@@ -69,12 +65,19 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jTiempoE);
-            Validar.entradaNumerica(jPrecio, jTiempoE);
-            Validar.checkValor(jNombre.getText(), nombres);
-            // Validar.isLetterOptimo(jNombre.getText(), jApellido.getText());
-            serviciosDAO.insert(getServicios());
-            table.getListTable().add(serviciosDAO.selectById(++idservicios));
+            Validar.campoVacio(jNombre, jPrecio, jTiempoE);
+            Validar.isNumber(jPrecio, jTiempoE);
+            if (!stateEdit) {
+                Validar.checkValor(jNombre.getText(), nombres, "nombre");
+                serviciosDAO.insert(getServicios());
+                subServiciosDAO.insert(getSubServicios(serviciosDAO.selectLastID().getIdservicios()));
+                int id = serviciosDAO.selectLastID().getIdservicios();
+                table.getListTable().add(serviciosDAO.selectById(id));
+            } else {
+                serviciosDAO.update(getServicios());
+                selectAllServicio();
+                stateViewEdit(false);
+            }
             tableServicio.refresh();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
@@ -83,56 +86,57 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         }
     }
 
-    public void actionEditar(ActionEvent actionEvent) {
-        try {
-            Validar.campoVacio(jNombre, jTiempoE);
-            Validar.entradaNumerica(jPrecio, jTiempoE);
-            Validar.checkValor(jNombre.getText(), nombres);
-            serviciosDAO.update(getServicios());
-            selectAllServicio();
-            tableServicio.refresh();
-            btnEditar.setDisable(false);
-            btnAgregar.setDisable(true);
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
-        } catch (ParseException | Myexception e) {
-            new AlertUtil(Estado.ERROR, e.getMessage());
-            e.printStackTrace();
-        }
+    private SubServicios getSubServicios(int idservicios) throws ParseException {
+        SubServicios subServicios = new SubServicios();
+        subServicios.setNombreSub(jNombre.getText());
+        subServicios.setFechaSub(FechaUtil.getCurrentDate());
+        subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
+        subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
+        subServicios.setUsuario_cedula(Storage.getUsuario().getCedula());
+        subServicios.setSubservicio_idsubservicio(idservicios);
+        return subServicios;
+    }
+
+    public void actionDesactivar(ActionEvent actionEvent) {
+        Servicios servicios = new Servicios();
+        servicios.setIdservicios(this.servicios.getIdservicios());
+        servicios.setEstado(this.servicios.isEstado() == 0 ? 1 : 0);
+        serviciosDAO.updateEstado(servicios);
+        new AlertUtil(Estado.ERROR, "Se guardo el cambio");
+        btnDesactivar.setText(servicios.isEstado() == 1 ? "Desactivar" : "Activar");
     }
 
     private Servicios getServicios() throws ParseException {
-        servicios.setNombre(jNombre.getText());
+        if (!stateEdit) servicios.setNombre(jNombre.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         return servicios;
     }
 
-    public void actionEliminar(ActionEvent actionEvent) {
-        try {
-            serviciosDAO.delete(servicios.getIdservicios());
-            table.getListTable().remove(servicios);
-            tableServicio.refresh();
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
-        }
-    }
-
     @Override
     public void setStatusControls() {
         if (table.getModel() != null) {
             servicios = table.getModel();
-            btnEditar.setDisable(true);
             jNombre.setText(servicios.getNombre());
             jPrecio.setText(String.valueOf(servicios.getPrecio()));
             jTiempoE.setText(servicios.getTiempo_estimado());
-            btnAgregar.setDisable(false);
+            btnDesactivar.setText(servicios.isEstado() == 1 ? "Desactivar" : "Activar");
+            stateViewEdit(true);
         }
+    }
+
+    private void stateViewEdit(boolean value) {
+        stateEdit = value;
+        btnDesactivar.setVisible(value);
+        jNombre.setDisable(value);
+        btnAgregar.setText(value ? "Editar" : "Agregar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
+            if (servicios.isEstado() == 1)
+                stateViewEdit(false);
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception myexception) {
             myexception.printStackTrace();

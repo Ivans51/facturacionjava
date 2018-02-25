@@ -13,23 +13,24 @@ import java.util.List;
  */
 public class Validar {
 
-    public static boolean campoVacio(TextField... txt) throws Myexception {
-        boolean esValido = true;
-        for (int i = 0; i < txt.length; i++) {
-            if (txt[i].getText() == null || txt[i].getText().trim().isEmpty()) {
-                esValido = false;
-            }
+    public static void campoVacio(TextField... txt) throws Myexception {
+        for (TextField aTxt : txt) {
+            if (aTxt.getText() == null || aTxt.getText().trim().isEmpty())
+                throw new Myexception("Campo Vacío");
         }
-        if (esValido)
-            return esValido;
-        else
-            throw new Myexception("Campo Vacío");
     }
 
-    public static void checkValor(String entrada, List<String> list) throws Myexception {
+    public static void stringVacio(String... txt) throws Myexception {
+        for (String aTxt : txt) {
+            if (aTxt == null || aTxt.trim().isEmpty())
+                throw new Myexception("Campo Vacío");
+        }
+    }
+
+    public static void checkValor(String entrada, List<String> list, String value) throws Myexception {
         for (String i : list) {
             if (entrada.equals(i))
-                throw new Myexception("Ingreso un nombre único de servicio");
+                throw new Myexception("Valor duplicado para el " + value);
         }
     }
 
@@ -193,9 +194,9 @@ public class Validar {
         });
     }
 
-    public static void isNumber(String... number) throws Myexception {
-        for (String s : number) {
-            if (!s.matches("\\d+(\\.\\d{1,4})?")) {
+    public static void isNumber(TextInputControl... number) throws Myexception {
+        for (TextInputControl s : number) {
+            if (!s.getText().matches("\\d+(\\.\\d{1,4})?")) {
                 throw new Myexception("El campo no puede contener texto");
             }
         }

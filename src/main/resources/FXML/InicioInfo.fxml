@@ -25,7 +25,7 @@
          <image>
             <Image url="@../images/car-on-the-road-icon-flat-.png" />
          </image></ImageView>
-      <JFXButton layoutX="850.0" layoutY="495.0" text="Ayuda">
+      <JFXButton layoutX="850.0" layoutY="495.0" text="Ayuda" fx:id="btnAyuda" onAction="#actionAyuda">
          <styleClass>
             <String fx:value="button-bold" />
             <String fx:value="button-black" />

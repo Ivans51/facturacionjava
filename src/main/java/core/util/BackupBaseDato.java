@@ -22,20 +22,20 @@ public class BackupBaseDato {
         this.cls = cls;
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         BackupBaseDato backupBaseDato = new BackupBaseDato("rrhh", "Oscar", "123", BackupBaseDato.class);
         //backupBaseDato.backupdbtosql();
         backupBaseDato.restore();
-    }
+    }*/
 
     public void backupdbtosql() {
         try {
             Process p = Runtime
                     .getRuntime()
-                    .exec("C:\\xampp\\mysql\\bin\\mysqldump -u Oscar -p123 rrhh");
+                    .exec("C:\\xampp\\mysql\\bin\\mysqldump -u root facturacion");
 
             InputStream is = p.getInputStream();
-            FileOutputStream fos = new FileOutputStream("rrhh.sql");
+            FileOutputStream fos = new FileOutputStream("facturacion.sql");
             byte[] buffer = new byte[1000];
 
             int leido = is.read(buffer);
@@ -55,10 +55,10 @@ public class BackupBaseDato {
         try {
             Process p = Runtime
                     .getRuntime()
-                    .exec("C:\\xampp\\mysql\\bin\\mysql -u Oscar -p 123 rrhh");
+                    .exec("C:\\xampp\\mysql\\bin\\mysql -u root -p facturacion");
 
             OutputStream os = p.getOutputStream();
-            FileInputStream fis = new FileInputStream("rrhh.sql");
+            FileInputStream fis = new FileInputStream("facturacionOne.sql");
             byte[] buffer = new byte[1000];
 
             int leido = fis.read(buffer);

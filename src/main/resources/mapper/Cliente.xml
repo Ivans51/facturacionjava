@@ -12,6 +12,7 @@
         <result property="apellidos" column="apellidos"/>
         <result property="direccion" column="direccion"/>
         <result property="telefono" column="telefono"/>
+        <result property="nacionalidad" column="nacionalidad"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
@@ -27,15 +28,15 @@
     </select>
 
     <insert id="insert" parameterType="Cliente" useGeneratedKeys="true" keyProperty="cedula">
-        INSERT INTO facturacion.cliente (cedula, nombres, apellidos, direccion, telefono, usuario_cedula)
-        VALUES (#{cedula}, #{nombres}, #{apellidos}, #{direccion}, #{telefono}, #{usuario_cedula});
+        INSERT INTO facturacion.cliente (cedula, nombres, apellidos, direccion, telefono, nacionalidad, usuario_cedula)
+        VALUES (#{cedula}, #{nombres}, #{apellidos}, #{direccion}, #{telefono}, #{nacionalidad}, #{usuario_cedula});
     </insert>
 
     <update id="update" parameterType="Cliente">
         UPDATE facturacion.cliente
         SET cedula = #{cedula}, nombres = #{nombres},
             apellidos = #{apellidos}, direccion = #{direccion},
-            telefono = #{telefono}, uuario_cedula = #{uuario_cedula},
+            telefono = #{telefono}, usuario_cedula = #{usuario_cedula}
         WHERE cedula = #{cedula}
     </update>
 

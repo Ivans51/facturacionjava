@@ -67,6 +67,10 @@
         WHERE nombre = #{nombre}
     </select>
 
+    <select id="selectLastID" parameterType="string" resultMap="result">
+        SELECT max(idservicio) as idservicio FROM facturacion.servicios
+    </select>
+
     <select id="selectByNombres" resultMap="result">
         SELECT nombre
         FROM facturacion.servicios
@@ -77,10 +81,15 @@
         VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado});
     </insert>
 
+    <update id="updateEstado" parameterType="Servicios">
+        UPDATE facturacion.servicios
+        SET estado = #{estado}
+        WHERE idservicio = #{idservicios}
+    </update>
+
     <update id="update" parameterType="Servicios">
         UPDATE facturacion.servicios
-        SET nombre = #{nombre}, precio = #{precio},
-            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
+        SET precio = #{precio}, fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
         WHERE idservicio = #{idservicios}
     </update>
 

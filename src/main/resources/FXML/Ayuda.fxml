@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.Cursor?>
+<AnchorPane prefHeight="400.0" prefWidth="400.0" styleClass="layot-color-secondary" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.Ayuda">
+   <children>
+      <ImageView fitHeight="80.0" fitWidth="200.0" layoutX="79.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="30.0">
+         <image>
+            <Image url="@../images/FacturaLogo.png" />
+         </image>
+      </ImageView>
+      <HBox alignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+         <children>
+            <Label alignment="CENTER" styleClass="label-font-medium" text="Selecciona una opción" textFill="WHITE" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="22.0" layoutY="271.0" spacing="10.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <JFXButton fx:id="btnBackup" onAction="#actionBackup" prefHeight="200.0" prefWidth="150.0" text="Backup">
+               <styleClass>
+                  <String fx:value="button-bold" />
+                  <String fx:value="button-font-max" />
+               </styleClass></JFXButton>
+            <JFXButton fx:id="btnPDF" onAction="#actionPDF" prefHeight="200.0" prefWidth="150.0" text="Descargar PDF" textAlignment="CENTER" wrapText="true">
+               <styleClass>
+                  <String fx:value="button-bold" />
+                  <String fx:value="button-font-max" />
+               </styleClass></JFXButton>
+         </children>
+      </HBox>
+      <Label fx:id="btnCerrar" layoutX="232.0" layoutY="14.0" onMouseClicked="#actionSalir" text="Cerrar" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="14.0">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+         <styleClass>
+            <String fx:value="label-white" />
+            <String fx:value="label-bold" />
+         </styleClass>
+      </Label>
+   </children>
+   <stylesheets>
+      <URL value="@../CSS/styles-button.css" />
+      <URL value="@../CSS/styles-label.css" />
+      <URL value="@../CSS/styles-layout.css" />
+   </stylesheets>
+</AnchorPane>

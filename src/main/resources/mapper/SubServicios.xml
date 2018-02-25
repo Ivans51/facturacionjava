@@ -11,6 +11,7 @@
         <result property="nombreSub" column="nombreSub"/>
         <result property="precioSub" column="precioSub"/>
         <result property="fechaSub" column="fechaSub"/>
+        <result property="estado" column="estado"/>
         <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
         <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
@@ -33,16 +34,25 @@
         WHERE nombreSub = #{nombreSub}
     </select>
 
+    <select id="selectLastID" parameterType="string" resultMap="result">
+        SELECT max(idsubservicios) as idsubservicios FROM facturacion.serviciosub
+    </select>
+
     <insert id="insert" parameterType="SubServicios" useGeneratedKeys="true" keyProperty="idsubservicio">
-        INSERT INTO facturacion.serviciosub (idsubservicios, nombreSub, precioSub, fechaSub, tiempo_estimadoSub, usuario_cedula, subservicio_idsubservicio)
-        VALUES (#{idsubservicio}, #{nombreSub}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub}, #{usuario_cedula}, #{subservicio_idsubservicio});
+        INSERT INTO facturacion.serviciosub (nombreSub, precioSub, fechaSub, tiempo_estimadoSub, usuario_cedula, subservicio_idsubservicio)
+        VALUES (#{nombreSub}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub}, #{usuario_cedula}, #{subservicio_idsubservicio});
     </insert>
 
     <update id="update" parameterType="SubServicios">
         UPDATE facturacion.serviciosub
-        SET nombreSub = #{nombre}, precioSub = #{precio},
-            fechaSub = #{fecha}, tiempo_estimadoSub = #{tiempo_estimado},
+        SET precioSub = #{precioSub}, fechaSub = #{fechaSub}, tiempo_estimadoSub = #{tiempo_estimadoSub},
             usuario_cedula = #{usuario_cedula}, subservicio_idsubservicio = #{subservicio_idsubservicio}
+        WHERE idsubservicios = #{idsubservicio}
+    </update>
+
+    <update id="updateEstado" parameterType="SubServicios">
+        UPDATE facturacion.serviciosub
+        SET estado = #{estado}
         WHERE idsubservicios = #{idsubservicio}
     </update>
 

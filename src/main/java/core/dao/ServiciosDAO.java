@@ -48,6 +48,14 @@ public class ServiciosDAO {
 
     }
 
+    public Servicios selectLastID() {
+        Servicios list;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            list = session.selectOne("Servicios.selectLastID");
+        }
+        return list;
+    }
+
     public List<Servicios> selectJoinSub(String newValue) {
         List<Servicios> list;
         SqlSession session = sqlSessionFactory.openSession();
@@ -120,6 +128,19 @@ public class ServiciosDAO {
      *
      * @param usuario the instance to be persisted.
      */
+    public void updateEstado(Servicios usuario) {
+        int id = -1;
+        SqlSession session = sqlSessionFactory.openSession();
+
+        try {
+            id = session.update("Servicios.updateEstado", usuario);
+
+        } finally {
+            session.commit();
+            session.close();
+        }
+    }
+
     public void update(Servicios usuario) {
         int id = -1;
         SqlSession session = sqlSessionFactory.openSession();

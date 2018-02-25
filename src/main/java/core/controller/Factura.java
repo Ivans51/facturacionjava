@@ -22,10 +22,7 @@ import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.joda.time.DateTime;
 
-import java.awt.*;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,8 +56,7 @@ public class Factura extends ManagerFXML implements Initializable {
         nombres.forEach((key, value) -> cServicios.getItems().add(key));
         cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
             List<Servicios> list = serviciosDAO.selectJoinSub(newValue);
-            // TODO: 2/23/2018 Modifaicate validation
-            if (list.get(0).getSubServicios() != null) {
+            if (list.size() > 0) {
                 setStatusSubServicio();
                 setComboSubServicio(newValue, list);
             } else {
@@ -133,7 +129,7 @@ public class Factura extends ManagerFXML implements Initializable {
         if (cliente == null)
             abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
                     false, StageStyle.TRANSPARENT, () -> {
-                        ClienteDialog display = ManagerFXML.getFxmlLoader().getController();
+                        DialogCliente display = ManagerFXML.getFxmlLoader().getController();
                         display.setModel(jCedula.getText(), lblNombre, lblCiudad, lblTelefono);
                     });
         else {

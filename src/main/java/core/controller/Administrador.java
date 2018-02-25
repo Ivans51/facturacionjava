@@ -48,7 +48,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private String[] clientesA = {"Cedula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
     private String[] usuariosA = {"Cedula", "Nombre", "Correo", "Fecha", "Status"};
     private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "IVA", "Total"};
-    private String[] subServicioA = {"Id", "Nombre", "Costo", "Fecha", "TiempoE"};
+    private String[] subServicioA = {"Id", "NombreSub", "PrecioSub", "FechaSub", "Tiempo_estimadoSub"};
     private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoE"};
     private String[] auditoriasA = {"Id", "Fecha", "Hora", "Accion", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();

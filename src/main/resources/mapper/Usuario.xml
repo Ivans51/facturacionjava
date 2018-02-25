@@ -13,6 +13,7 @@
         <result property="correo" column="correo"/>
         <result property="fecha" column="fecha"/>
         <result property="status" column="status"/>
+        <result property="nacionalidad" column="nacionalidad"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">
@@ -23,7 +24,7 @@
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
         FROM facturacion.usuario
-        WHERE idUsuario = #{idUsuario}
+        WHERE cedula = #{cedula}
     </select>
 
     <select id="selectByCorreo" parameterType="Usuario" resultMap="result">
@@ -32,54 +33,29 @@
         WHERE correo = #{correo}
     </select>
 
+    <select id="selectLastID" parameterType="string" resultMap="result">
+        SELECT max(idservicio) FROM facturacion.servicios
+    </select>
+
     <select id="login" parameterType="Usuario" resultMap="result">
         SELECT *
         FROM facturacion.usuario
         WHERE nombre = #{nombre} AND clave = #{clave}
     </select>
 
-    <select id="nombreUsurio" parameterType="Usuario" resultMap="result">
-        SELECT *
-        FROM facturacion.usuario
-        WHERE nombreUsuario = #{nombreUsuario}
-    </select>
-
-    <insert id="inserUsuario" parameterType="Usuario" useGeneratedKeys="true" keyProperty="idUsuario">
-        INSERT INTO facturacion.usuario (nombreUsuario, clave, correo, nivelAcceso,
-                                  pregunta1, respuesta1, pregunta2, respuesta2,
-                                  fechaCreacion, cedula, status)
-        VALUES (#{nombreUsuario}, #{clave}, #{correo}, #{nivelAcceso},
-                #{pregunta1}, #{respuesta1}, #{pregunta2}, #{respuesta2},
-                #{fechaCreacion}, #{cedula}, #{status});
+    <insert id="insert" parameterType="Usuario" keyProperty="idUsuario">
+        INSERT INTO facturacion.usuario (cedula, nacionalidad, nombre, correo, fecha, status)
+        VALUES (#{cedula}, #{nacionalidad}, #{nombre}, #{correo}, #{fecha}, #{status});
     </insert>
-
-    <update id="update" parameterType="Usuario">
-        UPDATE facturacion.usuario
-        SET name = #{name}
-        WHERE idUsuario = #{idUsuario}
-    </update>
-
-    <update id="updateStatus" parameterType="Usuario">
-        UPDATE facturacion.usuario
-        SET status = #{status}
-        WHERE idUsuario = #{idUsuario}
-    </update>
 
     <update id="updateDatosUsuarios" parameterType="Usuario">
         UPDATE facturacion.usuario
-        SET nombreUsuario = #{nombreUsuario}, clave= #{clave},
-            correo = #{correo}, nivelAcceso = #{nivelAcceso}, cedula = #{cedula}
-        WHERE idUsuario = #{idUsuario}
-    </update>
-
-    <update id="updateClave" parameterType="Usuario">
-        UPDATE facturacion.usuario
-        SET clave= #{clave}
-        WHERE idUsuario = #{idUsuario}
+        SET clave= #{clave}, correo = #{correo}, fecha = NOW(), status = #{status}
+        WHERE cedula = #{cedula}
     </update>
 
     <delete id="delete" parameterType="int">
         DELETE FROM facturacion.usuario
-        WHERE idUsuario = #{idUsuario}
+        WHERE cedula = #{cedula}
     </delete>
 </mapper>

@@ -7,6 +7,7 @@ public class Cliente {
     private String apellidos;
     private String direccion;
     private String telefono;
+    private String nacionalidad;
     private int usuario_cedula;
 
     public int getCedula() {
@@ -55,5 +56,13 @@ public class Cliente {
 
     public void setUsuario_cedula(int usuario_cedula) {
         this.usuario_cedula = usuario_cedula;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }

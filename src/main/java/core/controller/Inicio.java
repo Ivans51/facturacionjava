@@ -1,6 +1,7 @@
 package core.controller;
 
 import com.jfoenix.controls.JFXButton;
+import core.util.Estado;
 import core.util.ManagerFXML;
 import core.util.Route;
 import core.util.Storage;
@@ -15,12 +16,29 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
     public Label lblNombreUsuario;
-    public JFXButton btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario;
+    public JFXButton btnSubServicio, btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         lblNombreUsuario.setText(Storage.getUsuario().getNombre());
         cambiarEscena(Route.InicioInfo, anchorPane);
+        stateButton();
+    }
+
+    private void stateButton() {
+        switch (Storage.getUsuario().getStatus()){
+            case Estado.ADMINISTRADOR:
+                break;
+            case Estado.GERENTE:
+                btnUsuario.setVisible(false);
+                break;
+            case Estado.USUARIO:
+                btnAdministrador.setVisible(false);
+                btnServicio.setVisible(false);
+                btnSubServicio.setVisible(false);
+                btnUsuario.setVisible(false);
+                break;
+        }
     }
 
     public void actionCliente(ActionEvent actionEvent) {

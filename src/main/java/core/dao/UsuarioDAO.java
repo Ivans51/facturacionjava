@@ -52,6 +52,14 @@ public class UsuarioDAO {
         return person;
     }
 
+    public Usuario selectByCorreo(String correo) {
+        Usuario person = null;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectOne("Usuario.selectByCorreo", correo);
+        }
+        return person;
+    }
+
     public Usuario login(Usuario usuario) throws Myexception {
         Usuario person = null;
         SqlSession session = sqlSessionFactory.openSession();

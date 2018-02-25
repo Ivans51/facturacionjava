@@ -1,5 +1,6 @@
 package core.dao;
 
+import core.vo.Servicios;
 import core.vo.SubServicios;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -50,6 +51,25 @@ public class SubServiciosDAO {
         System.out.println("selectById(" + id + ") --> " + person);
         return person;
     }
+    public SubServicios selectLastID() {
+        SubServicios person;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectOne("SubServicios.selectLastID");
+        }
+        return person;
+    }
+
+    public List<Servicios> selectJoinSub(String newValue) {
+        List<Servicios> list;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Servicios.selectJoinSub", newValue);
+        } finally {
+            session.close();
+        }
+        System.out.println("selectAll() --> " + list);
+        return list;
+    }
 
     public SubServicios selectByNombre(String id) {
         SubServicios person = null;
@@ -92,6 +112,20 @@ public class SubServiciosDAO {
 
         try {
             id = session.update("SubServicios.update", usuario);
+
+        } finally {
+            session.commit();
+            session.close();
+        }
+        System.out.println("update(" + usuario + ") --> updated");
+    }
+
+    public void updateEstado(SubServicios usuario) {
+        int id = -1;
+        SqlSession session = sqlSessionFactory.openSession();
+
+        try {
+            id = session.update("SubServicios.updateEstado", usuario);
 
         } finally {
             session.commit();

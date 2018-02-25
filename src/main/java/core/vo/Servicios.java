@@ -10,6 +10,7 @@ public class Servicios {
     private String nombre;
     private Double precio;
     private Date fecha;
+    private int estado;
     private String tiempo_estimado;
     private SubServicios subServicios;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
@@ -69,4 +70,12 @@ public class Servicios {
     public void setSubServiciosList(List<SubServicios> subServiciosList) {
         this.subServiciosList = subServiciosList;
     }*/
+
+    public int isEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
 }

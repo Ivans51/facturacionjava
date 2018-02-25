@@ -9,32 +9,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.ClienteDialog">
+<AnchorPane prefHeight="216.0" prefWidth="313.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.DialogSubServicio">
    <children>
-      <VBox layoutX="24.0" layoutY="24.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="24.0" layoutY="24.0" prefWidth="600.0" spacing="5.0" AnchorPane.bottomAnchor="227.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox alignment="CENTER">
                <children>
-                  <Label styleClass="label-bold" text="Registro Cliente" />
+                  <Label styleClass="label-bold" text="Seleccionar Servicio" />
                </children>
             </HBox>
-            <Label layoutX="25.0" layoutY="25.0" text="Cédula" />
+            <Label layoutX="25.0" layoutY="25.0" text="Nombres" />
             <TextField fx:id="jCedula" />
-            <Label layoutX="25.0" layoutY="60.0" text="Nombre" />
-            <TextField fx:id="jNombre" />
-            <Label layoutX="25.0" layoutY="95.0" text="Apellido" />
-            <TextField fx:id="jApellido" />
-            <Label layoutX="25.0" layoutY="95.0" text="Telefono" />
-            <TextField fx:id="jTelefono" />
-            <Label layoutX="25.0" layoutY="130.0" text="Dirección" />
-            <TextField fx:id="jDireccion" />
-            <Label layoutX="25.0" layoutY="165.0" text="Nombre Ciudad" />
-            <TextField fx:id="jNombreCiudad" />
             <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                <children>
                   <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
-                  <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />
                   <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
                </children>
                <padding>

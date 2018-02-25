@@ -10,6 +10,7 @@ public class Usuario {
     private String correo;
     private Date fecha;
     private String status;
+    private String nacionalidad;
 
     public int getCedula() {
         return cedula;
@@ -57,5 +58,13 @@ public class Usuario {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getNacionalidad() {
+        return nacionalidad;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
     }
 }

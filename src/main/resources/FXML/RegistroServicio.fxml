@@ -3,6 +3,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -34,6 +35,7 @@
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
+                        <JFXButton fx:id="btnDesactivar" onAction="#actionDesactivar" text="Desactivo" visible="false" wrapText="true" />
                         <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />
                     </children>
                     <padding>
@@ -52,7 +54,7 @@
             <children>
                 <HBox alignment="TOP_RIGHT">
                     <children>
-                        <Label text="Datos sobre los clientes" />
+                        <Label text="Datos sobre los Servicios" />
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -68,9 +70,7 @@
                 </TableView>
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <JFXButton fx:id="btnEditar" onAction="#actionEditar" text="Editar" />
-                        <JFXButton fx:id="btnEliminar" onAction="#actionEliminar" text="Eliminar" />
-                        <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
+                  <JFXButton fx:id="btnSalir" layoutX="543.0" layoutY="64.0" onAction="#actionSalir" text="No publico" />
                     </children>
                     <VBox.margin>
                         <Insets />

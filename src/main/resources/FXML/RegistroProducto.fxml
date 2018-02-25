@@ -41,6 +41,7 @@
             <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                <children>
                   <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
+                  <JFXButton fx:id="btnEditar" onAction="#actionEditar" text="Cancel E" />
                   <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />
                </children>
                <padding>
@@ -73,8 +74,6 @@
             </TableView>
             <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">
                <children>
-                  <JFXButton fx:id="btnEditar" onAction="#actionEditar" text="Editar" />
-                  <JFXButton fx:id="btnEliminar" onAction="#actionEliminar" text="Eliminar" />
                   <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
                </children>
                <VBox.margin>
