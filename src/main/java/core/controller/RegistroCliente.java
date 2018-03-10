@@ -66,16 +66,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
             Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion);
             Validar.stringVacio(cNacionalidad.getSelectionModel().getSelectedItem());
             Validar.isNumber(jCedula, jTelefono);
-            if (!stateEdit) {
-                Validar.checkValor(jCedula.getText(), cedulas, "cédula");
-                clienteDAO.insert(getClienteSeleccion());
-                Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
-                table.getListTable().add(cliente);
-            } else {
-                stateViewEdit(false);
-                clienteDAO.update(getClienteSeleccion());
-                selectAllCliente();
-            }
+            elegirConsulta();
             tableCliente.refresh();
             Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
         } catch (Myexception myexception) {
@@ -84,8 +75,32 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         }
     }
 
-    private Cliente getClienteSeleccion() {
-        cliente = new Cliente();
+    private void elegirConsulta() throws Myexception {
+        if (!stateEdit) {
+            Validar.checkValor(jCedula.getText(), cedulas, "cédula");
+            clienteDAO.insert(getClienteInsert());
+            Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
+            table.getListTable().add(cliente);
+        } else {
+            stateViewEdit(false);
+            clienteDAO.update(getClienteUpdate());
+            selectAllCliente();
+        }
+    }
+
+    private Cliente getClienteInsert() {
+        Cliente cliente = new Cliente();
+        if (!stateEdit) cliente.setCedula(Integer.parseInt(jCedula.getText()));
+        cliente.setNombres(jNombre.getText());
+        cliente.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
+        cliente.setDireccion(jDireccion.getText());
+        cliente.setApellidos(jApellido.getText());
+        cliente.setTelefono(jTelefono.getText());
+        cliente.setUsuario_cedula(Storage.getUsuario().getCedula());
+        return cliente;
+    }
+
+    private Cliente getClienteUpdate() {
         if (!stateEdit) cliente.setCedula(Integer.parseInt(jCedula.getText()));
         cliente.setNombres(jNombre.getText());
         cliente.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
@@ -120,12 +135,12 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         }
     }
 
-    private void stateViewEdit(boolean value) {
-        stateEdit = value;
-        btnEditarCancel.setVisible(value);
-        jCedula.setDisable(value);
-        cNacionalidad.setDisable(value);
-        btnAgregar.setText(value ? "Editar" : "Agregar");
+    private void stateViewEdit(boolean edit) {
+        stateEdit = edit;
+        btnEditarCancel.setVisible(edit);
+        jCedula.setDisable(edit);
+        cNacionalidad.setDisable(edit);
+        btnAgregar.setText(edit ? "Editar" : "Agregar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {

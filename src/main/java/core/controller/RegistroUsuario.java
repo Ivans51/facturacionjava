@@ -12,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -76,19 +75,7 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
             String nac = cNacionalidad.getSelectionModel().getSelectedItem();
             String nivel = cNivel.getSelectionModel().getSelectedItem();
             Validar.stringVacio(nac, nivel);
-            if (!stateEdit) {
-                Validar.checkValor(jCedula.getText(), cedulas, "cédula");
-                Validar.checkValor(jCorreo.getText(), correos, "correo");
-                Validar.checkValor(jNombre.getText(), nombres, "nombre");
-                usuarioDAO.insert(getUsuarioSelect());
-                Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
-                table.getListTable().add(usuario);
-            } else {
-                usuarioDAO.update(getUsuarioSelect());
-                selectAllUsuario();
-                stateViewEdit(false);
-            }
-            tableUsuario.refresh();
+            eligirConsulta();
             cNacionalidad.getSelectionModel().clearSelection();
             Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
         } catch (ParseException | Myexception myexception) {
@@ -97,8 +84,35 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         }
     }
 
-    private Usuario getUsuarioSelect() throws ParseException {
-        usuario = new Usuario();
+    private void eligirConsulta() throws Myexception, ParseException {
+        if (!stateEdit) {
+            Validar.checkValor(jCedula.getText(), cedulas, "cédula");
+            Validar.checkValor(jNombre.getText(), nombres, "nombre");
+            // Validar.checkValor(jCorreo.getText(), correos, "correo");
+            usuarioDAO.insert(getUsuarioInsert());
+            Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
+            table.getListTable().add(usuario);
+        } else {
+            usuarioDAO.update(getUsuarioUpdate());
+            selectAllUsuario();
+            stateViewEdit(false);
+        }
+        tableUsuario.refresh();
+    }
+
+    private Usuario getUsuarioInsert() throws ParseException {
+        Usuario usuario = new Usuario();
+        if (!stateEdit) usuario.setCedula(Integer.parseInt(jCedula.getText()));
+        usuario.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
+        usuario.setNombre(jNombre.getText());
+        usuario.setClave(jClave.getText());
+        usuario.setCorreo(jCorreo.getText());
+        usuario.setFecha(FechaUtil.getCurrentDate());
+        usuario.setStatus(cNivel.getSelectionModel().getSelectedItem());
+        return usuario;
+    }
+
+    private Usuario getUsuarioUpdate() throws ParseException {
         if (!stateEdit) usuario.setCedula(Integer.parseInt(jCedula.getText()));
         usuario.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
         usuario.setNombre(jNombre.getText());
@@ -132,13 +146,13 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         }
     }
 
-    private void stateViewEdit(boolean value) {
-        stateEdit = value;
-        btnEditar.setVisible(value);
-        jNombre.setDisable(value);
-        jCedula.setDisable(value);
-        cNacionalidad.setDisable(value);
-        btnAgregar.setText(value ? "Editar" : "Agregar");
+    private void stateViewEdit(boolean edit) {
+        stateEdit = edit;
+        btnEditar.setVisible(edit);
+        jNombre.setDisable(edit);
+        jCedula.setDisable(edit);
+        cNacionalidad.setDisable(edit);
+        btnAgregar.setText(edit ? "Editar" : "Agregar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {

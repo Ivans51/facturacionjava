@@ -67,23 +67,44 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         try {
             Validar.campoVacio(jNombre, jPrecio, jTiempoE);
             Validar.isNumber(jPrecio, jTiempoE);
-            if (!stateEdit) {
-                Validar.checkValor(jNombre.getText(), nombres, "nombre");
-                serviciosDAO.insert(getServicios());
-                subServiciosDAO.insert(getSubServicios(serviciosDAO.selectLastID().getIdservicios()));
-                int id = serviciosDAO.selectLastID().getIdservicios();
-                table.getListTable().add(serviciosDAO.selectById(id));
-            } else {
-                serviciosDAO.update(getServicios());
-                selectAllServicio();
-                stateViewEdit(false);
-            }
-            tableServicio.refresh();
+            elegirConsulta();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
         }
+    }
+
+    private void elegirConsulta() throws Myexception, ParseException {
+        if (!stateEdit) {
+            Validar.checkValor(jNombre.getText(), nombres, "nombre");
+            serviciosDAO.insert(getServiciosInsert());
+            subServiciosDAO.insert(getSubServicios(serviciosDAO.selectLastID().getIdservicios()));
+            int id = serviciosDAO.selectLastID().getIdservicios();
+            table.getListTable().add(serviciosDAO.selectById(id));
+        } else {
+            serviciosDAO.update(getServiciosUpdate());
+            selectAllServicio();
+            stateViewEdit(false);
+        }
+        tableServicio.refresh();
+    }
+
+    private Servicios getServiciosInsert() throws ParseException {
+        Servicios servicios = new Servicios();
+        if (!stateEdit) servicios.setNombre(jNombre.getText());
+        servicios.setFecha(FechaUtil.getCurrentDate());
+        servicios.setPrecio(Double.valueOf(jPrecio.getText()));
+        servicios.setTiempo_estimado(jTiempoE.getText());
+        return servicios;
+    }
+
+    private Servicios getServiciosUpdate() throws ParseException {
+        if (!stateEdit) servicios.setNombre(jNombre.getText());
+        servicios.setFecha(FechaUtil.getCurrentDate());
+        servicios.setPrecio(Double.valueOf(jPrecio.getText()));
+        servicios.setTiempo_estimado(jTiempoE.getText());
+        return servicios;
     }
 
     private SubServicios getSubServicios(int idservicios) throws ParseException {
@@ -99,19 +120,11 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public void actionDesactivar(ActionEvent actionEvent) {
         Servicios servicios = new Servicios();
-        servicios.setIdservicios(this.servicios.getIdservicios());
-        servicios.setEstado(this.servicios.isEstado() == 0 ? 1 : 0);
+        servicios.setIdservicios(servicios.getIdservicios());
+        servicios.setEstado(servicios.isEstado() == 0 ? 1 : 0);
         serviciosDAO.updateEstado(servicios);
         new AlertUtil(Estado.ERROR, "Se guardo el cambio");
         btnDesactivar.setText(servicios.isEstado() == 1 ? "Desactivar" : "Activar");
-    }
-
-    private Servicios getServicios() throws ParseException {
-        if (!stateEdit) servicios.setNombre(jNombre.getText());
-        servicios.setFecha(FechaUtil.getCurrentDate());
-        servicios.setPrecio(Double.valueOf(jPrecio.getText()));
-        servicios.setTiempo_estimado(jTiempoE.getText());
-        return servicios;
     }
 
     @Override

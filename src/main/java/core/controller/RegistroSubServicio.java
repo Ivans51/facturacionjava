@@ -71,6 +71,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
     }
 
     private void selectAllServicio() {
+        nombres.clear();
         subServiciosList = subServiciosDAO.selectAll();
         subServiciosList.forEach(it -> nombres.add(it.getNombreSub()));
     }
@@ -79,17 +80,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         try {
             Validar.campoVacio(jNombreSub, jPrecio, jTiempoE);
             Validar.isNumber(jPrecio, jTiempoE);
-            if (!stateEdit) {
-                Validar.checkValor(jNombreSub.getText(), nombres, "nombre");
-                subServiciosDAO.insert(getSubServicios());
-                int id = subServiciosDAO.selectLastID().getIdsubservicio();
-                table.getListTable().add(subServiciosDAO.selectById(id));
-            } else {
-                stateViewEdit(false);
-                subServiciosDAO.update(getSubServicios());
-                selectAllServicio();
-            }
-            tableServicio.refresh();
+            eligirConsulta();
             Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
             cServicio.getSelectionModel().clearSelection();
         } catch (Myexception | ParseException myexception) {
@@ -98,20 +89,25 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         }
     }
 
-    public void actionDesactivar(ActionEvent actionEvent) {
-        SubServicios subServicios = new SubServicios();
-        subServicios.setIdsubservicio(this.subServicios.getIdsubservicio());
-        subServicios.setEstado(this.subServicios.isEstado() == 0 ? 1 : 0);
-        subServiciosDAO.updateEstado(subServicios);
-        btnDesactivar.setText(subServicios.isEstado() == 1 ? "Desactivar" : "Activar");
-        cServicio.getSelectionModel().clearSelection();
-        selectAllServicio();
+    private void eligirConsulta() throws Myexception, ParseException {
+        if (!stateEdit) {
+            Validar.checkValor(jNombreSub.getText(), nombres, "nombre");
+            subServiciosDAO.insert(getSubServiciosInsert());
+            int id = subServiciosDAO.selectLastID().getIdsubservicio();
+            table.getListTable().add(subServiciosDAO.selectById(id));
+        } else {
+            subServiciosDAO.update(getSubServicios());
+            selectAllServicio();
+            stateViewEdit(false);
+        }
         tableServicio.refresh();
-        new AlertUtil(Estado.ERROR, "Se guardo el cambio", null);
     }
 
-    private SubServicios getSubServicios() throws ParseException {
-        if (!stateEdit)subServicios.setNombreSub(jNombreSub.getText());
+    private SubServicios getSubServiciosInsert() throws ParseException {
+        SubServicios subServicios = new SubServicios();
+        if (!stateEdit)
+            subServicios.setIdsubservicio(this.subServicios.getIdsubservicio());
+        subServicios.setNombreSub(jNombreSub.getText());
         subServicios.setFechaSub(FechaUtil.getCurrentDate());
         subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
         subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
@@ -119,6 +115,30 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         Servicios servicios = serviciosDAO.selectByNombre(cServicio.getSelectionModel().getSelectedItem());
         subServicios.setSubservicio_idsubservicio(servicios.getIdservicios());
         return subServicios;
+    }
+
+    private SubServicios getSubServicios() throws ParseException {
+        if (!stateEdit)
+            subServicios.setIdsubservicio(subServicios.getIdsubservicio());
+        subServicios.setNombreSub(jNombreSub.getText());
+        subServicios.setFechaSub(FechaUtil.getCurrentDate());
+        subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
+        subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
+        subServicios.setUsuario_cedula(Storage.getUsuario().getCedula());
+        Servicios servicios = serviciosDAO.selectByNombre(cServicio.getSelectionModel().getSelectedItem());
+        subServicios.setSubservicio_idsubservicio(servicios.getIdservicios());
+        return subServicios;
+    }
+    public void actionDesactivar(ActionEvent actionEvent) {
+        SubServicios subServ = new SubServicios();
+        subServ.setIdsubservicio(subServicios.getIdsubservicio());
+        subServ.setEstado(subServicios.isEstado() == 0 ? 1 : 0);
+        subServiciosDAO.updateEstado(subServ);
+        btnDesactivar.setText(subServ.isEstado() == 1 ? "Desactivar" : "Activar");
+        cServicio.getSelectionModel().clearSelection();
+        selectAllServicio();
+        tableServicio.refresh();
+        new AlertUtil(Estado.ERROR, "Se guardo el cambio", null);
     }
 
     @Override
@@ -130,7 +150,10 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimadoSub()));
             btnDesactivar.setText(subServicios.isEstado() == 1 ? "Desactivar" : "Activar");
             Servicios servicios = serviciosDAO.selectByNombre(subServicios.getNombreSub());
-            cServicio.getSelectionModel().select(servicios.getNombre());
+            if (servicios != null)
+                cServicio.getSelectionModel().select(servicios.getNombre());
+            else
+                cServicio.getSelectionModel().clearSelection();
             stateViewEdit(true);
         }
     }
@@ -144,7 +167,8 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            if (stateEdit) stateViewEdit(false);
+            if (stateEdit)
+                stateViewEdit(false);
             Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
             cServicio.getSelectionModel().clearSelection();
         } catch (Myexception myexception) {
