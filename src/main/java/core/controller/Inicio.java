@@ -26,14 +26,18 @@ public class Inicio extends ManagerFXML implements Initializable {
     }
 
     private void stateButton() {
+        // Deshabilitar botones
         switch (Storage.getUsuario().getStatus()){
-            case Estado.ADMINISTRADOR:
+            case Estado.TECNICO:
+                btnUsuario.setVisible(false);
+                btnServicio.setVisible(false);
+                btnSubServicio.setVisible(false);
+                btnAdministrador.setVisible(false);
+                btnCliente.setVisible(false);
                 break;
             case Estado.GERENTE:
-                btnUsuario.setVisible(false);
                 break;
-            case Estado.USUARIO:
-                btnAdministrador.setVisible(false);
+            case Estado.ASISTENTE:
                 btnServicio.setVisible(false);
                 btnSubServicio.setVisible(false);
                 btnUsuario.setVisible(false);

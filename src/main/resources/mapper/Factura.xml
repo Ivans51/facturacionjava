@@ -11,6 +11,7 @@
         <result property="servicios" column="servicios"/>
         <result property="forma_pago" column="forma_pago"/>
         <result property="fecha_entrega" column="fecha_entrega"/>
+        <result property="fecha_pago" column="fecha_pago"/>
         <result property="IVA" column="IVA"/>
         <result property="total" column="total"/>
         <result property="cliente_cedula" column="cliente_cedula"/>
@@ -26,6 +27,28 @@
         SELECT *
         FROM facturacion.factura
         WHERE idfactura = #{idfactura}
+    </select>
+
+    <select id="selectLastID" parameterType="string" resultMap="result">
+        SELECT max(idfactura) as idfactura FROM facturacion.factura
+    </select>
+
+    <select id="selectByDia" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM factura
+        WHERE DAY(fecha_pago) = #{idfactura} AND MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
+    </select>
+
+    <select id="selectBySemana" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM factura
+        WHERE DAY(fecha_pago) = #{idfactura} AND MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
+    </select>
+
+    <select id="selectByMes" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM factura
+        WHERE MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
     </select>
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">

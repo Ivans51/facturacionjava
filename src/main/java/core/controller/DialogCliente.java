@@ -11,6 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class DialogCliente extends ManagerFXML implements Initializable {
@@ -19,10 +21,12 @@ public class DialogCliente extends ManagerFXML implements Initializable {
     public JFXButton btnAgregar, btnLimpiar, btnSalir;
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private Label lblNombre, lblCiudad, lblTelefono;
+    private List<String> cedulas = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        List<Cliente> clientes = clienteDAO.selectAll();
+        clientes.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
     }
 
     void setModel(String text, Label lblNombre, Label lblCiudad, Label lblTelefono) {
@@ -39,6 +43,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
             Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion);
             Validar.isNumber(jCedula, jTelefono);
             Validar.isLetter(jNombre.getText(), jApellido.getText());
+            Validar.checkValor(jCedula.getText(), cedulas, "cédula");
             clienteDAO.insert(getClienteSeleccion());
             new AlertUtil(Estado.EXITOSA, "Cliente registrado", lblClose -> {
                 cerrarStage(lblClose);
@@ -55,8 +60,8 @@ public class DialogCliente extends ManagerFXML implements Initializable {
 
     private Cliente getClienteSeleccion() {
         Cliente cliente = new Cliente();
-        cliente.setNombres(jNombre.getText());
         cliente.setCedula(Integer.parseInt(jCedula.getText()));
+        cliente.setNombres(jNombre.getText());
         cliente.setDireccion(jDireccion.getText());
         cliente.setApellidos(jApellido.getText());
         cliente.setTelefono(jTelefono.getText());

@@ -70,7 +70,7 @@ public class UsuarioDAO {
         }
         System.out.println("login(" + usuario.getNombre() + usuario.getClave());
         if (person == null)
-            throw new Myexception("No se encuentra");
+            throw new Myexception("No existe el usuario");
         else
             return person;
     }

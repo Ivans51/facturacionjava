@@ -29,7 +29,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     public TableColumn tbNacionalidad, tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono;
     public ComboBox<String> cNacionalidad;
 
-    private String[] nacionalidades = {"V", "E"};
+    private String[] nacionalidades = {"V", "E", "J"};
     private TableUtil<Cliente, String> table;
     private String[] columS = {"nacionalidad", "cedula", "nombres", "apellidos", "direccion", "telefono"};
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
@@ -81,13 +81,16 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
             clienteDAO.insert(getClienteInsert());
             Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(cliente);
+            new AuditoriaUtil().insertar("Registro del cliente");
         } else {
             stateViewEdit(false);
             clienteDAO.update(getClienteUpdate());
             selectAllCliente();
+            new AuditoriaUtil().insertar("Cliente Actualizado");
         }
     }
 
+    // Modelo que se envia a la BD
     private Cliente getClienteInsert() {
         Cliente cliente = new Cliente();
         if (!stateEdit) cliente.setCedula(Integer.parseInt(jCedula.getText()));

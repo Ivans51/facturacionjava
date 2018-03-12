@@ -31,7 +31,18 @@ public class ServiciosDAO {
         }
         System.out.println("selectAll() --> " + list);
         return list;
+    }
+    public List<Servicios> selectAllFilter() {
+        List<Servicios> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
 
+        try {
+            list = session.selectList("Servicios.selectAllFilter");
+        } finally {
+            session.close();
+        }
+        System.out.println("selectAll() --> " + list);
+        return list;
     }
 
     public Servicios selectAllNombres(String newValue) {

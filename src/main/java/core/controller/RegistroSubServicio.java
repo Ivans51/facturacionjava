@@ -49,7 +49,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
     }
 
     private void setCombo() {
-        List<Servicios> subServicios = serviciosDAO.selectAll();
+        List<Servicios> subServicios = serviciosDAO.selectAllFilter();
         String[] cargos = new String[subServicios.size()];
         for (int i = 0; i < subServicios.size(); i++)
             cargos[i] = subServicios.get(i).getNombre();
@@ -95,10 +95,12 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             subServiciosDAO.insert(getSubServiciosInsert());
             int id = subServiciosDAO.selectLastID().getIdsubservicio();
             table.getListTable().add(subServiciosDAO.selectById(id));
+            new AuditoriaUtil().insertar("Registro del subServicio");
         } else {
             subServiciosDAO.update(getSubServicios());
             selectAllServicio();
             stateViewEdit(false);
+            new AuditoriaUtil().insertar("subServicio Actualizado");
         }
         tableServicio.refresh();
     }
@@ -111,6 +113,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         subServicios.setFechaSub(FechaUtil.getCurrentDate());
         subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
         subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
+        subServicios.setEstado("1");
         subServicios.setUsuario_cedula(Storage.getUsuario().getCedula());
         Servicios servicios = serviciosDAO.selectByNombre(cServicio.getSelectionModel().getSelectedItem());
         subServicios.setSubservicio_idsubservicio(servicios.getIdservicios());
@@ -130,11 +133,10 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         return subServicios;
     }
     public void actionDesactivar(ActionEvent actionEvent) {
-        SubServicios subServ = new SubServicios();
-        subServ.setIdsubservicio(subServicios.getIdsubservicio());
-        subServ.setEstado(subServicios.isEstado() == 0 ? 1 : 0);
-        subServiciosDAO.updateEstado(subServ);
-        btnDesactivar.setText(subServ.isEstado() == 1 ? "Desactivar" : "Activar");
+        subServicios.setIdsubservicio(subServicios.getIdsubservicio());
+        subServicios.setEstado(subServicios.isEstado().equals("0") ? "1" : "0");
+        subServiciosDAO.updateEstado(subServicios);
+        btnDesactivar.setText(subServicios.isEstado().equals("1") ? "Desactivar" : "Activar");
         cServicio.getSelectionModel().clearSelection();
         selectAllServicio();
         tableServicio.refresh();
@@ -148,7 +150,7 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
             jNombreSub.setText(subServicios.getNombreSub());
             jPrecio.setText(String.valueOf(subServicios.getPrecioSub()));
             jTiempoE.setText(String.valueOf(subServicios.getTiempo_estimadoSub()));
-            btnDesactivar.setText(subServicios.isEstado() == 1 ? "Desactivar" : "Activar");
+            btnDesactivar.setText(subServicios.isEstado().equals("1") ? "Desactivar" : "Activar");
             Servicios servicios = serviciosDAO.selectByNombre(subServicios.getNombreSub());
             if (servicios != null)
                 cServicio.getSelectionModel().select(servicios.getNombre());
@@ -163,11 +165,12 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         btnDesactivar.setVisible(value);
         jNombreSub.setDisable(value);
         btnAgregar.setText(value ? "Editar" : "Agregar");
+        btnLimpiar.setText(value ? "Cancel E" : "Limpiar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            if (stateEdit)
+            if (subServicios.isEstado().equals("1") || stateEdit)
                 stateViewEdit(false);
             Validar.limmpiarCampos(jNombreSub, jPrecio, jTiempoE);
             cServicio.getSelectionModel().clearSelection();
@@ -180,11 +183,4 @@ public class RegistroSubServicio extends ManagerFXML implements Initializable, T
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
-    /*public void actionServicio(ActionEvent actionEvent) {
-        abrirStageStyle(Route.ClienteDialog, "Agregar Servicio", Modality.WINDOW_MODAL, null,
-                false, StageStyle.TRANSPARENT, () -> {
-                    DialogSubServicio display = ManagerFXML.getFxmlLoader().getController();
-                    display.setModel();
-                });
-    }*/
 }

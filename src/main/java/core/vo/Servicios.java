@@ -10,7 +10,7 @@ public class Servicios {
     private String nombre;
     private Double precio;
     private Date fecha;
-    private int estado;
+    private String estado;
     private String tiempo_estimado;
     private SubServicios subServicios;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
@@ -71,11 +71,11 @@ public class Servicios {
         this.subServiciosList = subServiciosList;
     }*/
 
-    public int isEstado() {
+    public String isEstado() {
         return estado;
     }
 
-    public void setEstado(int estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 }

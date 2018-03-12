@@ -3,6 +3,7 @@ package core.util;
 import core.conexion.MyBatisConnection;
 import core.dao.AuditoriaDAO;
 import core.vo.Auditoria;
+import org.joda.time.DateTime;
 
 import java.text.ParseException;
 
@@ -13,9 +14,7 @@ public class AuditoriaUtil {
     private String nombreUsuario = Storage.getUsuario().getNombre();
     private int idUsuario = Storage.getUsuario().getCedula();
 
-    public AuditoriaUtil(String nombreUsuario, int idUsuario) {
-        this.nombreUsuario = nombreUsuario;
-        this.idUsuario = idUsuario;
+    public AuditoriaUtil() {
         auditoria = new Auditoria();
         auditoriaDAO = new AuditoriaDAO(MyBatisConnection.getSqlSessionFactory());
     }
@@ -24,7 +23,7 @@ public class AuditoriaUtil {
         try {
             auditoria.setAccion(accion);
             auditoria.setFecha(FechaUtil.getCurrentDate());
-            auditoria.setHora(FechaUtil.getHourMinutes());
+            auditoria.setHora(new DateTime().getHourOfDay());
             auditoria.setNombreUsuario(nombreUsuario);
             auditoria.setUsuario_cedula(idUsuario);
             auditoriaDAO.insert(auditoria);

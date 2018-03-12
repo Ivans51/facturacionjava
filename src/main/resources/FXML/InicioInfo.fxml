@@ -10,7 +10,7 @@
 
 <AnchorPane fx:id="anchorPane" prefHeight="545.0" prefWidth="1000.0" style="-fx-background-color: #B4E4F0;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.InicioInfo">
    <children>
-      <Label layoutX="48.0" layoutY="75.0" prefWidth="268.0" text="Todo Frío C.A." textFill="WHITE">
+      <Label layoutX="48.0" layoutY="75.0" prefHeight="45.0" prefWidth="440.0" text="Inversiones Todo Frío C.A." textFill="WHITE">
          <styleClass>
             <String fx:value="label-font-ultra" />
             <String fx:value="label-bold" />
@@ -25,7 +25,7 @@
          <image>
             <Image url="@../images/car-on-the-road-icon-flat-.png" />
          </image></ImageView>
-      <JFXButton layoutX="850.0" layoutY="495.0" text="Ayuda" fx:id="btnAyuda" onAction="#actionAyuda">
+      <JFXButton fx:id="btnAyuda" layoutX="850.0" layoutY="495.0" onAction="#actionAyuda" text="Ayuda">
          <styleClass>
             <String fx:value="button-bold" />
             <String fx:value="button-black" />

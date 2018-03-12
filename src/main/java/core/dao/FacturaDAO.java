@@ -1,6 +1,5 @@
 package core.dao;
 
-import core.vo.Cliente;
 import core.vo.Factura;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -35,6 +34,17 @@ public class FacturaDAO {
 
     }
 
+    public Factura selectLastID() {
+        Factura person = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            person = session.selectOne("Factura.selectLastID");
+        } finally {
+            session.close();
+        }
+        return person;
+    }
+
     /**
      * Select instance of Factura from the database.
      *
@@ -50,6 +60,36 @@ public class FacturaDAO {
         }
         System.out.println("selectById(" + id + ") --> " + person);
         return person;
+    }
+    public List<Factura> selectByDia(Factura usuario) {
+        List<Factura> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Factura.selectByDia", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Factura> selectBySemana(Factura usuario) {
+        List<Factura> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Factura.selectBySemana", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Factura> selectByMes(Factura usuario) {
+        List<Factura> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Factura.selectByMes", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
     }
 
     /**

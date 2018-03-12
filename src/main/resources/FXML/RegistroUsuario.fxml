@@ -31,13 +31,13 @@
                <children>
                   <VBox>
                      <children>
-                        <Label text="Nac." />
+                        <Label text="Tipo" />
                         <ComboBox fx:id="cNacionalidad" />
                      </children>
                   </VBox>
                   <VBox HBox.hgrow="ALWAYS">
                      <children>
-                            <Label text="Cedula" />
+                            <Label text="Cedula o RIF" />
                             <TextField fx:id="jCedula" />
                      </children>
                   </VBox>

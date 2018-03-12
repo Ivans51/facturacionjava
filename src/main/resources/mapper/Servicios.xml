@@ -42,11 +42,18 @@
         FROM facturacion.servicios;
     </select>
 
+    <select id="selectAllFilter" resultMap="result">
+        SELECT *
+        FROM facturacion.servicios
+        WHERE estado in (SELECT estado FROM facturacion.servicios WHERE estado = '1');
+    </select>
+
     <select id="selectJoinSub" parameterType="string" resultMap="serviciosSub">
         SELECT a1.nombre, a1.precio, a1.fecha, a2.nombreSub, a2.fechaSub, a2.precioSub
         FROM facturacion.servicios a1
         INNER JOIN facturacion.serviciosub a2 ON a1.idservicio = a2.subservicio_idsubservicio
         WHERE a1.nombre = #{nombre}
+              And a2.estado in (SELECT a2.estado FROM facturacion.serviciosub WHERE a2.estado = '1');
     </select>
 
     <select id="selectById" parameterType="int" resultMap="result">

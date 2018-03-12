@@ -15,12 +15,11 @@ import java.util.ResourceBundle;
 
 public class Login extends ManagerFXML implements Initializable {
 
+    private final LoginUser loginUser = new LoginUser();
     public JFXButton btnIngresar, btnSalir;
     public TextField jUsuario;
     public PasswordField jPassword;
     public Label btnRecuperar;
-
-    private final LoginUser loginUser = new LoginUser();
     private Usuario usuario;
     private String inicio = Route.Inicio;
 
@@ -36,6 +35,7 @@ public class Login extends ManagerFXML implements Initializable {
             Storage.setUsuario(usuario);
             validarStatus();
         } catch (Myexception ex) {
+            // Error si sucede algo
             System.out.println(ex.getMessage());
             new AlertUtil(Estado.ERROR, ex.getMessage());
         }
@@ -43,11 +43,11 @@ public class Login extends ManagerFXML implements Initializable {
 
     private void validarStatus() throws Myexception {
         switch (usuario.getStatus()) {
-            case Estado.USUARIO:
+            case Estado.ASISTENTE:
                 abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
                 auditoria();
                 break;
-            case Estado.ADMINISTRADOR:
+            case Estado.TECNICO:
                 abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
                 auditoria();
                 break;
@@ -56,13 +56,12 @@ public class Login extends ManagerFXML implements Initializable {
                 auditoria();
                 break;
             default:
-                throw new Myexception("Acceso denegado, \n Seleccione Empleado en Gestión de sessión");
+                throw new Myexception("Acceso denegado");
         }
     }
 
     private void auditoria() throws Myexception {
-        AuditoriaUtil auditoriaUtil = new AuditoriaUtil(usuario.getNombre(), usuario.getCedula());
-        auditoriaUtil.insertar("Registro usuario " + usuario.getNombre());
+        new AuditoriaUtil().insertar("Usuario inicio sesion" + usuario.getNombre());
     }
 
     public void actionSalir(ActionEvent actionEvent) {

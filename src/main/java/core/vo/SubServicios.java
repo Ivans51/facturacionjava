@@ -9,7 +9,7 @@ public class SubServicios {
     private double precioSub;
     private Date fechaSub;
     private int tiempo_estimadoSub;
-    private int estado;
+    private String estado;
     private int usuario_cedula;
     private int subservicio_idsubservicio;
 
@@ -69,11 +69,11 @@ public class SubServicios {
         this.subservicio_idsubservicio = subservicio_idsubservicio;
     }
 
-    public int isEstado() {
+    public String isEstado() {
         return estado;
     }
 
-    public void setEstado(int estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 }

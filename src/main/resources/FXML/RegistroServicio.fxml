@@ -3,7 +3,6 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -30,7 +29,7 @@
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="60.0" text="Precio" />
                 <TextField fx:id="jPrecio" />
-                <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado" />
+                <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado (Horas)" />
                 <TextField fx:id="jTiempoE" />
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
@@ -70,7 +69,7 @@
                 </TableView>
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">
                     <children>
-                  <JFXButton fx:id="btnSalir" layoutX="543.0" layoutY="64.0" onAction="#actionSalir" text="No publico" />
+                  <JFXButton fx:id="btnSalir" layoutX="543.0" layoutY="64.0" onAction="#actionSalir" text="Salir" />
                     </children>
                     <VBox.margin>
                         <Insets />

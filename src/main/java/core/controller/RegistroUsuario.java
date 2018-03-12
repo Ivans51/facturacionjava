@@ -29,8 +29,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     public ComboBox<String> cNivel;
     public ComboBox<String> cNacionalidad;
 
-    private String[] niveles = {"Usuario", "Administrador", "Gerente"};
-    private String[] nacionalidades = {"V", "E"};
+    private String[] niveles = {Estado.GERENTE, Estado.ASISTENTE, Estado.TECNICO};
+    private String[] nacionalidades = {"V", "E", "J"};
     private TableUtil<Usuario, String> table;
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
     private List<Usuario> usuarios = new ArrayList<>();
@@ -92,10 +92,12 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
             usuarioDAO.insert(getUsuarioInsert());
             Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(usuario);
+            new AuditoriaUtil().insertar("Registro del Usuario");
         } else {
             usuarioDAO.update(getUsuarioUpdate());
             selectAllUsuario();
             stateViewEdit(false);
+            new AuditoriaUtil().insertar("Usuario actualizado");
         }
         tableUsuario.refresh();
     }

@@ -82,10 +82,12 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             subServiciosDAO.insert(getSubServicios(serviciosDAO.selectLastID().getIdservicios()));
             int id = serviciosDAO.selectLastID().getIdservicios();
             table.getListTable().add(serviciosDAO.selectById(id));
+            new AuditoriaUtil().insertar("Registro del servicio");
         } else {
             serviciosDAO.update(getServiciosUpdate());
             selectAllServicio();
             stateViewEdit(false);
+            new AuditoriaUtil().insertar("Servicio actualizado");
         }
         tableServicio.refresh();
     }
@@ -119,12 +121,13 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     }
 
     public void actionDesactivar(ActionEvent actionEvent) {
-        Servicios servicios = new Servicios();
         servicios.setIdservicios(servicios.getIdservicios());
-        servicios.setEstado(servicios.isEstado() == 0 ? 1 : 0);
+        servicios.setEstado(servicios.isEstado().equals("0") ? "1" : "0");
         serviciosDAO.updateEstado(servicios);
+        btnDesactivar.setText(servicios.isEstado().equals("1") ? "Desactivar" : "Activar");
+        selectAllServicio();
+        tableServicio.refresh();
         new AlertUtil(Estado.ERROR, "Se guardo el cambio");
-        btnDesactivar.setText(servicios.isEstado() == 1 ? "Desactivar" : "Activar");
     }
 
     @Override
@@ -134,7 +137,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             jNombre.setText(servicios.getNombre());
             jPrecio.setText(String.valueOf(servicios.getPrecio()));
             jTiempoE.setText(servicios.getTiempo_estimado());
-            btnDesactivar.setText(servicios.isEstado() == 1 ? "Desactivar" : "Activar");
+            btnDesactivar.setText(servicios.isEstado().equals("1") ? "Desactivar" : "Activar");
             stateViewEdit(true);
         }
     }
@@ -144,11 +147,12 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         btnDesactivar.setVisible(value);
         jNombre.setDisable(value);
         btnAgregar.setText(value ? "Editar" : "Agregar");
+        btnLimpiar.setText(value ? "Cancel E" : "Limpiar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
         try {
-            if (servicios.isEstado() == 1)
+            if (servicios.isEstado().equals("1") || stateEdit)
                 stateViewEdit(false);
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception myexception) {

@@ -30,7 +30,7 @@
                 <TextField fx:id="jNombreSub" />
                 <Label layoutX="25.0" layoutY="60.0" text="Precio" />
                 <TextField fx:id="jPrecio" />
-                <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado" />
+                <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado (Horas)" />
                 <TextField fx:id="jTiempoE" />
             <Label text="Servicio" />
             <ComboBox fx:id="cServicio" prefWidth="150.0" />

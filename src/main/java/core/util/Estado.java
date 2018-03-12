@@ -10,14 +10,8 @@ public class Estado {
     public static final int VISIBLE = 2;
     public static final int EDITABLE = 3;
 
-    // Status Empleado
-    public static final int NOLABORANDO = 0;
-    public static final int TRABAJANDO = 1;
-    public static final int DESPEDIDO = 2;
-    public static final int DEPERMISO = 3;
-
     // Status Usuario
-    public static final String USUARIO = "Usuario";
-    public static final String ADMINISTRADOR = "Administrador";
+    public static final String ASISTENTE = "Asistente";
+    public static final String TECNICO = "Tecnico";
     public static final String GERENTE = "Gerente";
 }

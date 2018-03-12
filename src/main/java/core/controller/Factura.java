@@ -6,6 +6,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ClienteDAO;
+import core.dao.FacturaDAO;
 import core.dao.ServiciosDAO;
 import core.dao.SubServiciosDAO;
 import core.util.*;
@@ -24,10 +25,9 @@ import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
 
 public class Factura extends ManagerFXML implements Initializable {
 
@@ -40,18 +40,22 @@ public class Factura extends ManagerFXML implements Initializable {
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
+    private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
     private double totalPagar;
-    private HashMap<String, String> totalArt = new HashMap<>();
+    private HashMap<String, Double> totalArt = new HashMap<>();
     private double iva;
+    private int tiempoMaximo = 0;
+    private double subTotal;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setComboServicio();
     }
 
+    // Muestra los servicios
     private void setComboServicio() {
         HashMap<String, Integer> nombres = new HashMap<>();
-        List<Servicios> servicios = serviciosDAO.selectAll();
+        List<Servicios> servicios = serviciosDAO.selectAllFilter();
         servicios.forEach(servicio -> nombres.put(servicio.getNombre(), servicio.getIdservicios()));
         nombres.forEach((key, value) -> cServicios.getItems().add(key));
         cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -63,6 +67,7 @@ public class Factura extends ManagerFXML implements Initializable {
         });
     }
 
+    // Muestra la informacion segun el tipo de servio y muestra los subservicios
     private void setComboSubServicio(List<Servicios> list) {
         List<String> nombresSub = new ArrayList<>();
         list.forEach(serv -> nombresSub.add(serv.getSubServicios().getNombreSub()));
@@ -72,6 +77,9 @@ public class Factura extends ManagerFXML implements Initializable {
             if (servicios != null) {
                 jPrecio.setText(String.valueOf(servicios.getPrecioSub()));
                 jFecha.setText(FechaUtil.getDateFormat(servicios.getFechaSub()));
+                int tiempo = servicios.getTiempo_estimadoSub();
+                if (tiempo > tiempoMaximo)
+                    tiempoMaximo = tiempo;
             }
         });
     }
@@ -82,6 +90,7 @@ public class Factura extends ManagerFXML implements Initializable {
         lblSub.setVisible(!lblSub.isVisible());
     }
 
+    // Despliega los servicios y subservicios agregados
     public void actionAgregar(ActionEvent actionEvent) {
         String item = cSubServicio.getSelectionModel().getSelectedItem();
         if (item != null && !"".equals(item)) {
@@ -93,6 +102,7 @@ public class Factura extends ManagerFXML implements Initializable {
         }
     }
 
+    // Se llama desde la funcion del boton agregar
     private void setComboAgregados(String item) {
         cServiciosAgregados.getItems().add(item);
         cServiciosAgregados.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -105,13 +115,15 @@ public class Factura extends ManagerFXML implements Initializable {
         });
     }
 
+    // A medida que se agregan los servicio se suma el precio total del servicio
     private void setTotal(String item) {
         SubServicios serv = subServiciosDAO.selectByNombre(item);
-        totalArt.put(serv.getNombreSub(), String.valueOf(serv.getPrecioSub()));
+        totalArt.put(serv.getNombreSub(), serv.getPrecioSub());
         totalPagar += serv.getPrecioSub();
         lblTotal.setText(String.valueOf(totalPagar));
     }
 
+    // Una vez que se agrega el servicio si limpia los de arriba
     private void limpiar() {
         jPrecio.setText("");
         jFecha.setText("");
@@ -119,6 +131,7 @@ public class Factura extends ManagerFXML implements Initializable {
         setStatusSubServicio();
     }
 
+    // Borra un servicio agregado
     public void borrarItem(ActionEvent actionEvent) {
         String item = cServiciosAgregados.getSelectionModel().getSelectedItem();
         if (item != null && !"".equals(item)) {
@@ -132,6 +145,7 @@ public class Factura extends ManagerFXML implements Initializable {
         }
     }
 
+    // Busca los clientes de la empresa
     public void actionBuscar(ActionEvent actionEvent) {
         Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
         if (cliente == null)
@@ -150,37 +164,81 @@ public class Factura extends ManagerFXML implements Initializable {
 
     public void actionImprimir(ActionEvent actionEvent) {
         try {
-            calcularIva();
-            DateTime d = new DateTime();
-            String time = d.getDayOfMonth() + "-" + d.getHourOfDay() + "-" + d.getMinuteOfHour() + ".pdf";
-            String namePdf = "Factura" + time;
-            PDFCreator pdfCreator = new PDFCreator(namePdf, "Todo Frío C.A.", "Factura");
-            pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
-            pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
-            pdfCreator.crearPDF(2, (PdfPTable tabla) -> {
-                tabla.addCell("Cedula");
-                tabla.addCell(jCedula.getText());
-                tabla.addCell("Nombre");
-                tabla.addCell(lblNombre.getText());
-                tabla.addCell("Telefono");
-                tabla.addCell(lblTelefono.getText());
-                tabla.addCell("Ciudad");
-                tabla.addCell(lblCiudad.getText());
-                totalArt.forEach((key, value) -> {
-                    tabla.addCell(key);
-                    tabla.addCell(value + " Bs");
-                });
-                tabla.addCell("IVA");
-                tabla.addCell(String.valueOf(iva + " Bs"));
-                tabla.addCell("Total a Pagar");
-                tabla.addCell(String.valueOf(totalPagar + " Bs"));
-            });
-        } catch (FileNotFoundException | DocumentException e) {
+            if (totalArt.size() > 0) {
+                calcularIva();
+                setReportPDF();
+                setFactura();
+                new AuditoriaUtil().insertar("Factura generada");
+            } else {
+                new AlertUtil(Estado.EXITOSA, "Debe adquirir un servicio");
+            }
+        } catch (FileNotFoundException | DocumentException | ParseException e) {
             e.printStackTrace();
         }
     }
 
+    private void setReportPDF() throws FileNotFoundException, DocumentException {
+        DateTime d = new DateTime();
+        String time = d.getDayOfMonth() + "-" + d.getHourOfDay() + "-" + d.getMinuteOfHour() + ".pdf";
+        String namePdf = "Factura" + time;
+        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() +  "/" + d.getYear();
+        PDFCreator pdfCreator = new PDFCreator(namePdf,
+                "Todo Frío C.A. " +
+                        "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce/C Junin Local 105-C Barrio Lourdes Maracay " +
+                        "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura(),
+                "Factura del día: " + timeActual);
+        pdfCreator.crearPDF(2, (PdfPTable tabla) -> {
+            tabla.addCell("Cedula o RIF");
+            tabla.addCell(jCedula.getText());
+            tabla.addCell("Nombre");
+            tabla.addCell(lblNombre.getText());
+            tabla.addCell("Telefono");
+            tabla.addCell(lblTelefono.getText());
+            tabla.addCell("Ciudad");
+            tabla.addCell(lblCiudad.getText());
+            totalArt.forEach((key, value) -> {
+                try {
+                    tabla.addCell(key);
+                    tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", value)) + " Bs");
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            });
+            tabla.addCell("Subtotal");
+            try {
+                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", subTotal)) + " Bs");
+                tabla.addCell("IVA");
+                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", iva)) + " Bs");
+                tabla.addCell("Total a Pagar");
+                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", totalPagar)) + " Bs");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void setFactura() throws ParseException {
+        core.vo.Factura factura = new core.vo.Factura();
+        StringBuilder serv = new StringBuilder();
+        StringBuilder servPago = new StringBuilder();
+        totalArt.forEach((key, value) -> {
+            serv.append(key).append(", ");
+            servPago.append(String.format("%1$,.2f", value)).append(", ");
+        });
+        factura.setForma_pago(String.valueOf(servPago));
+        factura.setServicios(serv.toString());
+        factura.setFecha_pago(FechaUtil.getCurrentDate());
+        DateTime dateTime = new DateTime(FechaUtil.getCurrentDate());
+        factura.setFecha_entrega(dateTime.plusDays(tiempoMaximo).toDate());
+        factura.setIVA(Double.valueOf(String.format("%1$,.2f", iva)));
+        factura.setTotal(Double.valueOf(String.format("%1$,.2f", totalPagar)));
+        factura.setCliente_cedula(Integer.parseInt(jCedula.getText()));
+        factura.setUsuario_cedula(Storage.getUsuario().getCedula());
+        facturaDAO.insert(factura);
+    }
+
     private void calcularIva() {
+        subTotal = totalPagar;
         iva = totalPagar * 0.12;
         totalPagar += iva;
     }
