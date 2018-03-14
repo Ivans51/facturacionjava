@@ -97,6 +97,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         if (!stateEdit) servicios.setNombre(jNombre.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
+        servicios.setEstado("1");
         servicios.setTiempo_estimado(jTiempoE.getText());
         return servicios;
     }

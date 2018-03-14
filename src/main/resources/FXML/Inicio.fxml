@@ -21,6 +21,7 @@
             <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Cliente" />
             <JFXButton fx:id="btnFacturacion" layoutX="236.0" layoutY="20.0" onAction="#actionFacturacion" text="Facturación" />
             <JFXButton fx:id="btnAdministrador" layoutX="128.0" layoutY="20.0" onAction="#actionAdministrador" text="Reportes" />
+            <JFXButton fx:id="btnGraficos" layoutX="128.0" layoutY="20.0" onAction="#actionGraficos" text="Graficos" />
             <JFXButton fx:id="btnUsuario" onAction="#actionUsuario" text="Usuario" />
             <JFXButton fx:id="btnCerrar" layoutX="547.0" layoutY="25.0" onAction="#actionCerrar" text="Cerrar Sesión" />
             <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">

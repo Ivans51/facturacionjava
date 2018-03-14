@@ -39,8 +39,8 @@
     </select>
 
     <insert id="insert" parameterType="SubServicios" useGeneratedKeys="true" keyProperty="idsubservicio">
-        INSERT INTO facturacion.serviciosub (nombreSub, precioSub, fechaSub, tiempo_estimadoSub, usuario_cedula, subservicio_idsubservicio)
-        VALUES (#{nombreSub}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub}, #{usuario_cedula}, #{subservicio_idsubservicio});
+        INSERT INTO facturacion.serviciosub (nombreSub, estado, precioSub, fechaSub, tiempo_estimadoSub, usuario_cedula, subservicio_idsubservicio)
+        VALUES (#{nombreSub}, #{estado}, #{precioSub}, #{fechaSub}, #{tiempo_estimadoSub}, #{usuario_cedula}, #{subservicio_idsubservicio});
     </insert>
 
     <update id="update" parameterType="SubServicios">

@@ -25,7 +25,6 @@ import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 
@@ -179,7 +178,7 @@ public class Factura extends ManagerFXML implements Initializable {
 
     private void setReportPDF() throws FileNotFoundException, DocumentException {
         DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getHourOfDay() + "-" + d.getMinuteOfHour() + ".pdf";
+        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() +  "-" + d.getYear() + ".pdf";
         String namePdf = "Factura" + time;
         String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() +  "/" + d.getYear();
         PDFCreator pdfCreator = new PDFCreator(namePdf,
@@ -187,8 +186,10 @@ public class Factura extends ManagerFXML implements Initializable {
                         "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce/C Junin Local 105-C Barrio Lourdes Maracay " +
                         "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura(),
                 "Factura del día: " + timeActual);
+        pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
+        pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
         pdfCreator.crearPDF(2, (PdfPTable tabla) -> {
-            tabla.addCell("Cedula o RIF");
+            tabla.addCell("Cedula");
             tabla.addCell(jCedula.getText());
             tabla.addCell("Nombre");
             tabla.addCell(lblNombre.getText());
@@ -197,23 +198,15 @@ public class Factura extends ManagerFXML implements Initializable {
             tabla.addCell("Ciudad");
             tabla.addCell(lblCiudad.getText());
             totalArt.forEach((key, value) -> {
-                try {
-                    tabla.addCell(key);
-                    tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", value)) + " Bs");
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                tabla.addCell(key);
+                tabla.addCell(String.format("%1$,.2f", value) + " Bs");
             });
             tabla.addCell("Subtotal");
-            try {
-                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", subTotal)) + " Bs");
-                tabla.addCell("IVA");
-                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", iva)) + " Bs");
-                tabla.addCell("Total a Pagar");
-                tabla.addCell(NumberFormat.getNumberInstance(Locale.FRANCE).parse(String.format("%1$,.2f", totalPagar)) + " Bs");
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
+            tabla.addCell("IVA");
+            tabla.addCell(String.format("%1$,.2f", iva) + " Bs");
+            tabla.addCell("Total a Pagar");
+            tabla.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
         });
     }
 
@@ -223,15 +216,15 @@ public class Factura extends ManagerFXML implements Initializable {
         StringBuilder servPago = new StringBuilder();
         totalArt.forEach((key, value) -> {
             serv.append(key).append(", ");
-            servPago.append(String.format("%1$,.2f", value)).append(", ");
+            servPago.append(value).append(", ");
         });
         factura.setForma_pago(String.valueOf(servPago));
         factura.setServicios(serv.toString());
         factura.setFecha_pago(FechaUtil.getCurrentDate());
         DateTime dateTime = new DateTime(FechaUtil.getCurrentDate());
         factura.setFecha_entrega(dateTime.plusDays(tiempoMaximo).toDate());
-        factura.setIVA(Double.valueOf(String.format("%1$,.2f", iva)));
-        factura.setTotal(Double.valueOf(String.format("%1$,.2f", totalPagar)));
+        factura.setIVA(iva);
+        factura.setTotal(totalPagar);
         factura.setCliente_cedula(Integer.parseInt(jCedula.getText()));
         factura.setUsuario_cedula(Storage.getUsuario().getCedula());
         facturaDAO.insert(factura);

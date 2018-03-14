@@ -32,19 +32,28 @@ public class ManagerFXML {
     }
 
     /**
+     * Cierra el Stage
+     *
+     * @param btn
+     */
+    public static void cerrarStage(Control btn) {
+        Stage stage = (Stage) btn.getScene().getWindow();
+        stage.close();
+    }
+
+    /**
      * Cambiar una especifica escena
      *
      * @param loadRoot
      * @param parentPane
      */
     public void cambiarEscena(String loadRoot, Pane parentPane) {
-        Pane childPane = null;
         try {
-            childPane = FXMLLoader.load(getClass().getResource(loadRoot));
+            Pane childPane = FXMLLoader.load(getClass().getResource(loadRoot));
+            parentPane.getChildren().setAll(childPane);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        parentPane.getChildren().setAll(childPane);
     }
 
     /**
@@ -164,16 +173,6 @@ public class ManagerFXML {
 
     public interface CambiarScene {
         void cambiarEscenaInterface(String loadRoot);
-    }
-
-    /**
-     * Cierra el Stage
-     *
-     * @param btn
-     */
-    public static void cerrarStage(Control btn) {
-        Stage stage = (Stage) btn.getScene().getWindow();
-        stage.close();
     }
 
 }

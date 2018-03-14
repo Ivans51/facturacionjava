@@ -11,6 +11,7 @@
         <result property="nombre" column="nombre"/>
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
+        <result property="estado" column="estado"/>
         <result property="tiempo_estimado" column="tiempo_estimado"/>
     </resultMap>
 
@@ -20,6 +21,7 @@
         <result property="nombre" column="nombre"/>
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
+        <result property="estado" column="estado"/>
         <result property="tiempo_estimado" column="tiempo_estimado"/>
         <association property="subServicios" resultMap="subServicioResult"/>
         <!--<collection property="subServiciosList" ofType="SubServicios" resultMap="subServicioResult"
@@ -32,6 +34,7 @@
         <result property="nombreSub" column="nombreSub"/>
         <result property="precioSub" column="precioSub"/>
         <result property="fechaSub" column="fechaSub"/>
+        <result property="estado" column="estado"/>
         <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
         <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
@@ -84,8 +87,8 @@
     </select>
 
     <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
-        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado)
-        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado});
+        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, estado)
+        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{estado});
     </insert>
 
     <update id="updateEstado" parameterType="Servicios">

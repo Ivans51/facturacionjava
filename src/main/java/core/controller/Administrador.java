@@ -21,7 +21,6 @@ import org.joda.time.DateTime;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +52,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private String[] auditoriasA = {"Id", "Fecha", "Hora", "Accion", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();
     private List<String> tipos = new ArrayList<>();
-    private Double total;
+    private Double totales;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,7 +62,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
 
     private void stateButton() {
         // Deshabilitar botones
-        switch (Storage.getUsuario().getStatus()){
+        switch (Storage.getUsuario().getStatus()) {
             case Estado.TECNICO:
                 tipos.add("Factura");
                 btnAuditoria.setVisible(false);
@@ -122,6 +121,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 setTableUsuario();
                 break;
         }
+        lblTotal.setVisible(false);
     }
 
     private void setTableUsuario() {
@@ -175,7 +175,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         List<Factura> facturaList = new ArrayList<>();
         LocalDate value = calendario.getValue();
         Factura factura = new Factura();
-        switch (time){
+        switch (time) {
             case "Día":
                 factura.setIdfactura(value.getDayOfMonth());
                 factura.setCliente_cedula(value.getMonthValue());
@@ -195,17 +195,20 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 break;
         }
         addFactura(facturaList);
+        lblTotal.setVisible(true);
+        lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
         table.getListTable().addAll(facturaList);
     }
 
     private void addFactura(List<Factura> facturaList) {
+        totales = 0.0;
         facturaList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdfactura()));
             valuesReport.add(String.valueOf(it.getServicios()));
             valuesReport.add(String.valueOf(it.getFecha_pago()));
             valuesReport.add(String.valueOf(it.getIVA()));
-            total += it.getTotal();
-            valuesReport.add(String.valueOf(total));
+            totales += it.getTotal();
+            valuesReport.add(String.valueOf(totales));
         });
     }
 
@@ -308,6 +311,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     public void actionAuditoria(ActionEvent actionEvent) {
         selected = "Auditoria";
         setTableAuditoria();
+        lblTotal.setVisible(false);
     }
 
     public void actionSalir(ActionEvent actionEvent) {
@@ -349,7 +353,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         try {
             DateTime d = new DateTime();
             String timeActual = d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear();
-            PDFCreator pdfCreator = new PDFCreator(file, "Listado de "+ name, "Fecha: " + timeActual);
+            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual);
             pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
             pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
             pdfCreator.crearPDF(5, (PdfPTable tabla) -> {

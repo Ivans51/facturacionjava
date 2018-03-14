@@ -10,6 +10,7 @@ public class Route {
     public static String Ayuda = "/FXML/Ayuda.fxml";
     public static String ClienteDialog = "/FXML/DialogCliente.fxml";
     public static String Facturas = "/FXML/Facturas.fxml";
+    public static String Graficos = "/FXML/Graficos.fxml";
     public static String Inicio = "/FXML/Inicio.fxml";
     public static String InicioInfo = "/FXML/InicioInfo.fxml";
     public static String Login = "/FXML/Login.fxml";
