@@ -40,3 +40,7 @@
 .button-black {
     -fx-background-color: black !important;
 }
+
+.button-blue {
+    -fx-background-color: darkslateblue !important;
+}

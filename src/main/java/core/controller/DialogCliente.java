@@ -22,6 +22,9 @@ public class DialogCliente extends ManagerFXML implements Initializable {
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private Label lblNombre, lblCiudad, lblTelefono;
     private List<String> cedulas = new ArrayList<>();
+    private String[] campos = {"Nombre", "Cédula", "Apellido", "Dirección"};
+    private String[] fieldString = {"Nombre", "Apellido"};
+    private String[] fieldNumber = {"Cédula", "Teléfono"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -40,9 +43,9 @@ public class DialogCliente extends ManagerFXML implements Initializable {
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion);
-            Validar.isNumber(jCedula, jTelefono);
-            Validar.isLetter(jNombre.getText(), jApellido.getText());
+            Validar.campoVacio(campos, jNombre, jCedula, jApellido, jDireccion);
+            Validar.isNumber(fieldNumber, jCedula, jTelefono);
+            Validar.isLetter(fieldString, jNombre.getText(), jApellido.getText());
             Validar.checkValor(jCedula.getText(), cedulas, "cédula");
             clienteDAO.insert(getClienteSeleccion());
             new AlertUtil(Estado.EXITOSA, "Cliente registrado", lblClose -> {

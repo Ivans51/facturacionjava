@@ -60,19 +60,20 @@ public class UsuarioDAO {
         return person;
     }
 
-    public Usuario login(Usuario usuario) throws Myexception {
+    public Usuario login(Usuario usuario) {
         Usuario person = null;
-        SqlSession session = sqlSessionFactory.openSession();
-        try {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
             person = session.selectOne("Usuario.login", usuario);
-        } finally {
-            session.close();
         }
-        System.out.println("login(" + usuario.getNombre() + usuario.getClave());
-        if (person == null)
-            throw new Myexception("No existe el usuario");
-        else
-            return person;
+        return person;
+    }
+
+    public Usuario userExist(Usuario usuario){
+        Usuario person = null;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectOne("Usuario.userExist", usuario);
+        }
+        return person;
     }
 
     /**

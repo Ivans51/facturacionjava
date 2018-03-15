@@ -11,9 +11,10 @@ public class LoginUser {
         Usuario usuario = new Usuario();
         usuario.setNombre(nombreUsuario);
         usuario.setClave(clave);
+        Usuario userExist = usuarioDAO.userExist(usuario);
         usuario = usuarioDAO.login(usuario);
         if (usuario == null)
-            throw new Myexception("No existe el usuario");
+            throw new Myexception(userExist != null ? "No existe el usuario" : "Contraseña incorrecta");
         else
             return usuario;
     }

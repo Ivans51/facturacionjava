@@ -18,7 +18,6 @@ public class Route {
     public static String RegistroCliente = "/FXML/RegistroCliente.fxml";
     public static String RegistroProducto = "/FXML/RegistroProducto.fxml";
     public static String RegistroServicio = "/FXML/RegistroServicio.fxml";
-    public static String RegistroSubServicio = "/FXML/RegistroSubServicio.fxml";
     public static String RegistroUsuario = "/FXML/RegistroUsuario.fxml";
     public static String Stock = "/FXML/Stock.fxml";
 

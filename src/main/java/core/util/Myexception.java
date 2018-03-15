@@ -1,5 +1,7 @@
 package core.util;
 
+import javafx.scene.control.TextField;
+
 /**
  * Created by WAMS-10 on 29/07/2017.
  */

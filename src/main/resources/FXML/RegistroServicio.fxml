@@ -64,7 +64,7 @@
                         <TableColumn fx:id="tbNombre" prefWidth="75.0" text="Nombre" />
                         <TableColumn fx:id="tbPrecio" prefWidth="75.0" text="Precio" />
                         <TableColumn fx:id="tbFecha" prefWidth="75.0" text="Fecha" />
-                        <TableColumn fx:id="tbTiempoE" prefWidth="75.0" text="TiempoE" />
+                        <TableColumn fx:id="tbTiempoE" prefWidth="75.0" text="TiempoEntrega" />
                     </columns>
                 </TableView>
                 <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">

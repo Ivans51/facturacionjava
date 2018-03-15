@@ -13,17 +13,34 @@ import java.util.List;
  */
 public class Validar {
 
-    public static void campoVacio(TextField... txt) throws Myexception {
-        for (TextField aTxt : txt) {
-            if (aTxt.getText() == null || aTxt.getText().trim().isEmpty())
-                throw new Myexception("Campo Vacío");
+    public static void campoVacio(String[] field, TextField... txt) throws Myexception {
+        for (int i = 0; i < txt.length; i++) {
+            if (txt[i].getText() == null || txt[i].getText().trim().isEmpty()) {
+                // markErrorField(txt[i]);
+                throw new Myexception("Campo vacío en " + field[i]);
+            }
         }
     }
 
-    public static void stringVacio(String... txt) throws Myexception {
-        for (String aTxt : txt) {
+    public static void claveVacio(TextField txt) throws Myexception {
+        if (txt.getText() == null || txt.getText().trim().isEmpty()) {
+            //markErrorField(txt);
+            throw new Myexception("Por favor introduzca su contraseña");
+        }
+    }
+
+    private static void markErrorField(TextField aTxt) {
+        aTxt.setStyle("-fx-border-color: crimson; -fx-text-fill: white");
+        aTxt.textProperty().addListener((observable, oldValue, newValue) -> {
+            aTxt.setStyle("-fx-border-color: black; -fx-text-fill: black");
+        });
+    }
+
+    public static void stringVacio(String[] fieldString, String... txt) throws Myexception {
+        for (int i = 0; i < txt.length; i++) {
+            String aTxt = txt[i];
             if (aTxt == null || aTxt.trim().isEmpty())
-                throw new Myexception("Campo Vacío");
+                throw new Myexception("Campo Vacío" + fieldString[i]);
         }
     }
 
@@ -102,18 +119,7 @@ public class Validar {
             }
         }
     }
-    public static void disabledControl(int type, boolean state, MenuItem... ctr) throws Myexception {
-        for (MenuItem control : ctr) {
-            switch (type) {
-                case 1:
-                    control.setDisable(state);
-                    break;
-                case 2:
-                    control.setVisible(state);
-                    break;
-            }
-        }
-    }
+
     /**
      * Comportamiento del campo
      *
@@ -194,18 +200,19 @@ public class Validar {
         });
     }
 
-    public static void isNumber(TextInputControl... number) throws Myexception {
-        for (TextInputControl s : number) {
-            if (!s.getText().matches("\\d+(\\.\\d{1,4})?")) {
-                throw new Myexception("El campo no puede contener texto");
+    public static void isNumber(String[] field, TextInputControl... number) throws Myexception {
+        for (int i = 0; i < number.length; i++) {
+            if (!number[i].getText().matches("\\d+(\\.\\d{1,4})?")) {
+                throw new Myexception("El campo " + field[i] + "no puede contener texto");
             }
         }
     }
 
-    public static void isLetter(String... name) throws Myexception {
-        for (String s : name) {
+    public static void isLetter(String[] fieldString, String... name) throws Myexception {
+        for (int i = 0; i < name.length; i++) {
+            String s = name[i];
             if (!s.matches("^[\\p{L} .'-]+$"))
-                throw new Myexception("El campo no puede contener numeros");
+                throw new Myexception(fieldString[i] + "El campo no puede contener numeros");
         }
     }
 

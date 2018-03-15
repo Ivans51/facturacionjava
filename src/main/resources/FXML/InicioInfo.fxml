@@ -15,23 +15,34 @@
             <String fx:value="label-font-ultra" />
             <String fx:value="label-bold" />
          </styleClass></Label>
-      <Label layoutX="48.0" layoutY="141.0" text="Somos una companía dedicada &#10;a la reparación de vehículos" textFill="WHITE">
+      <Label layoutX="48.0" layoutY="141.0" text="Tu solución en refrigeración" textFill="WHITE">
          <styleClass>
             <String fx:value="label-font-medium" />
             <String fx:value="label-bold" />
          </styleClass>
       </Label>
-      <ImageView fitHeight="456.0" fitWidth="566.0" layoutX="443.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="439.0" fitWidth="503.0" layoutX="473.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../images/car-on-the-road-icon-flat-.png" />
          </image></ImageView>
-      <JFXButton fx:id="btnAyuda" layoutX="850.0" layoutY="495.0" onAction="#actionAyuda" text="Ayuda">
+      <JFXButton fx:id="btnAyuda" layoutX="26.0" layoutY="488.0" onAction="#actionAyuda" text="Ayuda">
          <styleClass>
-            <String fx:value="button-bold" />
-            <String fx:value="button-black" />
+            <String fx:value="button-button-blue" />
             <String fx:value="button-font-max" />
          </styleClass>
+         <graphic>
+            <ImageView fitHeight="21.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/help.png" />
+               </image>
+            </ImageView>
+         </graphic>
       </JFXButton>
+      <ImageView fitHeight="150.0" fitWidth="354.0" layoutX="515.0" layoutY="380.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/FacturaLogo.png" />
+         </image>
+      </ImageView>
    </children>
    <stylesheets>
       <URL value="@../CSS/styles-layout.css" />

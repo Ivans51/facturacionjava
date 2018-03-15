@@ -30,12 +30,11 @@ public class Login extends ManagerFXML implements Initializable {
 
     public void actionIngresar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jUsuario);
+            Validar.claveVacio(jPassword);
             usuario = loginUser.iniciarSession(jUsuario.getText(), jPassword.getText());
             Storage.setUsuario(usuario);
             validarStatus();
         } catch (Myexception ex) {
-            // Error si sucede algo
             System.out.println(ex.getMessage());
             new AlertUtil(Estado.ERROR, ex.getMessage());
         }

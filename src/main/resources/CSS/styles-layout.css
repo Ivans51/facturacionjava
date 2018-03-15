@@ -13,7 +13,7 @@
 }
 
 .layot-color-secondary {
-    -fx-background-color: #2B2B2B;
+    -fx-background-color: #5c5c5c;
 }
 
 .layot-color-tercer {
@@ -22,9 +22,4 @@
 
 .layot-color-four {
     -fx-background-color: #EEEEEE;
-}
-
-.gridpane-layout {
-    -fx-background-image: url("../icons/cuadros.jpg");
-    -fx-background-size: 220%;
 }

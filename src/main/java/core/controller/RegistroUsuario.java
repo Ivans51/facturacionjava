@@ -40,6 +40,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     private Usuario usuario;
     private String[] columS = {"Nacionalidad", "Cedula", "Nombre", "Fecha", "Status"};
     private boolean stateEdit = false;
+    private String[] field = {"Nombre", "Correo", "Clave"};
+    private String[] fieldNumber = {"Cédula"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -70,11 +72,12 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jCorreo, jClave);
-            Validar.isNumber(jCedula);
+            Validar.campoVacio(field, jNombre, jCorreo, jClave);
+            Validar.isNumber(fieldNumber, jCedula);
             String nac = cNacionalidad.getSelectionModel().getSelectedItem();
             String nivel = cNivel.getSelectionModel().getSelectedItem();
-            Validar.stringVacio(nac, nivel);
+            String[] fieldString = {"Nacionalidad, Nivel"};
+            Validar.stringVacio(fieldString, nac, nivel);
             eligirConsulta();
             cNacionalidad.getSelectionModel().clearSelection();
             Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
@@ -92,11 +95,13 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
             usuarioDAO.insert(getUsuarioInsert());
             Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(usuario);
+            new AlertUtil(Estado.EXITOSA, "Usuario creado correctamente");
             new AuditoriaUtil().insertar("Registro del Usuario");
         } else {
             usuarioDAO.update(getUsuarioUpdate());
             selectAllUsuario();
             stateViewEdit(false);
+            new AlertUtil(Estado.EXITOSA, "Usuario modificado correctamente");
             new AuditoriaUtil().insertar("Usuario actualizado");
         }
         tableUsuario.refresh();

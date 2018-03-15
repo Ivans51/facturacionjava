@@ -38,6 +38,8 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     private List<Servicios> serviciosList = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
     private boolean stateEdit = false;
+    private String[] field = {"Nombre", "Precio", "Tiempo de Entrega"};
+    private String[] fieldNumber = {"Precio", "Tiempo de Entrega"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -65,8 +67,8 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jPrecio, jTiempoE);
-            Validar.isNumber(jPrecio, jTiempoE);
+            Validar.campoVacio(field, jNombre, jPrecio, jTiempoE);
+            Validar.isNumber(fieldNumber, jPrecio, jTiempoE);
             elegirConsulta();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {

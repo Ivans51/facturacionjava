@@ -18,6 +18,7 @@ public class RecuperarClave extends ManagerFXML implements Initializable {
     public TextField jCorreo;
 
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
+    private String[] field = {"Correo"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -26,7 +27,7 @@ public class RecuperarClave extends ManagerFXML implements Initializable {
 
     public void actionEnviar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jCorreo);
+            Validar.campoVacio(field, jCorreo);
             Usuario usuario = new Usuario();
             usuario.setCorreo(jCorreo.getText());
             usuario = usuarioDAO.selectByCorreo(usuario.getCorreo());

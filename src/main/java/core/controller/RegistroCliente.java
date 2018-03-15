@@ -37,6 +37,8 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     private List<String> cedulas = new ArrayList<>();
     private Cliente cliente;
     private boolean stateEdit = false;
+    private String[] field = {"Nombre", "Cédula", "Apellido", "Dirección", "Teléfono"};
+    private String[] fieldNumber = {"Cédula", "Teléfono"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,9 +65,9 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(jNombre, jCedula, jApellido, jDireccion);
-            Validar.stringVacio(cNacionalidad.getSelectionModel().getSelectedItem());
-            Validar.isNumber(jCedula, jTelefono);
+            Validar.campoVacio(field, jNombre, jCedula, jApellido, jDireccion, jTelefono);
+            Validar.stringVacio(fieldString, cNacionalidad.getSelectionModel().getSelectedItem());
+            Validar.isNumber(fieldNumber, jCedula, jTelefono);
             elegirConsulta();
             tableCliente.refresh();
             Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);

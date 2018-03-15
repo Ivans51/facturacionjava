@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Administrador extends ManagerFXML implements Initializable, TableUtil.StatusControles {
+public class Administrador extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
     public JFXButton btnAuditoria, btnSalir, btnImprimir;
@@ -44,8 +44,8 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
     private String selected = "";
     private String[] rangoTiempo = {"Día", "Mes"};
-    private String[] clientesA = {"Cedula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
-    private String[] usuariosA = {"Cedula", "Nombre", "Correo", "Fecha", "Status"};
+    private String[] clientesA = {"Cédula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
+    private String[] usuariosA = {"Cédula", "Nombre", "Correo", "Fecha", "Status"};
     private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "IVA", "Total"};
     private String[] subServicioA = {"Id", "NombreSub", "PrecioSub", "FechaSub", "Tiempo_estimadoSub"};
     private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoE"};
@@ -132,9 +132,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         table = new TableUtil(Usuario.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
-        final ObservableList<Usuario> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Usuario>) c -> table.seleccionarTabla(this));
-
         List<Usuario> usuarioList = usuarioDAO.selectAll();
         usuarioList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getCedula()));
@@ -154,9 +151,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         table = new TableUtil(Factura.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
-        final ObservableList<Factura> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Factura>) c -> table.seleccionarTabla(this));
-
         List<Factura> facturaList = facturaDAO.selectAll();
         addFactura(facturaList);
         table.getListTable().addAll(facturaList);
@@ -170,8 +164,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         table = new TableUtil(Factura.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
-        final ObservableList<Factura> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Factura>) c -> table.seleccionarTabla(this));
         List<Factura> facturaList = new ArrayList<>();
         LocalDate value = calendario.getValue();
         Factura factura = new Factura();
@@ -220,9 +212,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         table = new TableUtil(Cliente.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
-        final ObservableList<Cliente> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Cliente>) c -> table.seleccionarTabla(this));
-
         List<Cliente> clienteList = clienteDAO.selectAll();
         clienteList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getCedula()));
@@ -241,9 +230,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(SubServicios.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        final ObservableList<SubServicios> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<SubServicios>) c -> table.seleccionarTabla(this));
 
         List<SubServicios> subServiciosList = subServiciosDAO.selectAll();
         subServiciosList.forEach(it -> {
@@ -264,9 +250,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         table = new TableUtil(Servicios.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
-        final ObservableList<Servicios> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Servicios>) c -> table.seleccionarTabla(this));
-
         List<Servicios> serviciosList = serviciosDAO.selectAll();
         serviciosList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdservicios()));
@@ -285,9 +268,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Auditoria.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        final ObservableList<Auditoria> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
-        tablaSelecionada.addListener((ListChangeListener<Auditoria>) c -> table.seleccionarTabla(this));
 
         List<Auditoria> auditoriaList = auditoriaDAO.selectAll();
         auditoriaList.forEach(it -> {
@@ -363,10 +343,5 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         } catch (FileNotFoundException | DocumentException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void setStatusControls() {
-
     }
 }

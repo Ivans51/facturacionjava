@@ -36,7 +36,7 @@
                   </VBox>
                   <VBox HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Cedula o RIF" />
+                        <Label text="Cédula o RIF" />
                         <TextField fx:id="jCedula" />
                      </children>
                   </VBox>
@@ -81,7 +81,7 @@
                 <TableView fx:id="tableCliente" prefHeight="406.0" prefWidth="608.0">
                     <columns>
                         <TableColumn fx:id="tbNacionalidad" prefWidth="75.0" text="Nacionalidad" />
-                        <TableColumn fx:id="tbCedula" prefWidth="75.0" text="Cedula" />
+                        <TableColumn fx:id="tbCedula" prefWidth="75.0" text="Cédula" />
                         <TableColumn fx:id="tbNombres" prefWidth="75.0" text="Nombres" />
                         <TableColumn fx:id="tbApellidos" prefWidth="75.0" text="Apellidos" />
                         <TableColumn fx:id="tbDireccion" prefWidth="75.0" text="Direccion" />
