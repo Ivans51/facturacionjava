@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.UsuarioDAO;
 import core.util.*;
+import core.util.TableUtil;
 import core.vo.Usuario;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -12,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -42,6 +44,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     private boolean stateEdit = false;
     private String[] field = {"Nombre", "Correo", "Clave"};
     private String[] fieldNumber = {"Cédula"};
+    private String[] fieldLimit = {"Cédula", "Teléfono"};
+    private int[] rangeLimit = {7, 11};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -74,6 +78,7 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         try {
             Validar.campoVacio(field, jNombre, jCorreo, jClave);
             Validar.isNumber(fieldNumber, jCedula);
+            Validar.limitField(rangeLimit, fieldLimit, jCedula);
             String nac = cNacionalidad.getSelectionModel().getSelectedItem();
             String nivel = cNivel.getSelectionModel().getSelectedItem();
             String[] fieldString = {"Nacionalidad, Nivel"};
@@ -131,13 +136,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     }
 
     public void actionEditar(ActionEvent actionEvent) {
-        try {
-            stateViewEdit(false);
-            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
-        } catch (Myexception e) {
-            new AlertUtil(Estado.ERROR, e.getMessage());
-            e.printStackTrace();
-        }
+        stateViewEdit(false);
+        Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
     }
 
     @Override
@@ -163,12 +163,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        try {
-            Validar.limmpiarCampos(jNombre, jClave, jCorreo);
-            cNacionalidad.getSelectionModel().clearSelection();
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
-        }
+        Validar.limmpiarCampos(jNombre, jClave, jCorreo);
+        cNacionalidad.getSelectionModel().clearSelection();
     }
 
     public void actionSalir(MouseEvent mouseEvent) {

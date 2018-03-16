@@ -29,16 +29,19 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     public TableColumn tbNacionalidad, tbCedula, tbNombres, tbApellidos, tbDireccion, tbTelefono;
     public ComboBox<String> cNacionalidad;
 
-    private String[] nacionalidades = {"V", "E", "J"};
     private TableUtil<Cliente, String> table;
-    private String[] columS = {"nacionalidad", "cedula", "nombres", "apellidos", "direccion", "telefono"};
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private List<Cliente> clientes = new ArrayList<>();
     private List<String> cedulas = new ArrayList<>();
     private Cliente cliente;
     private boolean stateEdit = false;
+    private String[] nacionalidades = {"V", "E", "J"};
+    private String[] columS = {"nacionalidad", "cedula", "nombres", "apellidos", "direccion", "telefono"};
     private String[] field = {"Nombre", "Cédula", "Apellido", "Dirección", "Teléfono"};
     private String[] fieldNumber = {"Cédula", "Teléfono"};
+    private String[] fieldString = {"Nacionalidad"};
+    private String[] fieldLimit = {"Cédula", "Teléfono"};
+    private int[] rangeLimit = {7, 11};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,6 +71,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
             Validar.campoVacio(field, jNombre, jCedula, jApellido, jDireccion, jTelefono);
             Validar.stringVacio(fieldString, cNacionalidad.getSelectionModel().getSelectedItem());
             Validar.isNumber(fieldNumber, jCedula, jTelefono);
+            Validar.limitField(rangeLimit, fieldLimit, jCedula, jTelefono);
             elegirConsulta();
             tableCliente.refresh();
             Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
@@ -117,13 +121,8 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     }
 
     public void actionEditar(ActionEvent actionEvent) {
-        try {
-            stateViewEdit(false);
-            Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
-        } catch (Myexception myexception) {
-            new AlertUtil(Estado.ERROR, myexception.getMessage());
-            myexception.printStackTrace();
-        }
+        stateViewEdit(false);
+        Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
     }
 
     @Override
@@ -149,12 +148,8 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        try {
-            if (stateEdit) stateViewEdit(false);
-            Validar.limmpiarCampos(jCedula, jNombre, jTelefono, jApellido, jDireccion);
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
-        }
+        if (stateEdit) stateViewEdit(false);
+        Validar.limmpiarCampos(jCedula, jNombre, jTelefono, jApellido, jDireccion);
     }
 
     public void actionSalir(ActionEvent mouseEvent) {

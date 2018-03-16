@@ -8,16 +8,14 @@ import core.conexion.MyBatisConnection;
 import core.dao.ClienteDAO;
 import core.dao.FacturaDAO;
 import core.dao.ServiciosDAO;
-import core.dao.SubServiciosDAO;
 import core.util.*;
 import core.vo.Cliente;
 import core.vo.Servicios;
-import core.vo.SubServicios;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
@@ -28,27 +26,61 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 
-public class Factura extends ManagerFXML implements Initializable {
+public class Factura extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public ComboBox<String> cServicios, cServiciosAgregados, cSubServicio;
-    public TextField jPrecio, jFecha, jCedula;
-    public JFXButton btnAgregar, btnSalir, btnMostrarProducto, btnBuscar, btnImprimir;
-    public Label lblFecha, lblPrecio, lblTotal, lblNombre, lblCiudad, lblTelefono, lblSub;
+    public ComboBox<String> cServicios;
+    public TextField jPrecio, jFecha, jCedula, jNombre, jCiudad, jTelefono;
+    public JFXButton btnAgregar, btnSalir, btnBuscar, btnImprimir, btnElegir;
+
+    private TableUtil<Cliente, String> tableClienteUtil;
+    public TableView<Cliente> tableCliente;
+    public TableColumn tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono;
+
+    private TableUtil<Cliente, String> tableServicioUtil;
+    public TableView<Servicios> tableServicio;
+    public TableColumn tbID, tbNombreServicio, tbPrecio, tbTiempoEstimado;
 
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
-    private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
-    private double totalPagar;
     private HashMap<String, Double> totalArt = new HashMap<>();
-    private double iva;
     private int tiempoMaximo = 0;
-    private double subTotal;
+    private double iva, subTotal, totalPagar;
+
+    private String[] columS = {"cedula", "nombres", "apellidos", "direccion", "telefono"};
+    private List<Cliente> clientes = new ArrayList<>();
+    private List<Servicios> servicios = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setComboServicio();
+        setTableCliente();
+        setTableServicio();
+    }
+
+    private void setTableCliente() {
+        tableServicio.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableServicioUtil = new TableUtil(Servicios.class, tableServicio);
+        tableServicioUtil.inicializarTabla(columS, tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono);
+
+        final ObservableList<Servicios> tablaSelecionada = tableServicio.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<Servicios>) c -> tableServicioUtil.seleccionarTabla(this));
+
+        clientes = clienteDAO.selectAll();
+        tableServicioUtil.getListTable().addAll(clientes);
+    }
+
+    private void setTableServicio() {
+        tableCliente.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableClienteUtil = new TableUtil(Cliente.class, tableCliente);
+        tableClienteUtil.inicializarTabla(columS, tbID, tbNombreServicio, tbPrecio, tbTiempoEstimado);
+
+        final ObservableList<Cliente> tablaSelecionada = tableCliente.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<Cliente>) c -> tableClienteUtil.seleccionarTabla(this));
+
+        clientes = clienteDAO.selectAll();
+        tableClienteUtil.getListTable().addAll(clientes);
     }
 
     // Muestra los servicios
@@ -58,42 +90,22 @@ public class Factura extends ManagerFXML implements Initializable {
         servicios.forEach(servicio -> nombres.put(servicio.getNombre(), servicio.getIdservicios()));
         nombres.forEach((key, value) -> cServicios.getItems().add(key));
         cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
-            List<Servicios> list = serviciosDAO.selectJoinSub(newValue);
-            if (list.size() > 0) {
-                setStatusSubServicio();
-                setComboSubServicio(list);
-            }
-        });
-    }
-
-    // Muestra la informacion segun el tipo de servio y muestra los subservicios
-    private void setComboSubServicio(List<Servicios> list) {
-        List<String> nombresSub = new ArrayList<>();
-        list.forEach(serv -> nombresSub.add(serv.getSubServicios().getNombreSub()));
-        cSubServicio.getItems().addAll(nombresSub);
-        cSubServicio.valueProperty().addListener((observable1, oldValue1, newValue1) -> {
-            SubServicios servicios = subServiciosDAO.selectByNombre(newValue1);
-            if (servicios != null) {
-                jPrecio.setText(String.valueOf(servicios.getPrecioSub()));
-                jFecha.setText(FechaUtil.getDateFormat(servicios.getFechaSub()));
-                int tiempo = servicios.getTiempo_estimadoSub();
+            Servicios select = serviciosDAO.selectByNombre(newValue);
+            if (select != null) {
+                jPrecio.setText(String.valueOf(select.getPrecio()));
+                jFecha.setText(FechaUtil.getDateFormat(select.getFecha()));
+                int tiempo = Integer.parseInt(select.getTiempo_estimado());
                 if (tiempo > tiempoMaximo)
                     tiempoMaximo = tiempo;
             }
         });
     }
 
-    private void setStatusSubServicio() {
-        cSubServicio.getItems().clear();
-        cSubServicio.setVisible(!cSubServicio.isVisible());
-        lblSub.setVisible(!lblSub.isVisible());
-    }
-
     // Despliega los servicios y subservicios agregados
     public void actionAgregar(ActionEvent actionEvent) {
-        String item = cSubServicio.getSelectionModel().getSelectedItem();
+        String item = cServicios.getSelectionModel().getSelectedItem();
         if (item != null && !"".equals(item)) {
-            setComboAgregados(item);
+            //setComboAgregados(item);
             setTotal(item);
             limpiar();
         } else {
@@ -101,25 +113,12 @@ public class Factura extends ManagerFXML implements Initializable {
         }
     }
 
-    // Se llama desde la funcion del boton agregar
-    private void setComboAgregados(String item) {
-        cServiciosAgregados.getItems().add(item);
-        cServiciosAgregados.valueProperty().addListener((observable, oldValue, newValue) -> {
-            SubServicios servicios = subServiciosDAO.selectByNombre(newValue);
-            if (servicios != null) {
-                lblFecha.setText(String.valueOf(servicios.getTiempo_estimadoSub()));
-                lblPrecio.setText(String.valueOf(servicios.getPrecioSub()));
-                lblTotal.setText(String.valueOf(totalPagar));
-            }
-        });
-    }
-
     // A medida que se agregan los servicio se suma el precio total del servicio
     private void setTotal(String item) {
-        SubServicios serv = subServiciosDAO.selectByNombre(item);
-        totalArt.put(serv.getNombreSub(), serv.getPrecioSub());
-        totalPagar += serv.getPrecioSub();
-        lblTotal.setText(String.valueOf(totalPagar));
+        Servicios serv = serviciosDAO.selectByNombre(item);
+        totalArt.put(serv.getNombre(), serv.getPrecio());
+        totalPagar += serv.getPrecio();
+        // lblTotal.setText(String.valueOf(totalPagar));
     }
 
     // Una vez que se agrega el servicio si limpia los de arriba
@@ -127,21 +126,6 @@ public class Factura extends ManagerFXML implements Initializable {
         jPrecio.setText("");
         jFecha.setText("");
         cServicios.getSelectionModel().clearSelection();
-        setStatusSubServicio();
-    }
-
-    // Borra un servicio agregado
-    public void borrarItem(ActionEvent actionEvent) {
-        String item = cServiciosAgregados.getSelectionModel().getSelectedItem();
-        if (item != null && !"".equals(item)) {
-            cServiciosAgregados.getSelectionModel().clearSelection();
-            cServiciosAgregados.getItems().remove(item);
-            totalArt.remove(item);
-            totalPagar -= subServiciosDAO.selectByNombre(item).getPrecioSub();
-            lblFecha.setText("");
-            lblPrecio.setText("");
-            lblTotal.setText(String.valueOf(totalPagar));
-        }
     }
 
     // Busca los clientes de la empresa
@@ -151,13 +135,10 @@ public class Factura extends ManagerFXML implements Initializable {
             abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
                     false, StageStyle.TRANSPARENT, () -> {
                         DialogCliente display = ManagerFXML.getFxmlLoader().getController();
-                        display.setModel(jCedula.getText(), lblNombre, lblCiudad, lblTelefono);
+                        display.setModel(jCedula.getText());
                     });
         else {
             new AlertUtil(Estado.EXITOSA, "Usuario registrado en el sistema");
-            lblNombre.setText(cliente.getNombres());
-            lblCiudad.setText(cliente.getDireccion());
-            lblTelefono.setText(cliente.getTelefono());
         }
     }
 
@@ -192,11 +173,11 @@ public class Factura extends ManagerFXML implements Initializable {
             tabla.addCell("Cedula");
             tabla.addCell(jCedula.getText());
             tabla.addCell("Nombre");
-            tabla.addCell(lblNombre.getText());
+            tabla.addCell(jNombre.getText());
             tabla.addCell("Telefono");
-            tabla.addCell(lblTelefono.getText());
+            tabla.addCell(jTelefono.getText());
             tabla.addCell("Ciudad");
-            tabla.addCell(lblCiudad.getText());
+            tabla.addCell(jCiudad.getText());
             totalArt.forEach((key, value) -> {
                 tabla.addCell(key);
                 tabla.addCell(String.format("%1$,.2f", value) + " Bs");
@@ -240,7 +221,12 @@ public class Factura extends ManagerFXML implements Initializable {
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
-    public interface Controls {
-        void send();
+    public void actionElegir(ActionEvent actionEvent) {
+
+    }
+
+    @Override
+    public void setStatusControls() {
+
     }
 }

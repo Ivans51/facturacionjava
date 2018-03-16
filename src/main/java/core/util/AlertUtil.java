@@ -25,7 +25,7 @@ public class AlertUtil extends ManagerFXML {
     }
 
     private void dilog() {
-        abrirStageStyle(Route.AlertDialog, "", Modality.NONE, null,
+        abrirStageStyle(Route.DialogAlert, "", Modality.NONE, null,
                 false, StageStyle.TRANSPARENT, this::elegir);
     }
 

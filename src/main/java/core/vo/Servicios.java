@@ -12,7 +12,6 @@ public class Servicios {
     private Date fecha;
     private String estado;
     private String tiempo_estimado;
-    private SubServicios subServicios;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
 
     public int getIdservicios() {
@@ -53,14 +52,6 @@ public class Servicios {
 
     public void setTiempo_estimado(String tiempo_estimado) {
         this.tiempo_estimado = tiempo_estimado;
-    }
-
-    public SubServicios getSubServicios() {
-        return subServicios;
-    }
-
-    public void setSubServicios(SubServicios subServicios) {
-        this.subServicios = subServicios;
     }
 
     /*public List<SubServicios> getSubServiciosList() {

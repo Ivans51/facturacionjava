@@ -7,7 +7,6 @@ import core.util.*;
 import core.vo.Cliente;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
@@ -20,7 +19,6 @@ public class DialogCliente extends ManagerFXML implements Initializable {
     public TextField jCedula, jNombre, jApellido, jDireccion, jTelefono;
     public JFXButton btnAgregar, btnLimpiar, btnSalir;
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
-    private Label lblNombre, lblCiudad, lblTelefono;
     private List<String> cedulas = new ArrayList<>();
     private String[] campos = {"Nombre", "Cédula", "Apellido", "Dirección"};
     private String[] fieldString = {"Nombre", "Apellido"};
@@ -32,10 +30,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
         clientes.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
     }
 
-    void setModel(String text, Label lblNombre, Label lblCiudad, Label lblTelefono) {
-        this.lblNombre = lblNombre;
-        this.lblCiudad = lblCiudad;
-        this.lblTelefono = lblTelefono;
+    void setModel(String text) {
         jCedula.setEditable(false);
         jNombre.setFocusTraversable(true);
         jCedula.setText(text);
@@ -51,9 +46,6 @@ public class DialogCliente extends ManagerFXML implements Initializable {
             new AlertUtil(Estado.EXITOSA, "Cliente registrado", lblClose -> {
                 cerrarStage(lblClose);
                 cerrarStage(btnAgregar);
-                lblNombre.setText(jNombre.getText());
-                lblCiudad.setText(jDireccion.getText());
-                lblTelefono.setText(jTelefono.getText());
             });
         } catch (Myexception myexception) {
             new AlertUtil(Estado.ERROR, "Hubo un error, asegurese que la información ingresada sea correcta");
@@ -73,11 +65,7 @@ public class DialogCliente extends ManagerFXML implements Initializable {
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        try {
-            Validar.limmpiarCampos(jNombre, jApellido, jTelefono, jDireccion);
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
-        }
+        Validar.limmpiarCampos(jNombre, jApellido, jTelefono, jDireccion);
     }
 
     public void actionSalir(ActionEvent actionEvent) {

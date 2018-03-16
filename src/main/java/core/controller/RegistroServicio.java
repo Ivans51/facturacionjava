@@ -3,10 +3,8 @@ package core.controller;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ServiciosDAO;
-import core.dao.SubServiciosDAO;
 import core.util.*;
 import core.vo.Servicios;
-import core.vo.SubServicios;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,13 +29,12 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
 
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
-    private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private TableUtil<Servicios, String> table;
     private Servicios servicios = new Servicios();
-    private String[] columS = {"nombre", "precio", "fecha", "tiempo_estimado"};
     private List<Servicios> serviciosList = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
     private boolean stateEdit = false;
+    private String[] columS = {"nombre", "precio", "fecha", "tiempo_estimado"};
     private String[] field = {"Nombre", "Precio", "Tiempo de Entrega"};
     private String[] fieldNumber = {"Precio", "Tiempo de Entrega"};
 
@@ -81,7 +78,6 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         if (!stateEdit) {
             Validar.checkValor(jNombre.getText(), nombres, "nombre");
             serviciosDAO.insert(getServiciosInsert());
-            subServiciosDAO.insert(getSubServicios(serviciosDAO.selectLastID().getIdservicios()));
             int id = serviciosDAO.selectLastID().getIdservicios();
             table.getListTable().add(serviciosDAO.selectById(id));
             new AuditoriaUtil().insertar("Registro del servicio");
@@ -110,17 +106,6 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         return servicios;
-    }
-
-    private SubServicios getSubServicios(int idservicios) throws ParseException {
-        SubServicios subServicios = new SubServicios();
-        subServicios.setNombreSub(jNombre.getText());
-        subServicios.setFechaSub(FechaUtil.getCurrentDate());
-        subServicios.setPrecioSub(Double.valueOf(jPrecio.getText()));
-        subServicios.setTiempo_estimadoSub(Integer.parseInt(jTiempoE.getText()));
-        subServicios.setUsuario_cedula(Storage.getUsuario().getCedula());
-        subServicios.setSubservicio_idsubservicio(idservicios);
-        return subServicios;
     }
 
     public void actionDesactivar(ActionEvent actionEvent) {
@@ -154,13 +139,9 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        try {
-            if (servicios.isEstado().equals("1") || stateEdit)
-                stateViewEdit(false);
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
-        } catch (Myexception myexception) {
-            myexception.printStackTrace();
-        }
+        if (servicios.isEstado().equals("1") || stateEdit)
+            stateViewEdit(false);
+        Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
     }
 
     public void actionSalir(ActionEvent actionEvent) {
