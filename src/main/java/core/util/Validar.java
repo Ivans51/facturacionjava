@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -51,15 +52,10 @@ public class Validar {
         }
     }
 
-    public static boolean limmpiarCampos(TextField... txt) throws Myexception {
-        boolean esValido = true;
-        for (int i = 0; i < txt.length; i++) {
-            txt[i].setText("");
+    public static void limmpiarCampos(TextField... txt) {
+        for (TextField aTxt : txt) {
+            aTxt.setText("");
         }
-        if (esValido)
-            return esValido;
-        else
-            throw new Myexception("Erro message");
     }
 
     /**
@@ -259,5 +255,14 @@ public class Validar {
                 e.consume();
             }
         };
+    }
+
+    public static void limitField(int[] range, String[] message, TextField... txt) throws Myexception{
+        for (int i = 0; i < txt.length; i++) {
+            if (txt[i].getText().length() > range[i]) {
+                String s = "El campo " + message[i] + " debe tener un minimo de " + range[i] + "caracteres";
+                throw new Myexception(s);
+            }
+        }
     }
 }

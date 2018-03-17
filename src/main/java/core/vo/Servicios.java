@@ -8,11 +8,11 @@ public class Servicios {
 
     private int idservicios;
     private String nombre;
+    private String descripcion;
     private Double precio;
     private Date fecha;
     private String estado;
     private String tiempo_estimado;
-    private SubServicios subServicios;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
 
     public int getIdservicios() {
@@ -55,27 +55,19 @@ public class Servicios {
         this.tiempo_estimado = tiempo_estimado;
     }
 
-    public SubServicios getSubServicios() {
-        return subServicios;
-    }
-
-    public void setSubServicios(SubServicios subServicios) {
-        this.subServicios = subServicios;
-    }
-
-    /*public List<SubServicios> getSubServiciosList() {
-        return subServiciosList;
-    }
-
-    public void setSubServiciosList(List<SubServicios> subServiciosList) {
-        this.subServiciosList = subServiciosList;
-    }*/
-
     public String isEstado() {
         return estado;
     }
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }

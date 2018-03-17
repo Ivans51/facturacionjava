@@ -7,11 +7,10 @@ import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.*;
 import core.util.*;
+import core.util.TableUtil;
 import core.vo.*;
 import core.vo.Factura;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -19,6 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,16 +29,15 @@ import java.util.ResourceBundle;
 public class Administrador extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
-    public JFXButton btnAuditoria, btnSalir, btnImprimir;
+    public JFXButton btnSalir, btnImprimir, btnConsultar, btnCambiarModo;
     public ComboBox<String> cReportes, cTime;
     public TableView tableReport;
     public TableColumn tbId, tbFecha, tbHora, tbAcion, tbUsuario;
-    public DatePicker calendario;
+    public DatePicker datePickerUno, datePickerDos;
     public Label lblTotal;
 
     private AuditoriaDAO auditoriaDAO = new AuditoriaDAO(MyBatisConnection.getSqlSessionFactory());
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
-    private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
@@ -47,7 +46,6 @@ public class Administrador extends ManagerFXML implements Initializable {
     private String[] clientesA = {"Cédula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
     private String[] usuariosA = {"Cédula", "Nombre", "Correo", "Fecha", "Status"};
     private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "IVA", "Total"};
-    private String[] subServicioA = {"Id", "NombreSub", "PrecioSub", "FechaSub", "Tiempo_estimadoSub"};
     private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoE"};
     private String[] auditoriasA = {"Id", "Fecha", "Hora", "Accion", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();
@@ -65,13 +63,12 @@ public class Administrador extends ManagerFXML implements Initializable {
         switch (Storage.getUsuario().getStatus()) {
             case Estado.TECNICO:
                 tipos.add("Factura");
-                btnAuditoria.setVisible(false);
                 selected = "Factura";
                 setTableFactura();
                 break;
             case Estado.GERENTE:
+                tipos.add("Auditoria");
                 tipos.add("Servicios");
-                tipos.add("Subservicios");
                 tipos.add("Cliente");
                 tipos.add("Factura");
                 tipos.add("Usuario");
@@ -81,7 +78,6 @@ public class Administrador extends ManagerFXML implements Initializable {
             case Estado.ASISTENTE:
                 tipos.add("Cliente");
                 tipos.add("Factura");
-                btnAuditoria.setVisible(false);
                 selected = "Factura";
                 // Tabla de inicio
                 setTableFactura();
@@ -105,11 +101,11 @@ public class Administrador extends ManagerFXML implements Initializable {
     private void eligirAccion(String selected) {
         valuesReport.clear();
         switch (selected) {
+            case "Auditoria":
+                setTableAuditoria();
+                break;
             case "Servicios":
                 setTableServicios();
-                break;
-            case "Subservicios":
-                setTableSubServicios();
                 break;
             case "Cliente":
                 setTableCliente();
@@ -125,6 +121,7 @@ public class Administrador extends ManagerFXML implements Initializable {
     }
 
     private void setTableUsuario() {
+        lblTotal.setVisible(false);
         setHeaders(usuariosA);
         String[] columA = {"cedula", "nombre", "correo", "fecha", "status"};
         TableUtil<Usuario, String> table;
@@ -144,6 +141,7 @@ public class Administrador extends ManagerFXML implements Initializable {
     }
 
     private void setTableFactura() {
+        lblTotal.setVisible(true);
         setHeaders(facturasA);
         String[] columA = {"idfactura", "servicios", "fecha_pago", "IVA", "total"};
         TableUtil<Factura, String> table;
@@ -165,7 +163,7 @@ public class Administrador extends ManagerFXML implements Initializable {
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
 
         List<Factura> facturaList = new ArrayList<>();
-        LocalDate value = calendario.getValue();
+        LocalDate value = datePickerUno.getValue();
         Factura factura = new Factura();
         switch (time) {
             case "Día":
@@ -205,6 +203,7 @@ public class Administrador extends ManagerFXML implements Initializable {
     }
 
     private void setTableCliente() {
+        lblTotal.setVisible(false);
         setHeaders(clientesA);
         String[] columA = {"cedula", "nombres", "apellidos", "direccion", "telefono"};
         TableUtil<Cliente, String> table;
@@ -223,26 +222,8 @@ public class Administrador extends ManagerFXML implements Initializable {
         table.getListTable().addAll(clienteList);
     }
 
-    private void setTableSubServicios() {
-        setHeaders(subServicioA);
-        String[] columA = {"idsubservicio", "NombreSub", "precioSub", "FechaSub", "tiempo_estimadoSub"};
-        TableUtil<SubServicios, String> table;
-        tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table = new TableUtil(SubServicios.class, tableReport);
-        table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        List<SubServicios> subServiciosList = subServiciosDAO.selectAll();
-        subServiciosList.forEach(it -> {
-            valuesReport.add(String.valueOf(it.getIdsubservicio()));
-            valuesReport.add(String.valueOf(it.getNombreSub()));
-            valuesReport.add(String.valueOf(it.getPrecioSub()));
-            valuesReport.add(String.valueOf(it.getFechaSub()));
-            valuesReport.add(String.valueOf(it.getTiempo_estimadoSub()));
-        });
-        table.getListTable().addAll(subServiciosList);
-    }
-
     private void setTableServicios() {
+        lblTotal.setVisible(false);
         setHeaders(serviciosA);
         String[] columA = {"idservicios", "Nombre", "Precio", "Fecha", "tiempo_estimado"};
         TableUtil<Servicios, String> table;
@@ -262,6 +243,7 @@ public class Administrador extends ManagerFXML implements Initializable {
     }
 
     private void setTableAuditoria() {
+        lblTotal.setVisible(false);
         setHeaders(auditoriasA);
         String[] columA = {"idAuditoria", "Fecha", "Hora", "Accion", "nombreUsuario"};
         TableUtil<Auditoria, String> table;
@@ -288,12 +270,6 @@ public class Administrador extends ManagerFXML implements Initializable {
         tbUsuario.setText(name[4]);
     }
 
-    public void actionAuditoria(ActionEvent actionEvent) {
-        selected = "Auditoria";
-        setTableAuditoria();
-        lblTotal.setVisible(false);
-    }
-
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
@@ -309,10 +285,6 @@ public class Administrador extends ManagerFXML implements Initializable {
             case "Servicios":
                 String ser = "Servicios-";
                 imprimirAuditoria(serviciosA, ser + fecha + ".pdf", ser);
-                break;
-            case "Subservicios":
-                String sub = "SubServicios-";
-                imprimirAuditoria(subServicioA, sub + fecha + ".pdf", sub);
                 break;
             case "Clliente":
                 String cli = "Clientes-";
@@ -333,15 +305,23 @@ public class Administrador extends ManagerFXML implements Initializable {
         try {
             DateTime d = new DateTime();
             String timeActual = d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear();
-            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual);
+            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual, "");
             pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
             pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
             pdfCreator.crearPDF(5, (PdfPTable tabla) -> {
                 Arrays.stream(strings).forEach(tabla::addCell);
                 valuesReport.forEach(tabla::addCell);
             });
-        } catch (FileNotFoundException | DocumentException e) {
+        } catch (IOException | DocumentException e) {
             e.printStackTrace();
         }
+    }
+
+    public void actionConsultar(ActionEvent actionEvent) {
+
+    }
+
+    public void actionCambiar(ActionEvent actionEvent) {
+
     }
 }

@@ -9,6 +9,7 @@
         <!-- property="atributo java" column="columna tabla" -->
         <result property="idservicios" column="idservicio"/>
         <result property="nombre" column="nombre"/>
+        <result property="descripcion" column="descripcion"/>
         <result property="precio" column="precio"/>
         <result property="fecha" column="fecha"/>
         <result property="estado" column="estado"/>
@@ -23,13 +24,13 @@
         <result property="fecha" column="fecha"/>
         <result property="estado" column="estado"/>
         <result property="tiempo_estimado" column="tiempo_estimado"/>
-        <association property="subServicios" resultMap="subServicioResult"/>
+        <!--<association property="subServicios" resultMap="subServicioResult"/>-->
         <!--<collection property="subServiciosList" ofType="SubServicios" resultMap="subServicioResult"
                     columnPrefix="post_"/>-->
     </resultMap>
 
-    <resultMap id="subServicioResult" type="SubServicios">
-        <!-- property="atributo java" column="columna tabla" -->
+    <!--<resultMap id="subServicioResult" type="SubServicios">
+        &lt;!&ndash; property="atributo java" column="columna tabla" &ndash;&gt;
         <id  property="idsubservicio" column="idsubservicios"/>
         <result property="nombreSub" column="nombreSub"/>
         <result property="precioSub" column="precioSub"/>
@@ -38,7 +39,7 @@
         <result property="tiempo_estimadoSub" column="tiempo_estimadoSub"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
         <result property="subservicio_idsubservicio" column="subservicio_idsubservicio"/>
-    </resultMap>
+    </resultMap>-->
 
     <select id="selectAll" resultMap="result">
         SELECT *
@@ -51,13 +52,13 @@
         WHERE estado in (SELECT estado FROM facturacion.servicios WHERE estado = '1');
     </select>
 
-    <select id="selectJoinSub" parameterType="string" resultMap="serviciosSub">
+    <!--<select id="selectJoinSub" parameterType="string" resultMap="serviciosSub">
         SELECT a1.nombre, a1.precio, a1.fecha, a2.nombreSub, a2.fechaSub, a2.precioSub
         FROM facturacion.servicios a1
         INNER JOIN facturacion.serviciosub a2 ON a1.idservicio = a2.subservicio_idsubservicio
         WHERE a1.nombre = #{nombre}
               And a2.estado in (SELECT a2.estado FROM facturacion.serviciosub WHERE a2.estado = '1');
-    </select>
+    </select>-->
 
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
@@ -87,8 +88,8 @@
     </select>
 
     <insert id="insert" parameterType="Servicios" useGeneratedKeys="true" keyProperty="idservicios">
-        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, estado)
-        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{estado});
+        INSERT INTO facturacion.servicios (nombre, precio, fecha, tiempo_estimado, estado, descripcion)
+        VALUES (#{nombre}, #{precio}, #{fecha}, #{tiempo_estimado}, #{estado}, #{descripcion});
     </insert>
 
     <update id="updateEstado" parameterType="Servicios">
@@ -99,7 +100,8 @@
 
     <update id="update" parameterType="Servicios">
         UPDATE facturacion.servicios
-        SET precio = #{precio}, fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
+        SET precio = #{precio}, fecha = #{fecha},
+            tiempo_estimado = #{tiempo_estimado}, descripcion = #{descripcion}
         WHERE idservicio = #{idservicios}
     </update>
 

@@ -1,6 +1,7 @@
 package core.util;
 
 import com.sun.istack.internal.Nullable;
+import core.vo.Cliente;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -66,6 +67,26 @@ public class TableUtil<T, V> {
             }
         }
         return null;
+    }
+
+    public ObservableList<T> getData() {
+        return table.getItems();
+    }
+
+    public void searchMultiple(String value){
+        ObservableList<T> subentries = FXCollections.observableArrayList();
+
+        int count = table.getColumns().size();
+        for (int i = 0; i < table.getItems().size(); i++) {
+            for (int j = 0; j < count; j++) {
+                String entry = "" + table.getColumns().get(j).getCellData(i);
+                if (entry.toLowerCase().contains(value)) {
+                    subentries.add(table.getItems().get(i));
+                    break;
+                }
+            }
+        }
+        table.setItems(subentries);
     }
 
     public TableColumn[] getTableColumns() {

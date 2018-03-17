@@ -10,10 +10,8 @@
         <typeAlias type="core.vo.Auditoria" alias="Auditoria"/>
         <typeAlias type="core.vo.Cliente" alias="Cliente"/>
         <typeAlias type="core.vo.Factura" alias="Factura"/>
-        <typeAlias type="core.vo.Ordenes" alias="Ordenes"/>
         <typeAlias type="core.vo.Servicios" alias="Servicios"/>
         <typeAlias type="core.vo.Usuario" alias="Usuario"/>
-        <typeAlias type="core.vo.SubServicios" alias="SubServicios"/>
     </typeAliases>
 
     <environments default="development">
@@ -33,10 +31,8 @@
         <mapper resource="mapper/Auditoria.xml"/>
         <mapper resource="mapper/Cliente.xml"/>
         <mapper resource="mapper/Factura.xml"/>
-        <mapper resource="mapper/Ordenes.xml"/>
         <mapper resource="mapper/Servicios.xml"/>
         <mapper resource="mapper/Usuario.xml"/>
-        <mapper resource="mapper/SubServicios.xml"/>
     </mappers>
 
 </configuration>

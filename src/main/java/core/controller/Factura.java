@@ -1,54 +1,75 @@
 package core.controller;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ClienteDAO;
 import core.dao.FacturaDAO;
 import core.dao.ServiciosDAO;
-import core.dao.SubServiciosDAO;
 import core.util.*;
 import core.vo.Cliente;
 import core.vo.Servicios;
-import core.vo.SubServicios;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.joda.time.DateTime;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ResourceBundle;
 
-public class Factura extends ManagerFXML implements Initializable {
+public class Factura extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public ComboBox<String> cServicios, cServiciosAgregados, cSubServicio;
-    public TextField jPrecio, jFecha, jCedula;
-    public JFXButton btnAgregar, btnSalir, btnMostrarProducto, btnBuscar, btnImprimir;
-    public Label lblFecha, lblPrecio, lblTotal, lblNombre, lblCiudad, lblTelefono, lblSub;
+    public ComboBox<String> cServicios, cTipoPago;
+    public TextField jPrecio, jFecha, jCedula, jNombre, jCiudad, jTelefono;
+    public JFXButton btnAgregar, btnSalir, btnBuscar, btnImprimir, btnEliminar;
+    public TableView<Cliente> tableCliente;
+    public TableColumn tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono;
+    public TableView<Servicios> tableServicio;
+    public TableColumn tbID, tbNombreServicio, tbPrecio, tbTiempoEstimado;
 
+    private TableUtil<Cliente, String> tableClienteUtil;
+    private TableUtil<Servicios, String> tableServicioUtil;
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
-    private SubServiciosDAO subServiciosDAO = new SubServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
-    private double totalPagar;
-    private HashMap<String, Double> totalArt = new HashMap<>();
-    private double iva;
+    private List<Servicios> servicios = new ArrayList<>();
+
+    private HashMap<String, Double> totalPrecioArt = new HashMap<>();
+    private HashMap<String, Integer> totalCantArt = new HashMap<>();
+    private HashMap<String, Servicios> totalArt = new HashMap<>();
     private int tiempoMaximo = 0;
-    private double subTotal;
+    private double iva, subTotal, totalPagar;
+
+    private String[] columS = {"cedula", "nombres", "apellidos", "direccion", "telefono"};
+    private String[] columServicio = {"idservicios", "nombre", "precio", "tiempo_estimado"};
+    private String[] tiposPago = {"Efectivo", "Transferencia", "Cheque", "Otro"};
+    private Servicios servicio;
+    private Cliente cliente;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        cTipoPago.getItems().addAll(tiposPago);
         setComboServicio();
+        setTableServicios();
+        setTableCliente();
+        setBuscarTableCliente();
     }
 
     // Muestra los servicios
@@ -58,42 +79,53 @@ public class Factura extends ManagerFXML implements Initializable {
         servicios.forEach(servicio -> nombres.put(servicio.getNombre(), servicio.getIdservicios()));
         nombres.forEach((key, value) -> cServicios.getItems().add(key));
         cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
-            List<Servicios> list = serviciosDAO.selectJoinSub(newValue);
-            if (list.size() > 0) {
-                setStatusSubServicio();
-                setComboSubServicio(list);
-            }
-        });
-    }
-
-    // Muestra la informacion segun el tipo de servio y muestra los subservicios
-    private void setComboSubServicio(List<Servicios> list) {
-        List<String> nombresSub = new ArrayList<>();
-        list.forEach(serv -> nombresSub.add(serv.getSubServicios().getNombreSub()));
-        cSubServicio.getItems().addAll(nombresSub);
-        cSubServicio.valueProperty().addListener((observable1, oldValue1, newValue1) -> {
-            SubServicios servicios = subServiciosDAO.selectByNombre(newValue1);
-            if (servicios != null) {
-                jPrecio.setText(String.valueOf(servicios.getPrecioSub()));
-                jFecha.setText(FechaUtil.getDateFormat(servicios.getFechaSub()));
-                int tiempo = servicios.getTiempo_estimadoSub();
+            Servicios select = serviciosDAO.selectByNombre(newValue);
+            if (select != null) {
+                jPrecio.setText(String.valueOf(select.getPrecio()));
+                jFecha.setText(FechaUtil.getDateFormat(select.getFecha()));
+                int tiempo = Integer.parseInt(select.getTiempo_estimado());
                 if (tiempo > tiempoMaximo)
                     tiempoMaximo = tiempo;
             }
         });
     }
 
-    private void setStatusSubServicio() {
-        cSubServicio.getItems().clear();
-        cSubServicio.setVisible(!cSubServicio.isVisible());
-        lblSub.setVisible(!lblSub.isVisible());
+    private void setTableServicios() {
+        tableServicio.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableServicioUtil = new TableUtil(Servicios.class, tableServicio);
+        tableServicioUtil.inicializarTabla(columServicio, tbID, tbNombreServicio, tbPrecio, tbTiempoEstimado);
+
+        final ObservableList<Servicios> tablaSelecionada = tableServicio.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<Servicios>) c -> tableServicioUtil.seleccionarTabla(this));
+
+        tableServicioUtil.getListTable().addAll(servicios);
+    }
+
+    private void setTableCliente() {
+        tableCliente.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableClienteUtil = new TableUtil(Cliente.class, tableCliente);
+        tableClienteUtil.inicializarTabla(columS, tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono);
+
+        final ObservableList<Cliente> tablaSelecionada = tableCliente.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<Cliente>) c -> tableClienteUtil.seleccionarTabla(this));
+
+        tableClienteUtil.getListTable().addAll(clienteDAO.selectAll());
+    }
+
+    private void setBuscarTableCliente() {
+        jCedula.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null && (newValue.length() < oldValue.length()))
+                tableCliente.setItems(tableClienteUtil.getData());
+            tableClienteUtil.searchMultiple(newValue.toLowerCase());
+        });
     }
 
     // Despliega los servicios y subservicios agregados
     public void actionAgregar(ActionEvent actionEvent) {
-        String item = cSubServicio.getSelectionModel().getSelectedItem();
+        String item = cServicios.getSelectionModel().getSelectedItem();
         if (item != null && !"".equals(item)) {
-            setComboAgregados(item);
+            tableServicioUtil.getListTable().add(serviciosDAO.selectByNombre(item));
+            tableServicio.refresh();
             setTotal(item);
             limpiar();
         } else {
@@ -101,25 +133,18 @@ public class Factura extends ManagerFXML implements Initializable {
         }
     }
 
-    // Se llama desde la funcion del boton agregar
-    private void setComboAgregados(String item) {
-        cServiciosAgregados.getItems().add(item);
-        cServiciosAgregados.valueProperty().addListener((observable, oldValue, newValue) -> {
-            SubServicios servicios = subServiciosDAO.selectByNombre(newValue);
-            if (servicios != null) {
-                lblFecha.setText(String.valueOf(servicios.getTiempo_estimadoSub()));
-                lblPrecio.setText(String.valueOf(servicios.getPrecioSub()));
-                lblTotal.setText(String.valueOf(totalPagar));
-            }
-        });
-    }
-
     // A medida que se agregan los servicio se suma el precio total del servicio
     private void setTotal(String item) {
-        SubServicios serv = subServiciosDAO.selectByNombre(item);
-        totalArt.put(serv.getNombreSub(), serv.getPrecioSub());
-        totalPagar += serv.getPrecioSub();
-        lblTotal.setText(String.valueOf(totalPagar));
+        Servicios serv = serviciosDAO.selectByNombre(item);
+        totalArt.put(serv.getNombre(), serv);
+        if (totalPrecioArt.get(serv.getNombre()) != null) {
+            Integer cant = totalCantArt.get(serv.getNombre());
+            totalCantArt.merge(serv.getNombre(), ++cant, Integer::sum);
+        } else
+            totalCantArt.put(serv.getNombre(), 1);
+        totalPrecioArt.put(serv.getNombre(), serv.getPrecio());
+        totalPagar += serv.getPrecio();
+        // lblTotal.setText(String.valueOf(totalPagar));
     }
 
     // Una vez que se agrega el servicio si limpia los de arriba
@@ -127,20 +152,22 @@ public class Factura extends ManagerFXML implements Initializable {
         jPrecio.setText("");
         jFecha.setText("");
         cServicios.getSelectionModel().clearSelection();
-        setStatusSubServicio();
     }
 
-    // Borra un servicio agregado
-    public void borrarItem(ActionEvent actionEvent) {
-        String item = cServiciosAgregados.getSelectionModel().getSelectedItem();
-        if (item != null && !"".equals(item)) {
-            cServiciosAgregados.getSelectionModel().clearSelection();
-            cServiciosAgregados.getItems().remove(item);
-            totalArt.remove(item);
-            totalPagar -= subServiciosDAO.selectByNombre(item).getPrecioSub();
-            lblFecha.setText("");
-            lblPrecio.setText("");
-            lblTotal.setText(String.valueOf(totalPagar));
+    public void actionEliminar(ActionEvent actionEvent) {
+        tableServicioUtil.getListTable().remove(servicio);
+        tableServicio.refresh();
+    }
+
+    @Override
+    public void setStatusControls() {
+        if (tableServicioUtil.getTablaSeleccionada(tableServicio) != null)
+            servicio = tableServicioUtil.getModel();
+        else if (tableClienteUtil.getTablaSeleccionada(tableCliente) != null) {
+            cliente = tableClienteUtil.getModel();
+            jNombre.setText(String.valueOf(cliente.getNombres()));
+            jCiudad.setText(cliente.getDireccion());
+            jTelefono.setText(cliente.getTelefono());
         }
     }
 
@@ -151,19 +178,17 @@ public class Factura extends ManagerFXML implements Initializable {
             abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
                     false, StageStyle.TRANSPARENT, () -> {
                         DialogCliente display = ManagerFXML.getFxmlLoader().getController();
-                        display.setModel(jCedula.getText(), lblNombre, lblCiudad, lblTelefono);
+                        display.setModel(jCedula.getText());
                     });
         else {
-            new AlertUtil(Estado.EXITOSA, "Usuario registrado en el sistema");
-            lblNombre.setText(cliente.getNombres());
-            lblCiudad.setText(cliente.getDireccion());
-            lblTelefono.setText(cliente.getTelefono());
+            new AlertUtil(Estado.EXITOSA, "Usuario ya esta registrado en el sistema");
         }
     }
 
     public void actionImprimir(ActionEvent actionEvent) {
         try {
-            if (totalArt.size() > 0) {
+            if (totalPrecioArt.size() > 0) {
+                Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
                 calcularIva();
                 setReportPDF();
                 setFactura();
@@ -171,36 +196,50 @@ public class Factura extends ManagerFXML implements Initializable {
             } else {
                 new AlertUtil(Estado.EXITOSA, "Debe adquirir un servicio");
             }
-        } catch (FileNotFoundException | DocumentException | ParseException e) {
+        } catch (ParseException | DocumentException | IOException | Myexception e) {
             e.printStackTrace();
+            if (e instanceof Myexception) new AlertUtil(Estado.EXITOSA, e.getMessage());
         }
     }
 
-    private void setReportPDF() throws FileNotFoundException, DocumentException {
+    private void setReportPDF() throws IOException, DocumentException {
         DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() +  "-" + d.getYear() + ".pdf";
+        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + ".pdf";
         String namePdf = "Factura" + time;
-        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() +  "/" + d.getYear();
-        PDFCreator pdfCreator = new PDFCreator(namePdf,
-                "Todo Frío C.A. " +
-                        "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce/C Junin Local 105-C Barrio Lourdes Maracay " +
-                        "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura(),
-                "Factura del día: " + timeActual);
-        pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
-        pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
-        pdfCreator.crearPDF(2, (PdfPTable tabla) -> {
-            tabla.addCell("Cedula");
-            tabla.addCell(jCedula.getText());
+        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
+        String title = "Todo Frío C.A. " +
+                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
+        String sub = "Factura del día: " + timeActual;
+        PDFCreator pdfCreator = new PDFCreator(namePdf, title, sub, "src/main/resources/images/FacturaLogo.png");
+        pdfCreator.setFontTitle(pdfCreator.family, 12, Font.BOLD, pdfCreator.background);
+        pdfCreator.setFontSub(pdfCreator.family, 12, Font.NORMAL, pdfCreator.background);
+        pdfCreator.setColumnWidth(new float[]{80, 130, 40, 85, 85});
+        pdfCreator.crearPDF(5, (PdfPTable tabla) -> {
             tabla.addCell("Nombre");
-            tabla.addCell(lblNombre.getText());
-            tabla.addCell("Telefono");
-            tabla.addCell(lblTelefono.getText());
-            tabla.addCell("Ciudad");
-            tabla.addCell(lblCiudad.getText());
+            tabla.addCell("Descripción");
+            tabla.addCell("Cant.");
+            tabla.addCell("Precio Unitario");
+            tabla.addCell("Total");
             totalArt.forEach((key, value) -> {
-                tabla.addCell(key);
-                tabla.addCell(String.format("%1$,.2f", value) + " Bs");
+                Integer cant = totalCantArt.get(key);
+                Double precio = value.getPrecio();
+                tabla.addCell(pdfCreator.setStyleCell(key));
+                tabla.addCell(pdfCreator.setStyleCell(value.getDescripcion()));
+                tabla.addCell(pdfCreator.setStyleCell(String.valueOf(cant)));
+                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", precio) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", cant * precio) + " Bs"));
             });
+        }, 2, tabla -> {
+            tabla.addCell("Cédula");
+            tabla.addCell(String.valueOf(cliente.getCedula()));
+            tabla.addCell("Nombre");
+            tabla.addCell(jNombre.getText());
+            tabla.addCell("Teléfono");
+            tabla.addCell(jTelefono.getText());
+            tabla.addCell("Dirección");
+            tabla.addCell(jCiudad.getText());
+        }, 2, tabla -> {
             tabla.addCell("Subtotal");
             tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
             tabla.addCell("IVA");
@@ -213,19 +252,22 @@ public class Factura extends ManagerFXML implements Initializable {
     private void setFactura() throws ParseException {
         core.vo.Factura factura = new core.vo.Factura();
         StringBuilder serv = new StringBuilder();
-        StringBuilder servPago = new StringBuilder();
-        totalArt.forEach((key, value) -> {
-            serv.append(key).append(", ");
-            servPago.append(value).append(", ");
-        });
-        factura.setForma_pago(String.valueOf(servPago));
+        int count = 0;
+        for (String totalArt : totalPrecioArt.keySet()) {
+            if (totalArt.length() - 1 < count)
+                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt)).append(" , ");
+            else
+                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt));
+            count++;
+        }
+        factura.setForma_pago(cTipoPago.getSelectionModel().getSelectedItem());
         factura.setServicios(serv.toString());
         factura.setFecha_pago(FechaUtil.getCurrentDate());
         DateTime dateTime = new DateTime(FechaUtil.getCurrentDate());
         factura.setFecha_entrega(dateTime.plusDays(tiempoMaximo).toDate());
         factura.setIVA(iva);
         factura.setTotal(totalPagar);
-        factura.setCliente_cedula(Integer.parseInt(jCedula.getText()));
+        factura.setCliente_cedula(cliente.getCedula());
         factura.setUsuario_cedula(Storage.getUsuario().getCedula());
         facturaDAO.insert(factura);
     }
@@ -238,9 +280,5 @@ public class Factura extends ManagerFXML implements Initializable {
 
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
-    }
-
-    public interface Controls {
-        void send();
     }
 }

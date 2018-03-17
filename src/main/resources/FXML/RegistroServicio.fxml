@@ -27,6 +27,8 @@
                 </HBox>
                 <Label layoutX="25.0" layoutY="25.0" text="Nombre (único)" />
                 <TextField fx:id="jNombre" />
+                <Label layoutX="25.0" layoutY="60.0" text="Descripcion" />
+                <TextField fx:id="jDescripcion" />
                 <Label layoutX="25.0" layoutY="60.0" text="Precio" />
                 <TextField fx:id="jPrecio" />
                 <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado (Horas)" />

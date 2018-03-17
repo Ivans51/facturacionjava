@@ -6,7 +6,7 @@ package core.util;
 public class Route {
 
     public static String Administrador = "/FXML/Administrador.fxml";
-    public static String AlertDialog = "/FXML/alert_dialog.fxml";
+    public static String DialogAlert = "/FXML/DialogAlert.fxml";
     public static String Ayuda = "/FXML/Ayuda.fxml";
     public static String ClienteDialog = "/FXML/DialogCliente.fxml";
     public static String Facturas = "/FXML/Facturas.fxml";
