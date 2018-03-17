@@ -32,7 +32,7 @@
         </HBox>
         <HBox layoutX="14.0" layoutY="101.0" prefHeight="501.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
             <children>
-                <VBox layoutX="10.0" layoutY="10.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                <VBox prefHeight="500.0" prefWidth="454.0" spacing="20.0" HBox.hgrow="ALWAYS">
                     <children>
                         <Label styleClass="label-bold" text="Clliente" />
                         <HBox spacing="10.0">
