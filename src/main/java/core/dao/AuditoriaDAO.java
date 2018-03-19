@@ -1,6 +1,7 @@
 package core.dao;
 
 import core.vo.Auditoria;
+import core.vo.Factura;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -51,6 +52,36 @@ public class AuditoriaDAO {
         return person;
     }
 
+    public List<Auditoria> selectByDia(Auditoria usuario) {
+        List<Auditoria> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Auditoria.selectByDia", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Auditoria> selectByRango(Auditoria usuario) {
+        List<Auditoria> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Auditoria.selectByRango", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Auditoria> selectByMes(Auditoria usuario) {
+        List<Auditoria> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Auditoria.selectByMes", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
     /**
      * Insert an instance of Auditoria into the database.
      *

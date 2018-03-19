@@ -1,5 +1,7 @@
 package core.util;
 
+import core.controller.Ayuda;
+
 import java.awt.*;
 import java.io.*;
 import java.net.URISyntaxException;
@@ -14,6 +16,7 @@ public class BackupBaseDato {
     private String yourUserName;
     private String yourUserPassword;
     private Class<?> cls;
+    private String savePath;
 
     public BackupBaseDato(String yourDBName, String yourUserName, String yourUserPassword, Class<?> cls) {
         this.yourDBName = yourDBName;
@@ -22,58 +25,61 @@ public class BackupBaseDato {
         this.cls = cls;
     }
 
-    /*public static void main(String[] args) {
-        BackupBaseDato backupBaseDato = new BackupBaseDato("rrhh", "Oscar", "123", BackupBaseDato.class);
-        //backupBaseDato.backupdbtosql();
-        backupBaseDato.restore();
-    }*/
+    public static void main(String[] args) {
+        BackupBaseDato backupBaseDato = new BackupBaseDato("facturacion", "root", "", Ayuda.class);
+        // backupBaseDato.backupdbMsyql();
+        backupBaseDato.restoredbfromsql("facturacion.sql");
+    }
 
-    public void backupdbtosql() {
+    public void backupdbMsyql() {
         try {
-            Process p = Runtime
-                    .getRuntime()
-                    .exec("C:\\xampp\\mysql\\bin\\mysqldump -u root facturacion");
 
-            InputStream is = p.getInputStream();
-            FileOutputStream fos = new FileOutputStream("facturacion.sql");
-            byte[] buffer = new byte[1000];
+        /*NOTE: Getting path to the Jar file being executed*/
+        /*NOTE: YourImplementingClass-> replace with the class executing the code*/
+            CodeSource codeSource = cls.getProtectionDomain().getCodeSource();
+            File jarFile = new File(codeSource.getLocation().toURI().getPath());
+            String jarDir = jarFile.getParentFile().getPath();
 
-            int leido = is.read(buffer);
-            while (leido > 0) {
-                fos.write(buffer, 0, leido);
-                leido = is.read(buffer);
+
+        /*NOTE: Creating Database Constraints*/
+            String dbName = yourDBName;
+            String dbUser = yourUserName;
+            String dbPass = yourUserPassword;
+
+        /*NOTE: Creating Path Constraints for folder saving*/
+        /*NOTE: Here the backup folder is created for saving inside it*/
+            String folderPath = jarDir + "\\backup";
+
+        /*NOTE: Creating Folder if it does not exist*/
+            File f1 = new File(folderPath);
+            f1.mkdir();
+
+        /*NOTE: Creating Path Constraints for backup saving*/
+        /*NOTE: Here the backup is saved in a folder called backup with the name backup.sql*/
+            savePath = "\"" + jarDir + "\\backup\\" + "facturacion.sql\"";
+            // String savePath = "facturacion.sql";
+
+        /*NOTE: Used to create a cmd command*/
+            String executeCmd = "C:\\xampp\\mysql\\bin\\mysqldump -u" + dbUser + " --database " + dbName + " -r " + savePath;
+
+        /*NOTE: Executing the command here*/
+            Process runtimeProcess = Runtime.getRuntime().exec(executeCmd);
+            int processComplete = runtimeProcess.waitFor();
+
+        /*NOTE: processComplete=0 if correctly executed, will contain other values if not*/
+            if (processComplete == 0) {
+                System.out.println("Backup Complete");
+            } else {
+                System.out.println("Backup Failure");
             }
 
-            fos.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (URISyntaxException | IOException | InterruptedException ex) {
+            System.out.println("Error at Backuprestore" + ex.getMessage());
         }
     }
 
-    private static void restore() {
-        try {
-            Process p = Runtime
-                    .getRuntime()
-                    .exec("C:\\xampp\\mysql\\bin\\mysql -u root -p facturacion");
-
-            OutputStream os = p.getOutputStream();
-            FileInputStream fis = new FileInputStream("facturacionOne.sql");
-            byte[] buffer = new byte[1000];
-
-            int leido = fis.read(buffer);
-            while (leido > 0) {
-                os.write(buffer, 0, leido);
-                leido = fis.read(buffer);
-            }
-
-            os.flush();
-            os.close();
-            fis.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public String getSavePath() {
+        return savePath;
     }
 
     public void restoredbfromsql(String s) {
@@ -95,7 +101,8 @@ public class BackupBaseDato {
 
             /*NOTE: Used to create a cmd command*/
             /*NOTE: Do not create a single large string, this will cause buffer locking, use string array*/
-            String[] executeCmd = new String[]{"mysql", dbName, "-u" + dbUser, "-p" + dbPass, "-e", " source " + restorePath};
+            // String[] executeCmd = new String[]{"C:\\xampp\\mysql\\bin\\mysql", dbName, "-u " + dbUser, "-e", " source " + restorePath};
+            String[] executeCmd = new String[]{"C:\\xampp\\mysql\\bin\\mysql", "-u "+dbUser, "-A", "-D " + dbName , "-e", "\"SOURCE "+restorePath+"\""};
 
             /*NOTE: processComplete=0 if correctly executed, will contain other values if not*/
             Process runtimeProcess = Runtime.getRuntime().exec(executeCmd);

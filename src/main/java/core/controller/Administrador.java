@@ -17,9 +17,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import org.joda.time.DateTime;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Date;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ import java.util.ResourceBundle;
 public class Administrador extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
-    public JFXButton btnSalir, btnImprimir, btnConsultar, btnCambiarModo;
+    public JFXButton btnSalir, btnImprimir, btnConsultar;
     public ComboBox<String> cReportes, cTime;
     public TableView tableReport;
     public TableColumn tbId, tbFecha, tbHora, tbAcion, tbUsuario;
@@ -41,30 +42,35 @@ public class Administrador extends ManagerFXML implements Initializable {
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
-    private String selected = "";
-    private String[] rangoTiempo = {"Día", "Mes"};
+    private String comboReportes = "";
+    private String[] rangoTiempo = new String[]{"Dia", "Mes", "Rango"};
     private String[] clientesA = {"Cédula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
     private String[] usuariosA = {"Cédula", "Nombre", "Correo", "Fecha", "Status"};
-    private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "IVA", "Total"};
-    private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoE"};
-    private String[] auditoriasA = {"Id", "Fecha", "Hora", "Accion", "Usuario"};
+    private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "Duracion", "Total"};
+    private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoEntrega"};
+    private String[] auditoriasA = {"Id", "Fecha", "Hora", "Acción", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();
     private List<String> tipos = new ArrayList<>();
     private Double totales;
+    private String comboTime = "Dia";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        datePickerDos.setVisible(false);
         stateButton();
         setCombo();
+        // setDatePicker();
     }
 
     private void stateButton() {
         // Deshabilitar botones
+        TableUtil<Factura, String> tableFactura = getFacturaStringTableUtil();
         switch (Storage.getUsuario().getStatus()) {
             case Estado.TECNICO:
                 tipos.add("Factura");
-                selected = "Factura";
-                setTableFactura();
+                comboReportes = "Factura";
+                lblTotal.setVisible(true);
+                tableFactura.getListTable().addAll(addFactura(facturaDAO.selectAll()));
                 break;
             case Estado.GERENTE:
                 tipos.add("Auditoria");
@@ -72,15 +78,17 @@ public class Administrador extends ManagerFXML implements Initializable {
                 tipos.add("Cliente");
                 tipos.add("Factura");
                 tipos.add("Usuario");
-                selected = "Auditoria";
-                setTableAuditoria();
+                comboReportes = "Auditoria";
+                TableUtil<Auditoria, String> tableAuditoria = getAuditoriaStringTableUtil();
+                tableAuditoria.getListTable().addAll(addAuditoria(auditoriaDAO.selectAll()));
                 break;
             case Estado.ASISTENTE:
+                rangoTiempo = new String[]{"Dia"};
                 tipos.add("Cliente");
                 tipos.add("Factura");
-                selected = "Factura";
-                // Tabla de inicio
-                setTableFactura();
+                comboReportes = "Factura";
+                lblTotal.setVisible(true);
+                eligirTime("Dia");
                 break;
         }
     }
@@ -88,178 +96,369 @@ public class Administrador extends ManagerFXML implements Initializable {
     private void setCombo() {
         cTime.setItems(FXCollections.observableArrayList(rangoTiempo));
         cTime.valueProperty().addListener((observable, oldValue, newValue) -> {
-            setTableFacturaTime(newValue);
+            comboTime = newValue;
+            datePickerDos.setVisible(newValue.equals("Rango"));
+            // setTableFacturaTime(newValue);
         });
 
         cReportes.setItems(FXCollections.observableArrayList(tipos));
         cReportes.valueProperty().addListener((observable, oldValue, newValue) -> {
-            selected = newValue;
-            eligirAccion(newValue);
+            comboReportes = newValue;
+            eligirReporte(newValue);
         });
     }
 
-    private void eligirAccion(String selected) {
+    private void setDatePicker() {
+        datePickerUno.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Dia".equals(comboTime) || "Mes".equals(comboTime))
+                setTableFacturaTime();
+        });
+    }
+
+    private void eligirReporte(String selected) {
         valuesReport.clear();
         switch (selected) {
             case "Auditoria":
-                setTableAuditoria();
+                TableUtil<Auditoria, String> tableAudi = getAuditoriaStringTableUtil();
+                tableAudi.getListTable().addAll(addAuditoria(auditoriaDAO.selectAll()));
                 break;
             case "Servicios":
-                setTableServicios();
+                TableUtil<Servicios, String> tableServ = getServiciosStringTableUtil();
+                tableServ.getListTable().addAll(addServicios(serviciosDAO.selectAll()));
                 break;
             case "Cliente":
-                setTableCliente();
+                TableUtil<Cliente, String> tableCliente = getClienteStringTableUtil();
+                tableCliente.getListTable().addAll(addClientes(clienteDAO.selectAll()));
                 break;
             case "Factura":
-                setTableFactura();
+                lblTotal.setVisible(true);
+                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
+                TableUtil<Factura, String> tableFac = getFacturaStringTableUtil();
+                tableFac.getListTable().addAll(addFactura(facturaDAO.selectAll()));
                 break;
             case "Usuario":
-                setTableUsuario();
+                TableUtil<Usuario, String> tableUsuario = getUsuarioStringTableUtil();
+                tableUsuario.getListTable().addAll(addUsuarios(usuarioDAO.selectAll()));
                 break;
         }
         lblTotal.setVisible(false);
     }
 
-    private void setTableUsuario() {
-        lblTotal.setVisible(false);
+    // Usuario
+    private TableUtil<Usuario, String> getUsuarioStringTableUtil() {
         setHeaders(usuariosA);
-        String[] columA = {"cedula", "nombre", "correo", "fecha", "status"};
+        String[] columA = {"cedula", "nombre", "correo", "fechaEdit", "correo"};
         TableUtil<Usuario, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Usuario.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
+        return table;
+    }
 
-        List<Usuario> usuarioList = usuarioDAO.selectAll();
+    private List<Usuario> addUsuarios(List<Usuario> usuarioList) {
+        for (Usuario servicios : usuarioList) {
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+        }
         usuarioList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getCedula()));
             valuesReport.add(String.valueOf(it.getNombre()));
             valuesReport.add(String.valueOf(it.getCorreo()));
-            valuesReport.add(String.valueOf(it.getFecha()));
-            valuesReport.add(String.valueOf(it.getStatus()));
+            valuesReport.add(String.valueOf(it.getFechaEdit()));
+            valuesReport.add(String.valueOf(it.getCorreo()));
         });
-        table.getListTable().addAll(usuarioList);
+        return usuarioList;
     }
 
-    private void setTableFactura() {
-        lblTotal.setVisible(true);
+    // Factura
+    private TableUtil<Factura, String> getFacturaStringTableUtil() {
         setHeaders(facturasA);
-        String[] columA = {"idfactura", "servicios", "fecha_pago", "IVA", "total"};
+        String[] columA = {"idfactura", "servicios", "fecha_pagoEdit", "duracion", "total"};
         TableUtil<Factura, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Factura.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        List<Factura> facturaList = facturaDAO.selectAll();
-        addFactura(facturaList);
-        table.getListTable().addAll(facturaList);
+        return table;
     }
 
-    private void setTableFacturaTime(String time) {
-        setHeaders(facturasA);
-        String[] columA = {"idfactura", "servicios", "fecha_pago", "IVA", "total"};
-        TableUtil<Factura, String> table;
-        tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table = new TableUtil(Factura.class, tableReport);
-        table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        List<Factura> facturaList = new ArrayList<>();
-        LocalDate value = datePickerUno.getValue();
-        Factura factura = new Factura();
-        switch (time) {
-            case "Día":
-                factura.setIdfactura(value.getDayOfMonth());
-                factura.setCliente_cedula(value.getMonthValue());
-                factura.setUsuario_cedula(value.getYear());
-                facturaList = facturaDAO.selectByDia(factura);
-                break;
-            case "Semana":
-                factura.setIdfactura(value.getDayOfMonth());
-                factura.setCliente_cedula(value.getMonthValue());
-                factura.setUsuario_cedula(value.getYear());
-                facturaList = facturaDAO.selectBySemana(factura);
-                break;
-            case "Mes":
-                factura.setCliente_cedula(value.getMonthValue());
-                factura.setUsuario_cedula(value.getYear());
-                facturaList = facturaDAO.selectByMes(factura);
-                break;
-        }
-        addFactura(facturaList);
-        lblTotal.setVisible(true);
-        lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
-        table.getListTable().addAll(facturaList);
-    }
-
-    private void addFactura(List<Factura> facturaList) {
+    private List<Factura> addFactura(List<Factura> facturaList) {
         totales = 0.0;
+        for (Factura servicios : facturaList) {
+            servicios.setFecha_pagoEdit(FechaUtil.getDateFormat(servicios.getFecha_pago()));
+        }
         facturaList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdfactura()));
             valuesReport.add(String.valueOf(it.getServicios()));
-            valuesReport.add(String.valueOf(it.getFecha_pago()));
-            valuesReport.add(String.valueOf(it.getIVA()));
+            valuesReport.add(String.valueOf(it.getFecha_pagoEdit()));
+            valuesReport.add(String.valueOf(it.getDuracion()));
             totales += it.getTotal();
             valuesReport.add(String.valueOf(totales));
         });
+        return facturaList;
     }
 
-    private void setTableCliente() {
-        lblTotal.setVisible(false);
+    // Clientes
+    private TableUtil<Cliente, String> getClienteStringTableUtil() {
         setHeaders(clientesA);
         String[] columA = {"cedula", "nombres", "apellidos", "direccion", "telefono"};
         TableUtil<Cliente, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Cliente.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        List<Cliente> clienteList = clienteDAO.selectAll();
-        clienteList.forEach(it -> {
-            valuesReport.add(String.valueOf(it.getCedula()));
-            valuesReport.add(String.valueOf(it.getNombres()));
-            valuesReport.add(String.valueOf(it.getApellidos()));
-            valuesReport.add(String.valueOf(it.getDireccion()));
-            valuesReport.add(String.valueOf(it.getTelefono()));
-        });
-        table.getListTable().addAll(clienteList);
+        return table;
     }
 
-    private void setTableServicios() {
-        lblTotal.setVisible(false);
+    private List<Cliente> addClientes(List<Cliente> clienteList) {
+        clienteList.forEach(it -> {
+            valuesReport.add(String.valueOf(it.getCedula()));
+            valuesReport.add(it.getNombres());
+            valuesReport.add(it.getApellidos());
+            valuesReport.add(it.getDireccion());
+            valuesReport.add(it.getTelefono());
+        });
+        return clienteList;
+    }
+
+    // Servicios
+    private TableUtil<Servicios, String> getServiciosStringTableUtil() {
         setHeaders(serviciosA);
-        String[] columA = {"idservicios", "Nombre", "Precio", "Fecha", "tiempo_estimado"};
+        String[] columA = {"idservicios", "Nombre", "PrecioEdit", "FechaEdit", "tiempo_estimado"};
         TableUtil<Servicios, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Servicios.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-
-        List<Servicios> serviciosList = serviciosDAO.selectAll();
-        serviciosList.forEach(it -> {
-            valuesReport.add(String.valueOf(it.getIdservicios()));
-            valuesReport.add(String.valueOf(it.getNombre()));
-            valuesReport.add(String.valueOf(it.getPrecio()));
-            valuesReport.add(String.valueOf(it.getFecha()));
-            valuesReport.add(String.valueOf(it.getTiempo_estimado()));
-        });
-        table.getListTable().addAll(serviciosList);
+        return table;
     }
 
-    private void setTableAuditoria() {
-        lblTotal.setVisible(false);
+    private List<Servicios> addServicios(List<Servicios> serviciosList) {
+        for (Servicios servicios : serviciosList) {
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + " Bs");
+        }
+        serviciosList.forEach(it -> {
+            valuesReport.add(String.valueOf(it.getIdservicios()));
+            valuesReport.add(it.getNombre());
+            valuesReport.add(String.valueOf(it.getPrecioEdit()));
+            valuesReport.add(String.valueOf(it.getFechaEdit()));
+            valuesReport.add(String.valueOf(it.getTiempo_estimado()));
+        });
+        return serviciosList;
+    }
+
+    // Auditoria
+    private TableUtil<Auditoria, String> getAuditoriaStringTableUtil() {
         setHeaders(auditoriasA);
-        String[] columA = {"idAuditoria", "Fecha", "Hora", "Accion", "nombreUsuario"};
+        String[] columA = {"idAuditoria", "FechaEdit", "Hora", "Accion", "nombreUsuario"};
         TableUtil<Auditoria, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Auditoria.class, tableReport);
         table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
+        return table;
+    }
 
-        List<Auditoria> auditoriaList = auditoriaDAO.selectAll();
+    private List<Auditoria> addAuditoria(List<Auditoria> auditoriaList) {
+        for (Auditoria auditoria : auditoriaList) {
+            auditoria.setFechaEdit(FechaUtil.getDateFormat(auditoria.getFecha()));
+        }
         auditoriaList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdAuditoria()));
-            valuesReport.add(String.valueOf(it.getFecha()));
-            valuesReport.add(String.valueOf(it.getHora()));
+            valuesReport.add(String.valueOf(it.getFechaEdit()));
+            valuesReport.add(it.getHora());
             valuesReport.add(String.valueOf(it.getAccion()));
             valuesReport.add(String.valueOf(it.getNombreUsuario()));
         });
-        table.getListTable().addAll(auditoriaList);
+        return auditoriaList;
+    }
+
+    // With time
+    public void actionConsultar(ActionEvent actionEvent) {
+        if (comboTime != null && !"".equals(comboTime) && datePickerUno.getValue() != null)
+            eligirTime(comboReportes);
+        else
+            new AlertUtil(Estado.EXITOSA, "Falta valores por seleccionar");
+    }
+
+    private void eligirTime(String selected) {
+        valuesReport.clear();
+        switch (selected) {
+            case "Auditoria":
+                setTableAuditoriaTime();
+                break;
+            case "Servicios":
+                setTableServicioTime();
+                break;
+            case "Cliente":
+                setTableClienteTime();
+                break;
+            case "Factura":
+                setTableFacturaTime();
+                break;
+            case "Usuario":
+                setTableUsuarioTime();
+                break;
+        }
+        lblTotal.setVisible(false);
+    }
+
+    private void setTableAuditoriaTime() {
+        TableUtil<Auditoria, String> table = getAuditoriaStringTableUtil();
+
+        List<Auditoria> auditoriaList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Auditoria auditoria = new Auditoria();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    auditoria.setIdAuditoria(timeOne.getDayOfMonth());
+                    auditoria.setHora(String.valueOf(timeOne.getMonthValue()));
+                    auditoria.setUsuario_cedula(timeOne.getYear());
+                    auditoriaList = auditoriaDAO.selectByDia(auditoria);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        auditoria.setAccion(String.valueOf(Date.valueOf(timeOne)));
+                        auditoria.setNombreUsuario(String.valueOf(Date.valueOf(timeTwo)));
+                        auditoriaList = auditoriaDAO.selectByRango(auditoria);
+                    }
+                    break;
+                case "Mes":
+                    auditoria.setHora(String.valueOf(timeOne.getMonthValue()));
+                    auditoria.setUsuario_cedula(timeOne.getYear());
+                    auditoriaList = auditoriaDAO.selectByMes(auditoria);
+                    break;
+            }
+            table.getListTable().addAll(addAuditoria(auditoriaList));
+        }
+    }
+
+    private void setTableServicioTime() {
+        TableUtil<Servicios, String> table = getServiciosStringTableUtil();
+
+        List<Servicios> serviciosList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Servicios servicios = new Servicios();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    servicios.setIdservicios(timeOne.getDayOfMonth());
+                    servicios.setNombre(String.valueOf(timeOne.getMonthValue()));
+                    servicios.setDescripcion(String.valueOf(timeOne.getYear()));
+                    serviciosList = serviciosDAO.selectByDia(servicios);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        servicios.setNombre(String.valueOf(Date.valueOf(timeOne)));
+                        servicios.setDescripcion(String.valueOf(Date.valueOf(timeTwo)));
+                        serviciosList = serviciosDAO.selectByRango(servicios);
+                    }
+                    break;
+                case "Mes":
+                    servicios.setNombre(String.valueOf(timeOne.getMonthValue()));
+                    servicios.setDescripcion(String.valueOf(timeOne.getYear()));
+                    serviciosList = serviciosDAO.selectByMes(servicios);
+                    break;
+            }
+            table.getListTable().addAll(addServicios(serviciosList));
+        }
+    }
+
+    private void setTableClienteTime() {
+        TableUtil<Cliente, String> table = getClienteStringTableUtil();
+
+        List<Cliente> clienteList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Cliente cliente = new Cliente();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    cliente.setCedula(timeOne.getDayOfMonth());
+                    cliente.setNombres(String.valueOf(timeOne.getMonthValue()));
+                    cliente.setApellidos(String.valueOf(timeOne.getYear()));
+                    clienteList = clienteDAO.selectByDia(cliente);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        cliente.setNombres(String.valueOf(Date.valueOf(timeOne)));
+                        cliente.setApellidos(String.valueOf(Date.valueOf(timeTwo)));
+                        clienteList = clienteDAO.selectByRango(cliente);
+                    }
+                    break;
+                case "Mes":
+                    cliente.setNombres(String.valueOf(timeOne.getMonthValue()));
+                    cliente.setApellidos(String.valueOf(timeOne.getYear()));
+                    clienteList = clienteDAO.selectByMes(cliente);
+                    break;
+            }
+            table.getListTable().addAll(addClientes(clienteList));
+        }
+    }
+
+    private void setTableFacturaTime() {
+        TableUtil<Factura, String> table = getFacturaStringTableUtil();
+
+        List<Factura> facturaList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Factura factura = new Factura();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    factura.setIdfactura(timeOne.getDayOfMonth());
+                    factura.setCliente_cedula(timeOne.getMonthValue());
+                    factura.setUsuario_cedula(timeOne.getYear());
+                    facturaList = facturaDAO.selectByDia(factura);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        factura.setFecha_pago(Date.valueOf(timeOne));
+                        factura.setDuracion(String.valueOf(Date.valueOf(timeTwo)));
+                        facturaList = facturaDAO.selectByRango(factura);
+                    }
+                    break;
+                case "Mes":
+                    factura.setCliente_cedula(timeOne.getMonthValue());
+                    factura.setUsuario_cedula(timeOne.getYear());
+                    facturaList = facturaDAO.selectByMes(factura);
+                    break;
+            }
+            lblTotal.setVisible(true);
+            lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
+            table.getListTable().addAll(addFactura(facturaList));
+        }
+    }
+
+    private void setTableUsuarioTime() {
+        TableUtil<Usuario, String> table = getUsuarioStringTableUtil();
+
+        List<Usuario> usuarioList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Usuario usuario = new Usuario();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    usuario.setCedula(timeOne.getDayOfMonth());
+                    usuario.setNombre(String.valueOf(timeOne.getMonthValue()));
+                    usuario.setClave(String.valueOf(timeOne.getYear()));
+                    usuarioList = usuarioDAO.selectByDia(usuario);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        usuario.setNombre(String.valueOf(Date.valueOf(timeOne)));
+                        usuario.setClave(String.valueOf(Date.valueOf(timeTwo)));
+                        usuarioList = usuarioDAO.selectByRango(usuario);
+                    }
+                    break;
+                case "Mes":
+                    usuario.setNombre(String.valueOf(timeOne.getMonthValue()));
+                    usuario.setClave(String.valueOf(timeOne.getYear()));
+                    usuarioList = usuarioDAO.selectByMes(usuario);
+                    break;
+            }
+            table.getListTable().addAll(addUsuarios(usuarioList));
+        }
     }
 
     private void setHeaders(String... name) {
@@ -270,42 +469,17 @@ public class Administrador extends ManagerFXML implements Initializable {
         tbUsuario.setText(name[4]);
     }
 
-    public void actionSalir(ActionEvent actionEvent) {
-        cambiarEscena(Route.InicioInfo, anchorPane);
-    }
-
     public void actionImprimir(ActionEvent actionEvent) {
-        DateTime d = new DateTime();
-        String fecha = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear();
-        switch (selected) {
-            case "Auditoria":
-                String aut = "Auditoria-";
-                imprimirAuditoria(auditoriasA, aut + fecha + ".pdf", aut);
-                break;
-            case "Servicios":
-                String ser = "Servicios-";
-                imprimirAuditoria(serviciosA, ser + fecha + ".pdf", ser);
-                break;
-            case "Clliente":
-                String cli = "Clientes-";
-                imprimirAuditoria(clientesA, cli + fecha + ".pdf", cli);
-                break;
-            case "Factura":
-                String fac = "Facturas-";
-                imprimirAuditoria(facturasA, fac + fecha + ".pdf", fac);
-                break;
-            case "Usuario":
-                String use = "Usuario-";
-                imprimirAuditoria(usuariosA, use + fecha + ".pdf", use);
-                break;
-        }
+        PrintSelection printSelection = new PrintSelection(
+                comboReportes, auditoriasA, serviciosA, clientesA, facturasA, usuariosA);
+        printSelection.printAction(this::imprimirAuditoria);
     }
 
     private void imprimirAuditoria(String[] strings, String file, String name) {
         try {
             DateTime d = new DateTime();
-            String timeActual = d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear();
-            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual, "");
+            String timeActual = d.getMinuteOfHour() + "-" + d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear();
+            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual, "src/main/resources/images/FacturaLogo.png");
             pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
             pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
             pdfCreator.crearPDF(5, (PdfPTable tabla) -> {
@@ -317,11 +491,8 @@ public class Administrador extends ManagerFXML implements Initializable {
         }
     }
 
-    public void actionConsultar(ActionEvent actionEvent) {
-
+    public void actionSalir(ActionEvent actionEvent) {
+        cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
-    public void actionCambiar(ActionEvent actionEvent) {
-
-    }
 }

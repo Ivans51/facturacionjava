@@ -16,7 +16,7 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
     public Label lblNombreUsuario;
-    public JFXButton btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario, btnGraficos;
+    public JFXButton btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario, btnGraficos, btnAyuda;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -31,14 +31,16 @@ public class Inicio extends ManagerFXML implements Initializable {
             case Estado.TECNICO:
                 btnUsuario.setVisible(false);
                 btnServicio.setVisible(false);
-                btnAdministrador.setVisible(false);
                 btnCliente.setVisible(false);
+                btnFacturacion.setVisible(false);
+                btnGraficos.setVisible(false);
                 break;
             case Estado.GERENTE:
                 break;
             case Estado.ASISTENTE:
                 btnServicio.setVisible(false);
                 btnUsuario.setVisible(false);
+                btnGraficos.setVisible(false);
                 break;
         }
     }
@@ -69,5 +71,9 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     public void actionGraficos(ActionEvent actionEvent) {
         cambiarEscena(Route.Graficos, anchorPane);
+    }
+
+    public void actionAyuda(ActionEvent actionEvent) {
+        cambiarEscena(Route.Ayuda, anchorPane);
     }
 }

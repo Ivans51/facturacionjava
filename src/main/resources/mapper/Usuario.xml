@@ -9,6 +9,7 @@
         <!-- property="atributo java" column="columna tabla" -->
         <result property="cedula" column="cedula"/>
         <result property="nombre" column="nombre"/>
+        <result property="estado" column="estado"/>
         <result property="clave" column="clave"/>
         <result property="correo" column="correo"/>
         <result property="fecha" column="fecha"/>
@@ -18,7 +19,8 @@
 
     <select id="selectAll" resultMap="result">
         SELECT *
-        FROM facturacion.usuario;
+        FROM facturacion.usuario
+        WHERE estado = 1
     </select>
 
     <select id="selectById" parameterType="int" resultMap="result">
@@ -31,6 +33,12 @@
         SELECT *
         FROM facturacion.usuario
         WHERE correo = #{correo}
+    </select>
+
+    <select id="selectByClaveCorre" parameterType="Usuario" resultMap="result">
+        SELECT *
+        FROM facturacion.usuario
+        WHERE correo = #{correo} AND clave = #{clave}
     </select>
 
     <select id="selectLastID" parameterType="string" resultMap="result">
@@ -49,10 +57,41 @@
         WHERE nombre = #{nombre}
     </select>
 
+    <!-- The value is not correspond -->
+    <select id="selectByDia" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.usuario
+        WHERE DAY(fecha) = #{cedula} AND MONTH(fecha) = #{nombre} AND YEAR(fecha) = #{clave}
+    </select>
+
+    <select id="selectByRango" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.usuario
+        WHERE fecha BETWEEN #{nombre} AND #{clave}
+    </select>
+
+    <select id="selectByMes" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.usuario
+        WHERE MONTH(fecha) = #{nombre} AND YEAR(fecha) = #{clave}
+    </select>
+
     <insert id="insert" parameterType="Usuario" keyProperty="idUsuario">
         INSERT INTO facturacion.usuario (cedula, nacionalidad, nombre, correo, fecha, status)
         VALUES (#{cedula}, #{nacionalidad}, #{nombre}, #{correo}, #{fecha}, #{status});
     </insert>
+
+    <update id="updateEstado" parameterType="Usuario">
+        UPDATE facturacion.usuario
+        SET estado = #{estado}
+        WHERE cedula = #{cedula}
+    </update>
+
+    <update id="updateClave" parameterType="Usuario">
+        UPDATE facturacion.usuario
+        SET clave = #{clave}
+        WHERE cedula = #{cedula}
+    </update>
 
     <update id="updateDatosUsuarios" parameterType="Usuario">
         UPDATE facturacion.usuario

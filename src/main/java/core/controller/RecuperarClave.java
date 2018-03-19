@@ -35,11 +35,14 @@ public class RecuperarClave extends ManagerFXML implements Initializable {
                 new AlertUtil(Estado.ERROR, "El correo no existe");
             else {
                 String username = "inversionestodofrioca@gmail.com";
-                String password = "";
+                String password = "todo19641960";
                 SendEmail.doSendMail(username, password, usuario.getCorreo(),
-                        "Todo Frío C.A.",
-                        "Su usuario y clave es: " + usuario.getNombre() + usuario.getClave());
-                new AlertUtil(Estado.EXITOSA, "Contraseña Enviada");
+                        "Inversiones Todo Frío C.A.",
+                        "Su usuario es: " + usuario.getNombre() + " y su clave es: " + usuario.getClave());
+                new AlertUtil(Estado.EXITOSA, "Contraseña Enviada", closeAlert -> {
+                    cerrarStage(closeAlert);
+                    abrirStage(Route.Login, "Inicio de Sesión", btnSalir, null);
+                });
             }
         } catch (Myexception myexception) {
             myexception.printStackTrace();

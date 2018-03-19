@@ -31,7 +31,16 @@
             <TextField fx:id="jUsuario" prefHeight="25.0" prefWidth="264.0" />
             <Label text="Clave" textFill="WHITE" />
             <PasswordField fx:id="jPassword" />
-            <Label fx:id="btnRecuperar" layoutX="232.0" layoutY="14.0" onMouseClicked="#actionRecuperar" text="Recuperar" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="14.0">
+            <Label fx:id="btnRecuperar" layoutX="232.0" layoutY="14.0" onMouseClicked="#actionRecuperar" text="Recuperar Clave" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="14.0">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="label-white" />
+                  <String fx:value="label-bold" />
+               </styleClass>
+            </Label>
+            <Label fx:id="btnCambiarClave" layoutX="232.0" layoutY="14.0" onMouseClicked="#actionCambiarClave" text="Cambiar Clave" AnchorPane.rightAnchor="21.0" AnchorPane.topAnchor="14.0">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>

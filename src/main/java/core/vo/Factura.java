@@ -8,11 +8,12 @@ public class Factura {
     private String servicios;
     private String forma_pago;
     private Date fecha_pago;
-    private Date fecha_entrega;
+    private String duracion;
     private Double IVA;
     private Double total;
     private int cliente_cedula;
     private int usuario_cedula;
+    private String fecha_pagoEdit;
 
     public int getIdfactura() {
         return idfactura;
@@ -46,12 +47,12 @@ public class Factura {
         this.fecha_pago = fecha_pago;
     }
 
-    public Date getFecha_entrega() {
-        return fecha_entrega;
+    public String getDuracion() {
+        return duracion;
     }
 
-    public void setFecha_entrega(Date fecha_entrega) {
-        this.fecha_entrega = fecha_entrega;
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;
     }
 
     public Double getIVA() {
@@ -84,5 +85,13 @@ public class Factura {
 
     public void setUsuario_cedula(int usuario_cedula) {
         this.usuario_cedula = usuario_cedula;
+    }
+
+    public String getFecha_pagoEdit() {
+        return fecha_pagoEdit;
+    }
+
+    public void setFecha_pagoEdit(String fecha_pagoEdit) {
+        this.fecha_pagoEdit = fecha_pagoEdit;
     }
 }

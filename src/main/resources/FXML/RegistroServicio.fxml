@@ -18,17 +18,27 @@
         <URL value="@../CSS/styles-layout.css" />
     </stylesheets>
     <children>
-        <VBox layoutX="14.0" layoutY="14.0" prefHeight="545.0" prefWidth="364.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+        <HBox layoutX="14.0" styleClass="layot-color-tercer" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <HBox alignment="CENTER">
+                <Label styleClass="label-bold" text="Registro Servicio" textFill="WHITE" />
+                <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets right="10.0" />
+                    </padding>
                     <children>
-                        <Label text="Registro Servicio" />
+                        <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
                     </children>
                 </HBox>
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </HBox>
+        <VBox layoutX="14.0" layoutY="14.0" prefHeight="545.0" prefWidth="364.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="45.0">
+            <children>
                 <Label layoutX="25.0" layoutY="25.0" text="Nombre (único)" />
                 <TextField fx:id="jNombre" />
-                <Label layoutX="25.0" layoutY="60.0" text="Descripcion" />
-                <TextField fx:id="jDescripcion" />
                 <Label layoutX="25.0" layoutY="60.0" text="Precio" />
                 <TextField fx:id="jPrecio" />
                 <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado (Horas)" />
@@ -36,7 +46,7 @@
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
-                        <JFXButton fx:id="btnDesactivar" onAction="#actionDesactivar" text="Desactivo" visible="false" wrapText="true" />
+                        <JFXButton fx:id="btnEliminar" onAction="#actionEliminar" text="Eliminar" visible="false" wrapText="true" />
                         <JFXButton fx:id="btnLimpiar" onAction="#actionLimpiar" text="Limpiar" />
                     </children>
                     <padding>
@@ -51,11 +61,12 @@
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>
         </VBox>
-        <VBox layoutX="444.0" prefHeight="545.0" prefWidth="608.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox layoutX="444.0" prefHeight="545.0" prefWidth="608.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
             <children>
-                <HBox alignment="TOP_RIGHT">
+                <HBox alignment="TOP_RIGHT" spacing="10.0">
                     <children>
-                        <Label text="Datos sobre los Servicios" />
+                        <Label text="Buscar" />
+                        <TextField fx:id="jBuscar" />
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -66,20 +77,9 @@
                         <TableColumn fx:id="tbNombre" prefWidth="75.0" text="Nombre" />
                         <TableColumn fx:id="tbPrecio" prefWidth="75.0" text="Precio" />
                         <TableColumn fx:id="tbFecha" prefWidth="75.0" text="Fecha" />
-                        <TableColumn fx:id="tbTiempoE" prefWidth="75.0" text="TiempoEntrega" />
+                        <TableColumn fx:id="tbTiempoE" prefWidth="75.0" text="Tiempo (Horas)" />
                     </columns>
                 </TableView>
-                <HBox alignment="BOTTOM_RIGHT" spacing="15.0" VBox.vgrow="ALWAYS">
-                    <children>
-                  <JFXButton fx:id="btnSalir" layoutX="543.0" layoutY="64.0" onAction="#actionSalir" text="Salir" />
-                    </children>
-                    <VBox.margin>
-                        <Insets />
-                    </VBox.margin>
-                    <padding>
-                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                    </padding>
-                </HBox>
             </children>
         </VBox>
     </children>

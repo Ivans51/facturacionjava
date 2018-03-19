@@ -41,6 +41,12 @@ public class FechaUtil {
         return date == null ? dateFormat.format(FechaUtil.date) : dateFormat.format(date);
     }
 
+    public static Date getDateFormatValue(Date date) throws ParseException {
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String format = getDateFormat(date);
+        return dateFormat.parse(format);
+    }
+
     public static String getDateFormatTime() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         return dateFormat.format(date);

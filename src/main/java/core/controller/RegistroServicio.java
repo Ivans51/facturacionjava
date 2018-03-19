@@ -4,7 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ServiciosDAO;
 import core.util.*;
+import core.vo.Auditoria;
 import core.vo.Servicios;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,8 +25,8 @@ import java.util.ResourceBundle;
 public class RegistroServicio extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public TextField jNombre, jPrecio, jTiempoE, jDescripcion;
-    public JFXButton btnAgregar, btnLimpiar, btnDesactivar, btnSalir;
+    public TextField jNombre, jPrecio, jTiempoE, jBuscar;
+    public JFXButton btnAgregar, btnLimpiar, btnEliminar, btnSalir;
     public TableView<Servicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
 
@@ -34,19 +36,20 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     private List<Servicios> serviciosList = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
     private boolean stateEdit = false;
-    private String[] columS = {"nombre", "precio", "fecha", "tiempo_estimado"};
+    private String[] columS = {"nombre", "precioEdit", "fechaEdit", "tiempo_estimado"};
     private String[] field = {"Nombre", "Precio", "Tiempo de Entrega"};
     private String[] fieldNumber = {"Precio", "Tiempo de Entrega"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setTable();
+        setBuscarTableCliente();
     }
 
     private void setTable() {
         // To adjust widt column
         tableServicio.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        btnDesactivar.setDisable(false);
+        btnEliminar.setDisable(false);
         table = new TableUtil(Servicios.class, tableServicio);
         table.inicializarTabla(columS, tbNombre, tbPrecio, tbFecha, tbTiempoE);
 
@@ -57,17 +60,30 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         table.getListTable().addAll(serviciosList);
     }
 
+    private void setBuscarTableCliente() {
+        ObservableList<Servicios> data = table.getData();
+        jBuscar.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null && (newValue.length() < oldValue.length()))
+                tableServicio.setItems(data);
+            table.searchMultiple(newValue.toLowerCase());
+        });
+    }
+
     private void selectAllServicio() {
         serviciosList = serviciosDAO.selectAll();
+        for (Servicios servicios : serviciosList) {
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + " Bs");
+        }
         serviciosList.forEach(it -> nombres.add(it.getNombre()));
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(field, jNombre, jPrecio, jTiempoE, jDescripcion);
+            Validar.campoVacio(field, jNombre, jPrecio, jTiempoE);
             Validar.isNumber(fieldNumber, jPrecio, jTiempoE);
             elegirConsulta();
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE, jDescripcion);
+            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
@@ -80,11 +96,13 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             serviciosDAO.insert(getServiciosInsert());
             int id = serviciosDAO.selectLastID().getIdservicios();
             table.getListTable().add(serviciosDAO.selectById(id));
+            new AlertUtil(Estado.EXITOSA, "Servicio creado correctamente");
             new AuditoriaUtil().insertar("Registro del servicio");
         } else {
             serviciosDAO.update(getServiciosUpdate());
             selectAllServicio();
             stateViewEdit(false);
+            new AlertUtil(Estado.EXITOSA, "Servicio modificado correctamente");
             new AuditoriaUtil().insertar("Servicio actualizado");
         }
         tableServicio.refresh();
@@ -93,29 +111,27 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     private Servicios getServiciosInsert() throws ParseException {
         Servicios servicios = new Servicios();
         if (!stateEdit) servicios.setNombre(jNombre.getText());
-        servicios.setDescripcion(jDescripcion.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
-        servicios.setEstado("1");
+        servicios.setEstado(1);
         return servicios;
     }
 
     private Servicios getServiciosUpdate() throws ParseException {
         if (!stateEdit) servicios.setNombre(jNombre.getText());
-        servicios.setDescripcion(jDescripcion.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
         return servicios;
     }
 
-    public void actionDesactivar(ActionEvent actionEvent) {
-        servicios.setIdservicios(servicios.getIdservicios());
-        servicios.setEstado(servicios.isEstado().equals("0") ? "1" : "0");
+    public void actionEliminar(ActionEvent actionEvent) {
+        Servicios servicios = new Servicios();
+        servicios.setIdservicios(this.servicios.getIdservicios());
+        servicios.setEstado(0);
         serviciosDAO.updateEstado(servicios);
-        btnDesactivar.setText(servicios.isEstado().equals("1") ? "Desactivar" : "Activar");
-        selectAllServicio();
+        table.getListTable().remove(this.servicios);
         tableServicio.refresh();
         new AlertUtil(Estado.ERROR, "Se guardo el cambio");
     }
@@ -127,23 +143,21 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             jNombre.setText(servicios.getNombre());
             jPrecio.setText(String.valueOf(servicios.getPrecio()));
             jTiempoE.setText(servicios.getTiempo_estimado());
-            btnDesactivar.setText(servicios.isEstado().equals("1") ? "Desactivar" : "Activar");
             stateViewEdit(true);
         }
     }
 
     private void stateViewEdit(boolean value) {
         stateEdit = value;
-        btnDesactivar.setVisible(value);
-        jNombre.setDisable(value);
+        btnEliminar.setVisible(value);
         btnAgregar.setText(value ? "Editar" : "Agregar");
-        btnLimpiar.setText(value ? "Cancel E" : "Limpiar");
+        btnLimpiar.setText(value ? "Cancelar" : "Limpiar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        if (servicios.isEstado().equals("1") || stateEdit)
+        if (servicios.isEstado() == 1 || stateEdit)
             stateViewEdit(false);
-        Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE, jDescripcion);
+        Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
     }
 
     public void actionSalir(ActionEvent actionEvent) {

@@ -71,11 +71,11 @@ public class FacturaDAO {
         }
         return list;
     }
-    public List<Factura> selectBySemana(Factura usuario) {
+    public List<Factura> selectByRango(Factura usuario) {
         List<Factura> list = null;
         SqlSession session = sqlSessionFactory.openSession();
         try {
-            list = session.selectList("Factura.selectBySemana", usuario);
+            list = session.selectList("Factura.selectByRango", usuario);
         } finally {
             session.close();
         }

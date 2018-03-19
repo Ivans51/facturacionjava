@@ -1,6 +1,7 @@
 package core.dao;
 
 import core.vo.Servicios;
+import core.vo.Servicios;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
@@ -114,6 +115,36 @@ public class ServiciosDAO {
             person = session.selectList("Servicios.selectByNombres");
         }
         return person;
+    }
+    public List<Servicios> selectByDia(Servicios usuario) {
+        List<Servicios> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Servicios.selectByDia", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Servicios> selectByRango(Servicios usuario) {
+        List<Servicios> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Servicios.selectByRango", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Servicios> selectByMes(Servicios usuario) {
+        List<Servicios> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Servicios.selectByMes", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
     }
 
     /**

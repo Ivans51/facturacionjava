@@ -10,7 +10,7 @@
         <result property="idfactura" column="idfactura"/>
         <result property="servicios" column="servicios"/>
         <result property="forma_pago" column="forma_pago"/>
-        <result property="fecha_entrega" column="fecha_entrega"/>
+        <result property="duracion" column="duracion"/>
         <result property="fecha_pago" column="fecha_pago"/>
         <result property="IVA" column="IVA"/>
         <result property="total" column="total"/>
@@ -33,35 +33,36 @@
         SELECT max(idfactura) as idfactura FROM facturacion.factura
     </select>
 
+    <!-- The value is not correspond -->
     <select id="selectByDia" parameterType="Factura" resultMap="result">
         SELECT *
-        FROM factura
+        FROM facturacion.factura
         WHERE DAY(fecha_pago) = #{idfactura} AND MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
     </select>
 
-    <select id="selectBySemana" parameterType="Factura" resultMap="result">
+    <select id="selectByRango" parameterType="Factura" resultMap="result">
         SELECT *
-        FROM factura
-        WHERE DAY(fecha_pago) = #{idfactura} AND MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
+        FROM facturacion.factura
+        WHERE fecha_pago BETWEEN #{fecha_pago} AND #{duracion}
     </select>
 
     <select id="selectByMes" parameterType="Factura" resultMap="result">
         SELECT *
-        FROM factura
+        FROM facturacion.factura
         WHERE MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
     </select>
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">
-        INSERT INTO facturacion.factura (servicios, forma_pago, fecha_pago, fecha_entrega,
+        INSERT INTO facturacion.factura (servicios, forma_pago, fecha_pago, duracion,
                                          IVA, total, cliente_cedula, usuario_cedula)
-        VALUES (#{servicios}, #{forma_pago}, #{fecha_pago}, #{fecha_entrega},
+        VALUES (#{servicios}, #{forma_pago}, #{fecha_pago}, #{duracion},
                 #{IVA}, #{total}, #{cliente_cedula}, #{usuario_cedula});
     </insert>
 
     <update id="update" parameterType="Factura">
         UPDATE facturacion.factura
         SET servicios = #{servicios}, forma_pago = #{forma_pago},
-            fecha_pago = #{fecha_pago}, fecha_entrega = #{fecha_entrega},
+            fecha_pago = #{fecha_pago}, duracion = #{duracion},
             IVA = #{IVA}, total = #{total},
             cliente_cedula = #{cliente_cedula}, usuario_cedula = #{usuario_cedula},
         WHERE idfactura = #{idfactura}

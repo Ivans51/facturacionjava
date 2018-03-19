@@ -6,10 +6,11 @@ public class Auditoria {
 
     private int idAuditoria;
     private Date fecha;
-    private int hora;
+    private String hora;
     private String accion;
     private String nombreUsuario;
     private int usuario_cedula;
+    private String fechaEdit;
 
     public int getIdAuditoria() {
         return idAuditoria;
@@ -27,11 +28,11 @@ public class Auditoria {
         this.fecha = fecha;
     }
 
-    public int getHora() {
+    public String getHora() {
         return hora;
     }
 
-    public void setHora(int hora) {
+    public void setHora(String hora) {
         this.hora = hora;
     }
 
@@ -69,5 +70,13 @@ public class Auditoria {
                 ", nombreUsuario='" + nombreUsuario + '\'' +
                 ", usuario_cedula=" + usuario_cedula +
                 '}';
+    }
+
+    public String getFechaEdit() {
+        return fechaEdit;
+    }
+
+    public void setFechaEdit(String fechaEdit) {
+        this.fechaEdit = fechaEdit;
     }
 }

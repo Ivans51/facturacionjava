@@ -1,6 +1,8 @@
 package core.dao;
 
 import core.util.Myexception;
+import core.vo.Factura;
+import core.vo.Servicios;
 import core.vo.Usuario;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -60,6 +62,14 @@ public class UsuarioDAO {
         return person;
     }
 
+    public Usuario selectByClaveCorre(Usuario usuario) {
+        Usuario person = null;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectOne("Usuario.selectByClaveCorre", usuario);
+        }
+        return person;
+    }
+
     public Usuario login(Usuario usuario) {
         Usuario person = null;
         try (SqlSession session = sqlSessionFactory.openSession()) {
@@ -75,7 +85,62 @@ public class UsuarioDAO {
         }
         return person;
     }
+    public List<Usuario> selectByDia(Usuario usuario) {
+        List<Usuario> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Usuario.selectByDia", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Usuario> selectByRango(Usuario usuario) {
+        List<Usuario> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Usuario.selectByRango", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Usuario> selectByMes(Usuario usuario) {
+        List<Usuario> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Usuario.selectByMes", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
 
+    public void updateEstado(Usuario usuario) {
+        int id = -1;
+        SqlSession session = sqlSessionFactory.openSession();
+
+        try {
+            id = session.update("Usuario.updateEstado", usuario);
+
+        } finally {
+            session.commit();
+            session.close();
+        }
+    }
+
+    public void updateClave(Usuario usuario) {
+        int id = -1;
+        SqlSession session = sqlSessionFactory.openSession();
+
+        try {
+            id = session.update("Usuario.updateClave", usuario);
+
+        } finally {
+            session.commit();
+            session.close();
+        }
+    }
     /**
      * Insert an instance of Usuario into the database.
      *

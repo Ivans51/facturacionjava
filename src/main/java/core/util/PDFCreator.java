@@ -20,10 +20,12 @@ public class PDFCreator {
     public int style = Font.ITALIC;
     public BaseColor background = BaseColor.DARK_GRAY;
     private String image;
-    private String nameFile, sub, title;
+    private String nameFile, sub, title, otherParragraph;
     private Font fontTitle, fontSub;
     private boolean openPDF = true;
-    private float[] columnWidth = new float[]{72, 216};
+    private float[] columnWidthOne;
+    private float[] columnWidthTwo;
+    private float[] columnWidthThree;
 
     public PDFCreator(String nameFile, String title, String sub, String imagePath) {
         this.nameFile = nameFile;
@@ -38,8 +40,8 @@ public class PDFCreator {
         documento.open();
         setParagraph(documento);
         PdfPTable tablaOne = new PdfPTable(numColumns);
-        if (columnWidth != null && columnWidth.length > 0) {
-            tablaOne.setTotalWidth(columnWidth);
+        if (columnWidthOne != null && columnWidthOne.length > 0) {
+            tablaOne.setTotalWidth(columnWidthOne);
             tablaOne.setLockedWidth(true);
         }
         pdfTabla.addCellTable(tablaOne);
@@ -55,23 +57,47 @@ public class PDFCreator {
         documento.open();
         setParagraph(documento);
 
+        Paragraph p1 = new Paragraph("Datos del Cliente \n ", fontTitle);
+        p1.setPaddingTop(10);
+        documento.add(p1);
+
         PdfPTable tablaTwo = new PdfPTable(numColumsTwo);
-        tablaTwo.setPaddingTop(10);
+        if (columnWidthTwo != null && columnWidthTwo.length > 0) {
+            tablaTwo.setTotalWidth(PageSize.A4.getWidth());
+            tablaTwo.setTotalWidth(columnWidthTwo);
+            tablaTwo.setWidthPercentage(100);
+            tablaTwo.setLockedWidth(true);
+        }
+        tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
         pdfTablaTwo.addCellTable(tablaTwo);
+        tablaTwo.setTableEvent(new BorderEvent());
         documento.add(tablaTwo);
 
         PdfPTable tablaOne = new PdfPTable(numColumns);
-        if (columnWidth != null && columnWidth.length > 0) {
-            tablaOne.setTotalWidth(columnWidth);
+        if (columnWidthOne != null && columnWidthOne.length > 0) {
+            tablaOne.setTotalWidth(columnWidthOne);
             tablaOne.setWidthPercentage(100);
             tablaOne.setLockedWidth(true);
         }
         pdfTablaOne.addCellTable(tablaOne);
         documento.add(tablaOne);
 
+        Paragraph p2 = new Paragraph("", fontTitle);
+        p2.setPaddingTop(10);
+        documento.add(p2);
+
         PdfPTable pdfTableThree = new PdfPTable(numColumsThree);
+        if (columnWidthThree != null && columnWidthThree.length > 0) {
+            pdfTableThree.setTotalWidth(columnWidthThree);
+            pdfTableThree.setWidthPercentage(100);
+            pdfTableThree.setLockedWidth(true);
+        }
         pdfTablaThree.addCellTable(pdfTableThree);
         documento.add(pdfTableThree);
+
+        Paragraph p3 = new Paragraph(otherParragraph, fontTitle);
+        p3.setPaddingTop(10);
+        documento.add(p3);
 
         documento.close();
         System.out.println("Imprisión correcta");
@@ -128,8 +154,16 @@ public class PDFCreator {
         }
     }
 
-    public void setColumnWidth(float[] columnWidth) {
-        this.columnWidth = columnWidth;
+    public void setColumnWidthOne(float[] columnWidthOne) {
+        this.columnWidthOne = columnWidthOne;
+    }
+
+    public void setColumnWidthTwo(float[] columnWidthTwo) {
+        this.columnWidthTwo = columnWidthTwo;
+    }
+
+    public void setColumnWidthThree(float[] columnWidthThree) {
+        this.columnWidthThree = columnWidthThree;
     }
 
     public void setFontTitle(Font.FontFamily family, int size, int style, BaseColor background) {
@@ -138,6 +172,10 @@ public class PDFCreator {
 
     public void setFontSub(Font.FontFamily family, int size, int style, BaseColor background) {
         fontSub = new Font(family, size, style, background);
+    }
+
+    public void setOtherParragraph(String otherParragraph) {
+        this.otherParragraph = otherParragraph;
     }
 
     public void setOpenPDF(boolean openPDF) {

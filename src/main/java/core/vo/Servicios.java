@@ -11,8 +11,10 @@ public class Servicios {
     private String descripcion;
     private Double precio;
     private Date fecha;
-    private String estado;
+    private int estado;
     private String tiempo_estimado;
+    private String precioEdit;
+    private String fechaEdit;
     /*private List<SubServicios> subServiciosList = new ArrayList<>();*/
 
     public int getIdservicios() {
@@ -55,11 +57,11 @@ public class Servicios {
         this.tiempo_estimado = tiempo_estimado;
     }
 
-    public String isEstado() {
+    public int isEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(int estado) {
         this.estado = estado;
     }
 
@@ -69,5 +71,21 @@ public class Servicios {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public void setPrecioEdit(String precioEdit) {
+        this.precioEdit = precioEdit;
+    }
+
+    public void setFechaEdit(String fechaEdit) {
+        this.fechaEdit = fechaEdit;
+    }
+
+    public String getPrecioEdit() {
+        return precioEdit;
+    }
+
+    public String getFechaEdit() {
+        return fechaEdit;
     }
 }

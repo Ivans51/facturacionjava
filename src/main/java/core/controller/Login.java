@@ -19,7 +19,8 @@ public class Login extends ManagerFXML implements Initializable {
     public JFXButton btnIngresar, btnSalir;
     public TextField jUsuario;
     public PasswordField jPassword;
-    public Label btnRecuperar;
+    public Label btnRecuperar, btnCambiarClave;
+
     private Usuario usuario;
     private String inicio = Route.Inicio;
 
@@ -41,26 +42,23 @@ public class Login extends ManagerFXML implements Initializable {
     }
 
     private void validarStatus() throws Myexception {
+        String title = "Inversiones Todo Frio C.A.";
         switch (usuario.getStatus()) {
             case Estado.ASISTENTE:
-                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
-                auditoria();
+                abrirStage(inicio, title, btnIngresar, null);
+                new AuditoriaUtil().insertar("Usuario inicio sesion" + usuario.getNombre());
                 break;
             case Estado.TECNICO:
-                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
-                auditoria();
+                abrirStage(inicio, title, btnIngresar, null);
+                new AuditoriaUtil().insertar("Usuario inicio sesion" + usuario.getNombre());
                 break;
             case Estado.GERENTE:
-                abrirStage(inicio, "Todo Frio C.A.", btnIngresar, null);
-                auditoria();
+                abrirStage(inicio, title, btnIngresar, null);
+                new AuditoriaUtil().insertar("Usuario inicio sesion" + usuario.getNombre());
                 break;
             default:
                 throw new Myexception("Acceso denegado");
         }
-    }
-
-    private void auditoria() throws Myexception {
-        new AuditoriaUtil().insertar("Usuario inicio sesion" + usuario.getNombre());
     }
 
     public void actionSalir(ActionEvent actionEvent) {
@@ -69,5 +67,9 @@ public class Login extends ManagerFXML implements Initializable {
 
     public void actionRecuperar(MouseEvent mouseEvent) {
         abrirStage(Route.RecuperarClave, "Recuperar clave", btnRecuperar, null);
+    }
+
+    public void actionCambiarClave(MouseEvent mouseEvent) {
+        abrirStage(Route.CambiarClave, "Cambiar clave", btnRecuperar, null);
     }
 }

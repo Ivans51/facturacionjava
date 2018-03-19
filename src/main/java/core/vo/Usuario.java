@@ -11,6 +11,8 @@ public class Usuario {
     private Date fecha;
     private String status;
     private String nacionalidad;
+    private String fechaEdit;
+    private int estado;
 
     public int getCedula() {
         return cedula;
@@ -66,5 +68,21 @@ public class Usuario {
 
     public void setNacionalidad(String nacionalidad) {
         this.nacionalidad = nacionalidad;
+    }
+
+    public String getFechaEdit() {
+        return fechaEdit;
+    }
+
+    public void setFechaEdit(String fechaEdit) {
+        this.fechaEdit = fechaEdit;
+    }
+
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
     }
 }

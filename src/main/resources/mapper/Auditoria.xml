@@ -26,6 +26,25 @@
         WHERE idAuditoria = #{idAuditoria}
     </select>
 
+    <!-- The value is not correspond -->
+    <select id="selectByDia" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.auditoria
+        WHERE DAY(fecha) = #{idAuditoria} AND MONTH(fecha) = #{hora} AND YEAR(fecha) = #{usuario_cedula}
+    </select>
+
+    <select id="selectByRango" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.auditoria
+        WHERE fecha BETWEEN #{accion} AND #{nombreUsuario}
+    </select>
+
+    <select id="selectByMes" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.auditoria
+        WHERE MONTH(fecha) = #{hora} AND YEAR(fecha) = #{usuario_cedula}
+    </select>
+
     <insert id="insert" parameterType="Auditoria" useGeneratedKeys="true" keyProperty="idAuditoria">
         INSERT INTO facturacion.auditoria (fecha, accion, hora, nombreUsuario, usuario_cedula)
         VALUES (#{fecha}, #{accion}, #{hora}, #{nombreUsuario}, #{usuario_cedula});

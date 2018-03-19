@@ -41,7 +41,7 @@ public class Validar {
         for (int i = 0; i < txt.length; i++) {
             String aTxt = txt[i];
             if (aTxt == null || aTxt.trim().isEmpty())
-                throw new Myexception("Campo Vacío" + fieldString[i]);
+                throw new Myexception("Campo Vacío " + fieldString[i]);
         }
     }
 
@@ -199,7 +199,7 @@ public class Validar {
     public static void isNumber(String[] field, TextInputControl... number) throws Myexception {
         for (int i = 0; i < number.length; i++) {
             if (!number[i].getText().matches("\\d+(\\.\\d{1,4})?")) {
-                throw new Myexception("El campo " + field[i] + "no puede contener texto");
+                throw new Myexception("El campo " + field[i] + " no puede contener texto");
             }
         }
     }
@@ -257,12 +257,27 @@ public class Validar {
         };
     }
 
-    public static void limitField(int[] range, String[] message, TextField... txt) throws Myexception{
-        for (int i = 0; i < txt.length; i++) {
-            if (txt[i].getText().length() > range[i]) {
-                String s = "El campo " + message[i] + " debe tener un minimo de " + range[i] + "caracteres";
-                throw new Myexception(s);
-            }
+    public static void limitField(int[] range, String message, TextField txt) throws Myexception{
+        if (txt.getText().length() > range[1] || txt.getText().length() < range[0]) {
+            String s = "El campo " + message + " invalido";
+            throw new Myexception(s);
         }
+    }
+
+    public static void getValueLimit(ComboBox<String> cNacionalidad, String s){
+        /*int[] rangeLimitCedula = {7, 8};
+        cNacionalidad.valueProperty().addListener((observable, oldValue, newValue) -> {
+            switch (newValue) {
+                case "V":
+                    rangeLimitCedula = new int[]{7, 8};
+                    break;
+                case "E":
+                    rangeLimitCedula = new int[]{7, 8};
+                    break;
+                case "J":
+                    rangeLimitCedula = new int[]{7, 9};
+                    break;
+            }
+        });*/
     }
 }

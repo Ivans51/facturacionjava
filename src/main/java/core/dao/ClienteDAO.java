@@ -2,6 +2,8 @@ package core.dao;
 
 import core.util.Myexception;
 import core.vo.Cliente;
+import core.vo.Factura;
+import core.vo.Servicios;
 import core.vo.Usuario;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -51,6 +53,49 @@ public class ClienteDAO {
         }
         System.out.println("selectById(" + id + ") --> " + person);
         return person;
+    }
+    public List<Cliente> selectByDia(Cliente usuario) {
+        List<Cliente> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Cliente.selectByDia", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Cliente> selectByRango(Cliente usuario) {
+        List<Cliente> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Cliente.selectByRango", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+    public List<Cliente> selectByMes(Cliente usuario) {
+        List<Cliente> list = null;
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            list = session.selectList("Cliente.selectByMes", usuario);
+        } finally {
+            session.close();
+        }
+        return list;
+    }
+
+    public void updateEstado(Cliente usuario) {
+        int id = -1;
+        SqlSession session = sqlSessionFactory.openSession();
+
+        try {
+            id = session.update("Cliente.updateEstado", usuario);
+
+        } finally {
+            session.commit();
+            session.close();
+        }
     }
 
     /**

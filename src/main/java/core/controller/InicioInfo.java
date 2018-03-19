@@ -13,14 +13,9 @@ import java.util.ResourceBundle;
 public class InicioInfo extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
-    public JFXButton btnAyuda;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-    }
-
-    public void actionAyuda(ActionEvent actionEvent) {
-        abrirStage(Route.Ayuda, "Ayudas", btnAyuda, null);
     }
 }

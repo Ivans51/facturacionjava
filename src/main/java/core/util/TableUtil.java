@@ -57,11 +57,11 @@ public class TableUtil<T, V> {
     /**
      * PARA SELECCIONAR UNA CELDA DE LA TABLA
      *
-     * @param tablaUsuarios
+     * @param table
      */
-    public T getTablaSeleccionada(TableView tablaUsuarios) {
-        if (tablaUsuarios != null) {
-            List<T> tabla = tablaUsuarios.getSelectionModel().getSelectedItems();
+    public T getTablaSeleccionada(TableView table) {
+        if (table != null) {
+            List<T> tabla = table.getSelectionModel().getSelectedItems();
             if (tabla.size() == 1) {
                 return tabla.get(0);
             }

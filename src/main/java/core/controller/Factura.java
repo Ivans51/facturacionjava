@@ -1,7 +1,6 @@
 package core.controller;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
@@ -82,7 +81,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
             Servicios select = serviciosDAO.selectByNombre(newValue);
             if (select != null) {
                 jPrecio.setText(String.valueOf(select.getPrecio()));
-                jFecha.setText(FechaUtil.getDateFormat(select.getFecha()));
+                jFecha.setText(select.getTiempo_estimado());
                 int tiempo = Integer.parseInt(select.getTiempo_estimado());
                 if (tiempo > tiempoMaximo)
                     tiempoMaximo = tiempo;
@@ -113,9 +112,10 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     }
 
     private void setBuscarTableCliente() {
+        ObservableList<Cliente> data = tableClienteUtil.getData();
         jCedula.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             if (oldValue != null && (newValue.length() < oldValue.length()))
-                tableCliente.setItems(tableClienteUtil.getData());
+                tableCliente.setItems(data);
             tableClienteUtil.searchMultiple(newValue.toLowerCase());
         });
     }
@@ -137,9 +137,8 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     private void setTotal(String item) {
         Servicios serv = serviciosDAO.selectByNombre(item);
         totalArt.put(serv.getNombre(), serv);
-        if (totalPrecioArt.get(serv.getNombre()) != null) {
-            Integer cant = totalCantArt.get(serv.getNombre());
-            totalCantArt.merge(serv.getNombre(), ++cant, Integer::sum);
+        if (totalCantArt.get(serv.getNombre()) != null) {
+            totalCantArt.merge(serv.getNombre(), 1, Integer::sum);
         } else
             totalCantArt.put(serv.getNombre(), 1);
         totalPrecioArt.put(serv.getNombre(), serv.getPrecio());
@@ -155,6 +154,14 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     }
 
     public void actionEliminar(ActionEvent actionEvent) {
+        if (totalCantArt.get(servicio.getNombre()) != null) {
+            totalCantArt.merge(servicio.getNombre(), -1, Integer::sum);
+        }
+        if (totalArt.size() == 1) {
+            totalArt.remove(servicio.getNombre());
+            totalPrecioArt.remove(servicio.getNombre());
+        }
+        totalPagar -= servicio.getPrecio();
         tableServicioUtil.getListTable().remove(servicio);
         tableServicio.refresh();
     }
@@ -187,14 +194,18 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
 
     public void actionImprimir(ActionEvent actionEvent) {
         try {
-            if (totalPrecioArt.size() > 0) {
+            if (totalCantArt.size() > 0) {
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
+                Validar.campoVacio(new String[]{"Datos del cliente"}, jNombre);
                 calcularIva();
                 setReportPDF();
                 setFactura();
-                new AuditoriaUtil().insertar("Factura generada");
+                new AlertUtil(Estado.EXITOSA, "Factura generada", closeAlert -> {
+                    cerrarStage(closeAlert);
+                    cambiarEscena(Route.InicioInfo, anchorPane);
+                });
             } else {
-                new AlertUtil(Estado.EXITOSA, "Debe adquirir un servicio");
+                new AlertUtil(Estado.EXITOSA, "Debe adquirir al menos un servicio");
             }
         } catch (ParseException | DocumentException | IOException | Myexception e) {
             e.printStackTrace();
@@ -204,46 +215,51 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
 
     private void setReportPDF() throws IOException, DocumentException {
         DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + ".pdf";
+        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
         String namePdf = "Factura" + time;
         String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
-        String title = "Todo Frío C.A. " +
-                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce/C Junin Local 105-C Barrio Lourdes Maracay " +
+        String title = "Inversiones Todo Frío C.A. " +
+                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
                 "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
         String sub = "Factura del día: " + timeActual;
         PDFCreator pdfCreator = new PDFCreator(namePdf, title, sub, "src/main/resources/images/FacturaLogo.png");
         pdfCreator.setFontTitle(pdfCreator.family, 12, Font.BOLD, pdfCreator.background);
         pdfCreator.setFontSub(pdfCreator.family, 12, Font.NORMAL, pdfCreator.background);
-        pdfCreator.setColumnWidth(new float[]{80, 130, 40, 85, 85});
-        pdfCreator.crearPDF(5, (PdfPTable tabla) -> {
-            tabla.addCell("Nombre");
-            tabla.addCell("Descripción");
+        pdfCreator.setOtherParragraph("Tipo de Pago: " + cTipoPago.getSelectionModel().getSelectedItem());
+        pdfCreator.setColumnWidthOne(new float[]{40, 220, 130, 130});
+        pdfCreator.setColumnWidthTwo(new float[]{520});
+        pdfCreator.setColumnWidthThree(new float[]{260, 130, 130});
+        pdfCreator.crearPDF(4, (PdfPTable tabla) -> {
             tabla.addCell("Cant.");
+            tabla.addCell("Concepto o Descripción");
             tabla.addCell("Precio Unitario");
             tabla.addCell("Total");
             totalArt.forEach((key, value) -> {
                 Integer cant = totalCantArt.get(key);
                 Double precio = value.getPrecio();
-                tabla.addCell(pdfCreator.setStyleCell(key));
-                tabla.addCell(pdfCreator.setStyleCell(value.getDescripcion()));
                 tabla.addCell(pdfCreator.setStyleCell(String.valueOf(cant)));
+                tabla.addCell(pdfCreator.setStyleCell(key));
                 tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", precio) + " Bs"));
                 tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", cant * precio) + " Bs"));
             });
-        }, 2, tabla -> {
-            tabla.addCell("Cédula");
-            tabla.addCell(String.valueOf(cliente.getCedula()));
-            tabla.addCell("Nombre");
-            tabla.addCell(jNombre.getText());
-            tabla.addCell("Teléfono");
-            tabla.addCell(jTelefono.getText());
-            tabla.addCell("Dirección");
-            tabla.addCell(jCiudad.getText());
-        }, 2, tabla -> {
+            for (int i = 0; i < 3; i++) {
+                tabla.addCell("");
+            }
+        }, 1, tabla -> {
+            tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
+            tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
+            tabla.addCell("C.I. o RIF: " + cliente.getCedula());
+            tabla.addCell("Teléfono: " + jTelefono.getText());
+        }, 3, tabla -> {
+            tabla.addCell("");
             tabla.addCell("Subtotal");
             tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
+
+            tabla.addCell("");
             tabla.addCell("IVA");
             tabla.addCell(String.format("%1$,.2f", iva) + " Bs");
+
+            tabla.addCell("");
             tabla.addCell("Total a Pagar");
             tabla.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
         });
@@ -252,10 +268,10 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     private void setFactura() throws ParseException {
         core.vo.Factura factura = new core.vo.Factura();
         StringBuilder serv = new StringBuilder();
-        int count = 0;
+        int count = 1;
         for (String totalArt : totalPrecioArt.keySet()) {
-            if (totalArt.length() - 1 < count)
-                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt)).append(" , ");
+            if (count < totalPrecioArt.size())
+                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt)).append(" ,");
             else
                 serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt));
             count++;
@@ -263,8 +279,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         factura.setForma_pago(cTipoPago.getSelectionModel().getSelectedItem());
         factura.setServicios(serv.toString());
         factura.setFecha_pago(FechaUtil.getCurrentDate());
-        DateTime dateTime = new DateTime(FechaUtil.getCurrentDate());
-        factura.setFecha_entrega(dateTime.plusDays(tiempoMaximo).toDate());
+        factura.setDuracion(String.valueOf(tiempoMaximo + "Hr."));
         factura.setIVA(iva);
         factura.setTotal(totalPagar);
         factura.setCliente_cedula(cliente.getCedula());

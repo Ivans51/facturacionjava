@@ -6,12 +6,12 @@ import core.dao.UsuarioDAO;
 import core.util.*;
 import core.util.TableUtil;
 import core.vo.Usuario;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
@@ -22,9 +22,9 @@ import java.util.ResourceBundle;
 
 public class RegistroUsuario extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
-    public TextField jNombre, jCorreo, jCedula;
+    public TextField jNombre, jCorreo, jCedula, jBuscar;
     public PasswordField jClave;
-    public JFXButton btnAgregar, btnLimpiar, btnSalir, btnEditar;
+    public JFXButton btnAgregar, btnLimpiar, btnSalir, btnEliminar;
     public AnchorPane anchorPane;
     public TableView<Usuario> tableUsuario;
     public TableColumn tbNacionalidad, tbCedula, tbNombre, tbFecha, tbStatus;
@@ -40,19 +40,33 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     private List<String> correos = new ArrayList<>();
     private List<String> nombres = new ArrayList<>();
     private Usuario usuario;
-    private String[] columS = {"Nacionalidad", "Cedula", "Nombre", "Fecha", "Status"};
+    private String[] columS = {"Nacionalidad", "Cedula", "Nombre", "FechaEdit", "Status"};
     private boolean stateEdit = false;
     private String[] field = {"Nombre", "Correo", "Clave"};
     private String[] fieldNumber = {"Cédula"};
-    private String[] fieldLimit = {"Cédula", "Teléfono"};
-    private int[] rangeLimit = {7, 11};
+    private int[] rangeLimitCedula = {7, 8};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        btnEditar.setDisable(false);
+        setCombo();
+        setTable();
+        setBuscarTable();
+    }
+
+    private void setCombo() {
         cNivel.getItems().addAll(niveles);
         cNacionalidad.getItems().addAll(nacionalidades);
-        setTable();
+        cNacionalidad.valueProperty().addListener((observable, oldValue, newValue) -> {
+            switch (newValue) {
+                case "V":
+                case "E":
+                    rangeLimitCedula = new int[]{7, 8};
+                    break;
+                case "J":
+                    rangeLimitCedula = new int[]{7, 9};
+                    break;
+            }
+        });
     }
 
     private void setTable() {
@@ -67,8 +81,20 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         table.getListTable().addAll(usuarios);
     }
 
+    private void setBuscarTable() {
+        ObservableList<Usuario> data = table.getData();
+        jBuscar.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null && (newValue.length() < oldValue.length()))
+                tableUsuario.setItems(data);
+            table.searchMultiple(newValue.toLowerCase());
+        });
+    }
+
     private void selectAllUsuario() {
         usuarios = usuarioDAO.selectAll();
+        for (Usuario servicios : usuarios) {
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+        }
         usuarios.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
         usuarios.forEach(it -> nombres.add(it.getNombre()));
         usuarios.forEach(it -> correos.add(it.getCorreo()));
@@ -78,7 +104,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         try {
             Validar.campoVacio(field, jNombre, jCorreo, jClave);
             Validar.isNumber(fieldNumber, jCedula);
-            Validar.limitField(rangeLimit, fieldLimit, jCedula);
+            Validar.limitField(rangeLimitCedula, "Cédula o RIF", jCedula);
+            Validar.limitField(new int[]{8, 32}, "Clave", jClave);
             String nac = cNacionalidad.getSelectionModel().getSelectedItem();
             String nivel = cNivel.getSelectionModel().getSelectedItem();
             String[] fieldString = {"Nacionalidad, Nivel"};
@@ -96,7 +123,6 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         if (!stateEdit) {
             Validar.checkValor(jCedula.getText(), cedulas, "cédula");
             Validar.checkValor(jNombre.getText(), nombres, "nombre");
-            // Validar.checkValor(jCorreo.getText(), correos, "correo");
             usuarioDAO.insert(getUsuarioInsert());
             Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
             table.getListTable().add(usuario);
@@ -135,11 +161,6 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         return usuario;
     }
 
-    public void actionEditar(ActionEvent actionEvent) {
-        stateViewEdit(false);
-        Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
-    }
-
     @Override
     public void setStatusControls() {
         if (table.getModel() != null) {
@@ -155,11 +176,12 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     private void stateViewEdit(boolean edit) {
         stateEdit = edit;
-        btnEditar.setVisible(edit);
+        btnEliminar.setVisible(edit);
         jNombre.setDisable(edit);
         jCedula.setDisable(edit);
         cNacionalidad.setDisable(edit);
         btnAgregar.setText(edit ? "Editar" : "Agregar");
+        btnLimpiar.setText(edit ? "Cancelar" : "Limpiar");
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
@@ -167,7 +189,17 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         cNacionalidad.getSelectionModel().clearSelection();
     }
 
-    public void actionSalir(MouseEvent mouseEvent) {
+    public void actionSalir(ActionEvent mouseEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
+    }
+
+    public void actionEliminar(ActionEvent actionEvent) {
+        Usuario servicios = new Usuario();
+        servicios.setCedula(usuario.getCedula());
+        servicios.setEstado(0);
+        usuarioDAO.updateEstado(servicios);
+        table.getListTable().remove(this.usuario);
+        tableUsuario.refresh();
+        new AlertUtil(Estado.ERROR, "Se guardo el cambio");
     }
 }

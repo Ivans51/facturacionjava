@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
 <?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Label?>
@@ -8,7 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="545.0" prefWidth="1000.0" style="-fx-background-color: #B4E4F0;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.InicioInfo">
+<AnchorPane fx:id="anchorPane" prefHeight="545.0" prefWidth="1000.0" styleClass="layot-color-primary" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="core.controller.InicioInfo">
    <children>
       <Label layoutX="48.0" layoutY="75.0" prefHeight="45.0" prefWidth="440.0" text="Inversiones Todo Frío C.A." textFill="WHITE">
          <styleClass>
@@ -25,20 +24,7 @@
          <image>
             <Image url="@../images/car-on-the-road-icon-flat-.png" />
          </image></ImageView>
-      <JFXButton fx:id="btnAyuda" layoutX="26.0" layoutY="488.0" onAction="#actionAyuda" text="Ayuda">
-         <styleClass>
-            <String fx:value="button-button-blue" />
-            <String fx:value="button-font-max" />
-         </styleClass>
-         <graphic>
-            <ImageView fitHeight="21.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../images/help.png" />
-               </image>
-            </ImageView>
-         </graphic>
-      </JFXButton>
-      <ImageView fitHeight="150.0" fitWidth="354.0" layoutX="515.0" layoutY="380.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="150.0" fitWidth="354.0" layoutX="594.0" layoutY="367.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../images/FacturaLogo.png" />
          </image>

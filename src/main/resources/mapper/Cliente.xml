@@ -10,15 +10,18 @@
         <result property="cedula" column="cedula"/>
         <result property="nombres" column="nombres"/>
         <result property="apellidos" column="apellidos"/>
+        <result property="estado" column="estado"/>
         <result property="direccion" column="direccion"/>
         <result property="telefono" column="telefono"/>
+        <result property="fecha" column="fecha"/>
         <result property="nacionalidad" column="nacionalidad"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">
         SELECT *
-        FROM facturacion.cliente;
+        FROM facturacion.cliente
+        WHERE estado = 1
     </select>
 
     <select id="selectById" parameterType="int" resultMap="result">
@@ -27,9 +30,28 @@
         WHERE cedula = #{cedula}
     </select>
 
+    <!-- The value is not correspond -->
+    <select id="selectByDia" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.cliente
+        WHERE DAY(fecha) = #{cedula} AND MONTH(fecha) = #{nombres} AND YEAR(fecha) = #{apellidos}
+    </select>
+
+    <select id="selectByRango" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.cliente
+        WHERE fecha BETWEEN #{nombres} AND #{apellidos}
+    </select>
+
+    <select id="selectByMes" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.cliente
+        WHERE MONTH(fecha) = #{nombres} AND YEAR(fecha) = #{apellidos}
+    </select>
+
     <insert id="insert" parameterType="Cliente" useGeneratedKeys="true" keyProperty="cedula">
-        INSERT INTO facturacion.cliente (cedula, nombres, apellidos, direccion, telefono, nacionalidad, usuario_cedula)
-        VALUES (#{cedula}, #{nombres}, #{apellidos}, #{direccion}, #{telefono}, #{nacionalidad}, #{usuario_cedula});
+        INSERT INTO facturacion.cliente (cedula, nombres, apellidos, direccion, telefono, nacionalidad, usuario_cedula, fecha)
+        VALUES (#{cedula}, #{nombres}, #{apellidos}, #{direccion}, #{telefono}, #{nacionalidad}, #{usuario_cedula}, #{fecha});
     </insert>
 
     <update id="update" parameterType="Cliente">
@@ -37,6 +59,12 @@
         SET cedula = #{cedula}, nombres = #{nombres},
             apellidos = #{apellidos}, direccion = #{direccion},
             telefono = #{telefono}, usuario_cedula = #{usuario_cedula}
+        WHERE cedula = #{cedula}
+    </update>
+
+    <update id="updateEstado" parameterType="Servicios">
+        UPDATE facturacion.cliente
+        SET estado = #{estado}
         WHERE cedula = #{cedula}
     </update>
 

@@ -1,5 +1,7 @@
 package core.vo;
 
+import java.util.Date;
+
 public class Cliente {
 
     private int cedula;
@@ -9,6 +11,8 @@ public class Cliente {
     private String telefono;
     private String nacionalidad;
     private int usuario_cedula;
+    private Date fecha;
+    private int estado;
 
     public int getCedula() {
         return cedula;
@@ -64,5 +68,21 @@ public class Cliente {
 
     public void setNacionalidad(String nacionalidad) {
         this.nacionalidad = nacionalidad;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
     }
 }
