@@ -51,6 +51,16 @@ public class PDFCreator {
         openPDF();
     }
 
+    public void crearPDF() throws IOException, DocumentException {
+        Document documento = new Document();
+        PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
+        documento.open();
+        setParagraph(documento, 500, 300);
+        documento.close();
+        System.out.println("Imprisión correcta");
+        openPDF();
+    }
+
     public void crearPDF(int numColumns, PDFTabla pdfTablaOne, int numColumsTwo, PDFTabla pdfTablaTwo, int numColumsThree, PDFTabla pdfTablaThree) throws IOException, DocumentException {
         Document documento = new Document();
         PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
@@ -102,6 +112,39 @@ public class PDFCreator {
         documento.close();
         System.out.println("Imprisión correcta");
         openPDF();
+    }
+
+    private void setParagraph(Document documento, float witdh, float height) throws DocumentException, IOException {
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setWidths(new int[]{1, 2});
+
+        PdfPCell cellLeft = new PdfPCell();
+        if (image != null) {
+            Image img = Image.getInstance(image);
+            img.scaleToFit(witdh, height);
+            img.setAlignment(Element.ALIGN_LEFT);
+            cellLeft.addElement(img);
+
+            Paragraph sub = new Paragraph(this.sub, fontSub);
+            sub.setAlignment(Element.ALIGN_LEFT);
+            sub.setPaddingTop(10);
+            cellLeft.addElement(sub);
+
+            cellLeft.setVerticalAlignment(Element.ALIGN_TOP);
+            cellLeft.setBorder(Rectangle.NO_BORDER);
+            documento.add(cellLeft);
+        }
+        PdfPCell cellRight = new PdfPCell();
+        Paragraph p = new Paragraph(this.title, fontTitle);
+        p.setPaddingTop(10);
+        p.setAlignment(Element.ALIGN_RIGHT);
+        cellRight.addElement(p);
+        cellRight.setVerticalAlignment(Element.ALIGN_BOTTOM);
+        cellRight.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellLeft);
+        table.addCell(cellRight);
+        documento.add(table);
     }
 
     private void setParagraph(Document documento) throws DocumentException, IOException {

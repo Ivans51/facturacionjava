@@ -49,18 +49,22 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         cNacionalidad.getItems().addAll(nacionalidades);
+        cNacionalidad.valueProperty().addListener((observable, oldValue, newValue) -> {
+            switch (newValue) {
+                case "V":
+                    rangeLimitCedula = new int[]{7, 8};
+                    break;
+                case "E":
+                    rangeLimitCedula = new int[]{7, 8};
+                    break;
+                case "J":
+                    rangeLimitCedula = new int[]{7, 9};
+                    break;
+            }
+        });
         Validar.getValueLimit(cNacionalidad, "");
         setTable();
         setBuscarTableCliente();
-    }
-
-    private void setBuscarTableCliente() {
-        ObservableList<Cliente> data = table.getData();
-        jBuscar.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (oldValue != null && (newValue.length() < oldValue.length()))
-                tableCliente.setItems(data);
-            table.searchMultiple(newValue.toLowerCase());
-        });
     }
 
     private void setTable() {
@@ -75,6 +79,15 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         table.getListTable().addAll(clientes);
     }
 
+    private void setBuscarTableCliente() {
+        ObservableList<Cliente> data = table.getData();
+        jBuscar.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null && (newValue.length() < oldValue.length()))
+                tableCliente.setItems(data);
+            table.searchMultiple(newValue.toLowerCase());
+        });
+    }
+
     private void selectAllCliente() {
         clientes = clienteDAO.selectAll();
         clientes.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
@@ -82,11 +95,12 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
+            if (!stateEdit)
+                Validar.limitField(rangeLimitCedula, "Cédula o RIF", jCedula);
+            Validar.limitField(rangeLimitTelefono, "Telefono", jTelefono);
             Validar.campoVacio(field, jNombre, jCedula, jApellido, jDireccion, jTelefono);
             Validar.stringVacio(fieldString, cNacionalidad.getSelectionModel().getSelectedItem());
             Validar.isNumber(fieldNumber, jCedula, jTelefono);
-            Validar.limitField(rangeLimitCedula, "Cédula", jCedula);
-            Validar.limitField(rangeLimitTelefono, "Telefono", jTelefono);
             elegirConsulta();
             tableCliente.refresh();
             Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
@@ -154,6 +168,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
 
     private void stateViewEdit(boolean edit) {
         stateEdit = edit;
+        if (Storage.getUsuario().getStatus().equalsIgnoreCase(Estado.GERENTE))
         btnEliminar.setVisible(edit);
         jCedula.setDisable(edit);
         cNacionalidad.setDisable(edit);
@@ -164,6 +179,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     public void actionLimpiar(ActionEvent actionEvent) {
         if (stateEdit) stateViewEdit(false);
         Validar.limmpiarCampos(jCedula, jNombre, jTelefono, jApellido, jDireccion);
+        cNacionalidad.getSelectionModel().clearSelection();
     }
 
     public void actionSalir(ActionEvent mouseEvent) {

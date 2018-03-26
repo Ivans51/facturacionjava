@@ -32,7 +32,7 @@ public class PrintSelection {
                 String ser = "Servicios-";
                 print.action(serviciosA, ser + fecha + ".pdf", ser);
                 break;
-            case "Clliente":
+            case "Cliente":
                 String cli = "Clientes-";
                 print.action(clientesA, cli + fecha + ".pdf", cli);
                 break;
@@ -43,6 +43,10 @@ public class PrintSelection {
             case "Usuario":
                 String use = "Usuario-";
                 print.action(usuariosA, use + fecha + ".pdf", use);
+                break;
+            case "Graficos":
+                String gra = "Gráfico-";
+                print.action(usuariosA, gra + fecha + ".pdf", gra);
                 break;
         }
     }

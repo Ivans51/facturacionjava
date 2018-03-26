@@ -11,26 +11,25 @@ import core.util.TableUtil;
 import core.vo.*;
 import core.vo.Factura;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class Administrador extends ManagerFXML implements Initializable {
+public class Administrador extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public JFXButton btnSalir, btnImprimir, btnConsultar;
+    public JFXButton btnSalir, btnImprimir, btnConsultar, btnImprimirFactura;
     public ComboBox<String> cReportes, cTime;
     public TableView tableReport;
     public TableColumn tbId, tbFecha, tbHora, tbAcion, tbUsuario;
@@ -46,20 +45,25 @@ public class Administrador extends ManagerFXML implements Initializable {
     private String[] rangoTiempo = new String[]{"Dia", "Mes", "Rango"};
     private String[] clientesA = {"Cédula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
     private String[] usuariosA = {"Cédula", "Nombre", "Correo", "Fecha", "Status"};
-    private String[] facturasA = {"IdFactura", "Servicios", "FechaPago", "Duracion", "Total"};
+    private String[] facturasA = {"Nombre", "Servicios", "FechaPago", "idfactura", "Total"};
     private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoEntrega"};
     private String[] auditoriasA = {"Id", "Fecha", "Hora", "Acción", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();
     private List<String> tipos = new ArrayList<>();
     private Double totales;
     private String comboTime = "Dia";
+    private TableUtil<Factura, String> tableFacturaUtil;
+    private Factura facturaRow;
+    private Cliente clienteRow;
+    private HashMap<String, Integer> totalCantServ = new HashMap<>();
+    private HashMap<String, Double> totalPrecioServ = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         datePickerDos.setVisible(false);
+        lblTotal.setVisible(false);
         stateButton();
         setCombo();
-        // setDatePicker();
     }
 
     private void stateButton() {
@@ -69,8 +73,9 @@ public class Administrador extends ManagerFXML implements Initializable {
             case Estado.TECNICO:
                 tipos.add("Factura");
                 comboReportes = "Factura";
+                tableFactura.getListTable().addAll(addFactura(facturaDAO.joinFacturaCliente()));
                 lblTotal.setVisible(true);
-                tableFactura.getListTable().addAll(addFactura(facturaDAO.selectAll()));
+                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
                 break;
             case Estado.GERENTE:
                 tipos.add("Auditoria");
@@ -87,8 +92,9 @@ public class Administrador extends ManagerFXML implements Initializable {
                 tipos.add("Cliente");
                 tipos.add("Factura");
                 comboReportes = "Factura";
-                lblTotal.setVisible(true);
                 eligirTime("Dia");
+                lblTotal.setVisible(true);
+                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
                 break;
         }
     }
@@ -96,6 +102,7 @@ public class Administrador extends ManagerFXML implements Initializable {
     private void setCombo() {
         cTime.setItems(FXCollections.observableArrayList(rangoTiempo));
         cTime.valueProperty().addListener((observable, oldValue, newValue) -> {
+            btnImprimirFactura.setVisible(false);
             comboTime = newValue;
             datePickerDos.setVisible(newValue.equals("Rango"));
             // setTableFacturaTime(newValue);
@@ -103,6 +110,7 @@ public class Administrador extends ManagerFXML implements Initializable {
 
         cReportes.setItems(FXCollections.observableArrayList(tipos));
         cReportes.valueProperty().addListener((observable, oldValue, newValue) -> {
+            btnImprimirFactura.setVisible(false);
             comboReportes = newValue;
             eligirReporte(newValue);
         });
@@ -117,6 +125,8 @@ public class Administrador extends ManagerFXML implements Initializable {
 
     private void eligirReporte(String selected) {
         valuesReport.clear();
+        lblTotal.setVisible(false);
+        btnImprimirFactura.setVisible(false);
         switch (selected) {
             case "Auditoria":
                 TableUtil<Auditoria, String> tableAudi = getAuditoriaStringTableUtil();
@@ -131,17 +141,16 @@ public class Administrador extends ManagerFXML implements Initializable {
                 tableCliente.getListTable().addAll(addClientes(clienteDAO.selectAll()));
                 break;
             case "Factura":
+                TableUtil<Factura, String> tableFac = getFacturaStringTableUtil();
+                tableFac.getListTable().addAll(addFactura(facturaDAO.joinFacturaCliente()));
                 lblTotal.setVisible(true);
                 lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
-                TableUtil<Factura, String> tableFac = getFacturaStringTableUtil();
-                tableFac.getListTable().addAll(addFactura(facturaDAO.selectAll()));
                 break;
             case "Usuario":
                 TableUtil<Usuario, String> tableUsuario = getUsuarioStringTableUtil();
                 tableUsuario.getListTable().addAll(addUsuarios(usuarioDAO.selectAll()));
                 break;
         }
-        lblTotal.setVisible(false);
     }
 
     // Usuario
@@ -172,21 +181,28 @@ public class Administrador extends ManagerFXML implements Initializable {
     // Factura
     private TableUtil<Factura, String> getFacturaStringTableUtil() {
         setHeaders(facturasA);
-        String[] columA = {"idfactura", "servicios", "fecha_pagoEdit", "duracion", "total"};
-        TableUtil<Factura, String> table;
+        String[] columA = {"nombreCliente", "servicios", "fecha_pagoEdit", "idfactura", "totalEdit"};
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table = new TableUtil(Factura.class, tableReport);
-        table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
-        return table;
+        tableFacturaUtil = new TableUtil(Factura.class, tableReport);
+        tableFacturaUtil.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
+
+        final ObservableList<Factura> tablaSelecionada = tableReport.getSelectionModel().getSelectedItems();
+        tablaSelecionada.addListener((ListChangeListener<Factura>) c -> tableFacturaUtil.seleccionarTabla(this));
+
+        return tableFacturaUtil;
     }
 
     private List<Factura> addFactura(List<Factura> facturaList) {
         totales = 0.0;
-        for (Factura servicios : facturaList) {
-            servicios.setFecha_pagoEdit(FechaUtil.getDateFormat(servicios.getFecha_pago()));
+        for (Factura factura : facturaList) {
+            factura.setFecha_pagoEdit(FechaUtil.getDateFormat(factura.getFecha_pago()));
+            factura.setTotalEdit(String.format("%1$,.2f", factura.getTotal()) + " Bs");
+            String cliente = factura.getCliente().getNombres() + " " + factura.getCliente().getApellidos();
+            factura.setNombreCliente(cliente);
         }
         facturaList.forEach(it -> {
-            valuesReport.add(String.valueOf(it.getIdfactura()));
+            String cliente = it.getCliente().getNombres() + " " + it.getCliente().getApellidos();
+            valuesReport.add(cliente);
             valuesReport.add(String.valueOf(it.getServicios()));
             valuesReport.add(String.valueOf(it.getFecha_pagoEdit()));
             valuesReport.add(String.valueOf(it.getDuracion()));
@@ -271,6 +287,7 @@ public class Administrador extends ManagerFXML implements Initializable {
 
     // With time
     public void actionConsultar(ActionEvent actionEvent) {
+        btnImprimirFactura.setVisible(false);
         if (comboTime != null && !"".equals(comboTime) && datePickerUno.getValue() != null)
             eligirTime(comboReportes);
         else
@@ -279,6 +296,7 @@ public class Administrador extends ManagerFXML implements Initializable {
 
     private void eligirTime(String selected) {
         valuesReport.clear();
+        lblTotal.setVisible(false);
         switch (selected) {
             case "Auditoria":
                 setTableAuditoriaTime();
@@ -296,7 +314,6 @@ public class Administrador extends ManagerFXML implements Initializable {
                 setTableUsuarioTime();
                 break;
         }
-        lblTotal.setVisible(false);
     }
 
     private void setTableAuditoriaTime() {
@@ -423,9 +440,9 @@ public class Administrador extends ManagerFXML implements Initializable {
                     facturaList = facturaDAO.selectByMes(factura);
                     break;
             }
+            table.getListTable().addAll(addFactura(facturaList));
             lblTotal.setVisible(true);
             lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
-            table.getListTable().addAll(addFactura(facturaList));
         }
     }
 
@@ -491,8 +508,97 @@ public class Administrador extends ManagerFXML implements Initializable {
         }
     }
 
+    @Override
+    public void setStatusControls() {
+        btnImprimirFactura.setVisible(true);
+        if (tableFacturaUtil.getTablaSeleccionada(tableReport) != null) {
+            Factura model = tableFacturaUtil.getModel();
+            facturaRow = facturaDAO.selectById(model.getIdfactura());
+            clienteRow = clienteDAO.selectById(facturaRow.getCliente_cedula());
+        }
+    }
+
+    private void setValuesServicios() throws Myexception {
+        if (facturaRow == null)
+            throw new Myexception("No hay datos seleccionados");
+        int occurance = StringUtils.countMatches(facturaRow.getServicios(), ",") + 1;
+        String arrPair[] = facturaRow.getServicios().split(",", occurance);
+        for (int i = 0; i < occurance; i++) {
+            String[] strings = arrPair[i].split("x", 2);
+            if (totalCantServ.get(strings[0].trim()) != null)
+                totalCantServ.merge(strings[0].trim(), Integer.valueOf(strings[1].trim()), Integer::sum);
+            else
+                totalCantServ.put(strings[0].trim(), Integer.valueOf(strings[1].trim()));
+            Servicios servicios = serviciosDAO.selectByNombre(strings[0].trim());
+            if (totalPrecioServ.get(strings[0].trim()) == null)
+                totalPrecioServ.put(servicios.getNombre(), servicios.getPrecio());
+        }
+    }
+
+    private void setReportPDF() throws IOException, DocumentException {
+        DateTime d = new DateTime();
+        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
+        String namePdf = "Factura" + time;
+        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
+        String title = "Inversiones Todo Frío C.A. " +
+                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
+        String sub = "Factura del día: " + timeActual;
+        PDFCreator pdfCreator = new PDFCreator(namePdf, title, sub, "src/main/resources/images/FacturaLogo.png");
+        pdfCreator.setFontTitle(pdfCreator.family, 12, Font.BOLD, pdfCreator.background);
+        pdfCreator.setFontSub(pdfCreator.family, 12, Font.NORMAL, pdfCreator.background);
+        pdfCreator.setOtherParragraph("Tipo de Pago: " + facturaRow.getForma_pago());
+        pdfCreator.setColumnWidthOne(new float[]{40, 220, 130, 130});
+        pdfCreator.setColumnWidthTwo(new float[]{520});
+        pdfCreator.setColumnWidthThree(new float[]{260, 130, 130});
+        pdfCreator.crearPDF(4, (PdfPTable tabla) -> {
+            tabla.addCell("Cant.");
+            tabla.addCell("Concepto o Descripción");
+            tabla.addCell("Precio Unitario");
+            tabla.addCell("Total");
+            totalPrecioServ.forEach((key, value) -> {
+                Integer cant = totalCantServ.get(key);
+                tabla.addCell(pdfCreator.setStyleCell(String.valueOf(cant)));
+                tabla.addCell(pdfCreator.setStyleCell(key));
+                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", value) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", cant * value) + " Bs"));
+            });
+            for (int i = 0; i < 3; i++) {
+                tabla.addCell("");
+            }
+        }, 1, tabla -> {
+            tabla.addCell("Nombre o razón social: " + clienteRow.getNombres() + " " + clienteRow.getApellidos());
+            tabla.addCell("Domicilio fiscal: " + clienteRow.getDireccion());
+            tabla.addCell("C.I. o RIF: " + clienteRow.getCedula());
+            tabla.addCell("Teléfono: " + clienteRow.getTelefono());
+        }, 3, tabla -> {
+            tabla.addCell("");
+            tabla.addCell("Subtotal");
+            tabla.addCell(String.format("%1$,.2f", getSubtotal()) + " Bs");
+
+            tabla.addCell("");
+            tabla.addCell("IVA");
+            tabla.addCell(String.format("%1$,.2f", facturaRow.getIVA()) + " Bs");
+
+            tabla.addCell("");
+            tabla.addCell("Total a Pagar");
+            tabla.addCell(String.format("%1$,.2f", facturaRow.getTotal()) + " Bs");
+        });
+    }
+    private double getSubtotal() {
+        return facturaRow.getTotal() - (facturaRow.getTotal() * 0.12);
+    }
+
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
+    public void actionImprimirFactura(ActionEvent actionEvent) {
+        try {
+            setValuesServicios();
+            setReportPDF();
+        } catch (DocumentException | IOException | Myexception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -45,6 +45,14 @@ public class FacturaDAO {
         return person;
     }
 
+    public List<Factura> joinFacturaCliente() {
+        List<Factura> person = null;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            person = session.selectList("Factura.joinFacturaCliente");
+        }
+        return person;
+    }
+
     /**
      * Select instance of Factura from the database.
      *

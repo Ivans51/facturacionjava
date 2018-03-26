@@ -83,6 +83,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             Validar.campoVacio(field, jNombre, jPrecio, jTiempoE);
             Validar.isNumber(fieldNumber, jPrecio, jTiempoE);
             elegirConsulta();
+            tableServicio.refresh();
             Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
@@ -95,22 +96,26 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             Validar.checkValor(jNombre.getText(), nombres, "nombre");
             serviciosDAO.insert(getServiciosInsert());
             int id = serviciosDAO.selectLastID().getIdservicios();
-            table.getListTable().add(serviciosDAO.selectById(id));
+            Servicios servicios = serviciosDAO.selectById(id);
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + " Bs");
+            table.getListTable().add(servicios);
             new AlertUtil(Estado.EXITOSA, "Servicio creado correctamente");
             new AuditoriaUtil().insertar("Registro del servicio");
         } else {
-            serviciosDAO.update(getServiciosUpdate());
-            selectAllServicio();
             stateViewEdit(false);
+            serviciosDAO.update(getServiciosUpdate());
+            tableServicio.getItems().clear();
+            selectAllServicio();
+            table.getListTable().addAll(serviciosList);
             new AlertUtil(Estado.EXITOSA, "Servicio modificado correctamente");
             new AuditoriaUtil().insertar("Servicio actualizado");
         }
-        tableServicio.refresh();
     }
 
     private Servicios getServiciosInsert() throws ParseException {
         Servicios servicios = new Servicios();
-        if (!stateEdit) servicios.setNombre(jNombre.getText());
+        servicios.setNombre(jNombre.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
@@ -119,7 +124,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     }
 
     private Servicios getServiciosUpdate() throws ParseException {
-        if (!stateEdit) servicios.setNombre(jNombre.getText());
+        servicios.setNombre(jNombre.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
         servicios.setTiempo_estimado(jTiempoE.getText());
         servicios.setFecha(FechaUtil.getCurrentDate());

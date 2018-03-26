@@ -37,7 +37,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     public AnchorPane anchorPane;
     public ComboBox<String> cServicios, cTipoPago;
     public TextField jPrecio, jFecha, jCedula, jNombre, jCiudad, jTelefono;
-    public JFXButton btnAgregar, btnSalir, btnBuscar, btnImprimir, btnEliminar;
+    public JFXButton btnAgregar, btnSalir, btnImprimir, btnEliminar;
     public TableView<Cliente> tableCliente;
     public TableColumn tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono;
     public TableView<Servicios> tableServicio;
@@ -129,7 +129,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
             setTotal(item);
             limpiar();
         } else {
-            new AlertUtil(Estado.ERROR, "Selecciona un servicio y subservicio");
+            new AlertUtil(Estado.ERROR, "Selecciona un servicio");
         }
     }
 
@@ -179,7 +179,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     }
 
     // Busca los clientes de la empresa
-    public void actionBuscar(ActionEvent actionEvent) {
+    /*public void actionBuscar(ActionEvent actionEvent) {
         Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
         if (cliente == null)
             abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
@@ -190,7 +190,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         else {
             new AlertUtil(Estado.EXITOSA, "Usuario ya esta registrado en el sistema");
         }
-    }
+    }*/
 
     public void actionImprimir(ActionEvent actionEvent) {
         try {

@@ -94,8 +94,8 @@
 
     <update id="update" parameterType="Servicios">
         UPDATE facturacion.servicios
-        SET precio = #{precio}, fecha = #{fecha},
-            tiempo_estimado = #{tiempo_estimado}}
+        SET nombre = #{nombre}, precio = #{precio},
+            fecha = #{fecha}, tiempo_estimado = #{tiempo_estimado}
         WHERE idservicio = #{idservicios}
     </update>
 

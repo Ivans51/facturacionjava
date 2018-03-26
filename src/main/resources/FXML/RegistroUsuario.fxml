@@ -54,7 +54,7 @@
                   </VBox>
                </children>
             </HBox>
-                <Label layoutX="25.0" layoutY="25.0" text="Nombre" />
+                <Label layoutX="25.0" layoutY="25.0" text="Nombre Usuario" />
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="60.0" text="Clave" />
                 <PasswordField fx:id="jClave" />

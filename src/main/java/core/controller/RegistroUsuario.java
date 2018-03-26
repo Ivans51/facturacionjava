@@ -57,14 +57,16 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
         cNivel.getItems().addAll(niveles);
         cNacionalidad.getItems().addAll(nacionalidades);
         cNacionalidad.valueProperty().addListener((observable, oldValue, newValue) -> {
-            switch (newValue) {
-                case "V":
-                case "E":
-                    rangeLimitCedula = new int[]{7, 8};
-                    break;
-                case "J":
-                    rangeLimitCedula = new int[]{7, 9};
-                    break;
+            if (newValue != null) {
+                switch (newValue) {
+                    case "V":
+                    case "E":
+                        rangeLimitCedula = new int[]{7, 8};
+                        break;
+                    case "J":
+                        rangeLimitCedula = new int[]{7, 9};
+                        break;
+                }
             }
         });
     }
@@ -92,9 +94,8 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     private void selectAllUsuario() {
         usuarios = usuarioDAO.selectAll();
-        for (Usuario servicios : usuarios) {
+        for (Usuario servicios : usuarios)
             servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
-        }
         usuarios.forEach(it -> cedulas.add(String.valueOf(it.getCedula())));
         usuarios.forEach(it -> nombres.add(it.getNombre()));
         usuarios.forEach(it -> correos.add(it.getCorreo()));
@@ -102,21 +103,25 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(field, jNombre, jCorreo, jClave);
-            Validar.isNumber(fieldNumber, jCedula);
-            Validar.limitField(rangeLimitCedula, "Cédula o RIF", jCedula);
-            Validar.limitField(new int[]{8, 32}, "Clave", jClave);
-            String nac = cNacionalidad.getSelectionModel().getSelectedItem();
-            String nivel = cNivel.getSelectionModel().getSelectedItem();
-            String[] fieldString = {"Nacionalidad, Nivel"};
-            Validar.stringVacio(fieldString, nac, nivel);
+            validar();
             eligirConsulta();
-            cNacionalidad.getSelectionModel().clearSelection();
-            Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
+            clear();
         } catch (ParseException | Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
         }
+    }
+
+    private void validar() throws Myexception {
+        if (!stateEdit)
+            Validar.limitField(rangeLimitCedula, "Cédula o RIF", jCedula);
+        Validar.limitField(new int[]{8, 32}, "Clave", jClave);
+        Validar.campoVacio(field, jNombre, jCorreo, jClave);
+        Validar.isNumber(fieldNumber, jCedula);
+        Validar.isValidEmailAddress(jCorreo.getText());
+        String nac = cNacionalidad.getSelectionModel().getSelectedItem();
+        String nivel = cNivel.getSelectionModel().getSelectedItem();
+        Validar.stringVacio(new String[]{"Nacionalidad, Nivel"}, nac, nivel);
     }
 
     private void eligirConsulta() throws Myexception, ParseException {
@@ -125,20 +130,29 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
             Validar.checkValor(jNombre.getText(), nombres, "nombre");
             usuarioDAO.insert(getUsuarioInsert());
             Usuario usuario = usuarioDAO.selectById(Integer.parseInt(jCedula.getText()));
+            usuario.setFechaEdit(FechaUtil.getDateFormat(usuario.getFecha()));
             table.getListTable().add(usuario);
             new AlertUtil(Estado.EXITOSA, "Usuario creado correctamente");
             new AuditoriaUtil().insertar("Registro del Usuario");
         } else {
-            usuarioDAO.update(getUsuarioUpdate());
-            selectAllUsuario();
             stateViewEdit(false);
+            usuarioDAO.update(getUsuarioUpdate());
+            tableUsuario.getItems().clear();
+            selectAllUsuario();
+            table.getListTable().addAll(usuarios);
             new AlertUtil(Estado.EXITOSA, "Usuario modificado correctamente");
             new AuditoriaUtil().insertar("Usuario actualizado");
         }
         tableUsuario.refresh();
     }
 
-    private Usuario getUsuarioInsert() throws ParseException {
+    private void clear() {
+        cNacionalidad.getSelectionModel().clearSelection();
+        cNivel.getSelectionModel().clearSelection();
+        Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
+    }
+
+    private Usuario getUsuarioInsert() throws ParseException, Myexception {
         Usuario usuario = new Usuario();
         if (!stateEdit) usuario.setCedula(Integer.parseInt(jCedula.getText()));
         usuario.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
@@ -170,6 +184,7 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
             jClave.setText(usuario.getClave());
             jCorreo.setText(usuario.getCorreo());
             cNacionalidad.getSelectionModel().select(usuario.getNacionalidad());
+            cNivel.getSelectionModel().select(usuario.getStatus());
             stateViewEdit(true);
         }
     }
@@ -185,8 +200,10 @@ public class RegistroUsuario extends ManagerFXML implements Initializable, Table
     }
 
     public void actionLimpiar(ActionEvent actionEvent) {
-        Validar.limmpiarCampos(jNombre, jClave, jCorreo);
+        if (stateEdit) stateViewEdit(false);
+        Validar.limmpiarCampos(jNombre, jClave, jCorreo, jCedula);
         cNacionalidad.getSelectionModel().clearSelection();
+        cNivel.getSelectionModel().clearSelection();
     }
 
     public void actionSalir(ActionEvent mouseEvent) {

@@ -16,6 +16,20 @@
         <result property="total" column="total"/>
         <result property="cliente_cedula" column="cliente_cedula"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
+        <association property="cliente" resultMap="cliente"/>
+    </resultMap>
+
+    <resultMap id="cliente" type="Cliente">
+        <!-- property="atributo java" column="columna tabla" -->
+        <result property="cedula" column="cedula"/>
+        <result property="nombres" column="nombres"/>
+        <result property="apellidos" column="apellidos"/>
+        <result property="estado" column="estado"/>
+        <result property="direccion" column="direccion"/>
+        <result property="telefono" column="telefono"/>
+        <result property="fecha" column="fecha"/>
+        <result property="nacionalidad" column="nacionalidad"/>
+        <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
 
     <select id="selectAll" resultMap="result">
@@ -29,27 +43,36 @@
         WHERE idfactura = #{idfactura}
     </select>
 
+    <select id="joinFacturaCliente" resultMap="result">
+        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        FROM facturacion.factura a1
+        INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
+    </select>
+
     <select id="selectLastID" parameterType="string" resultMap="result">
         SELECT max(idfactura) as idfactura FROM facturacion.factura
     </select>
 
     <!-- The value is not correspond -->
     <select id="selectByDia" parameterType="Factura" resultMap="result">
-        SELECT *
-        FROM facturacion.factura
-        WHERE DAY(fecha_pago) = #{idfactura} AND MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
+        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        FROM facturacion.factura a1
+            INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
+        WHERE DAY(a1.fecha_pago) = #{idfactura} AND MONTH(a1.fecha_pago) = #{cliente_cedula} AND YEAR(a1.fecha_pago) = #{usuario_cedula}
     </select>
 
     <select id="selectByRango" parameterType="Factura" resultMap="result">
-        SELECT *
-        FROM facturacion.factura
-        WHERE fecha_pago BETWEEN #{fecha_pago} AND #{duracion}
+        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        FROM facturacion.factura a1
+            INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
+        WHERE a1.fecha_pago BETWEEN #{fecha_pago} AND #{duracion}
     </select>
 
     <select id="selectByMes" parameterType="Factura" resultMap="result">
-        SELECT *
-        FROM facturacion.factura
-        WHERE MONTH(fecha_pago) = #{cliente_cedula} AND YEAR(fecha_pago) = #{usuario_cedula}
+        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        FROM facturacion.factura a1
+            INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
+        WHERE MONTH(a1.fecha_pago) = #{cliente_cedula} AND YEAR(a1.fecha_pago) = #{usuario_cedula}
     </select>
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">

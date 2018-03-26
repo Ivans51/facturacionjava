@@ -170,7 +170,7 @@ public class UsuarioDAO {
         SqlSession session = sqlSessionFactory.openSession();
 
         try {
-            id = session.update("Usuario.update", usuario);
+            id = session.update("Usuario.updateDatosUsuarios", usuario);
 
         } finally {
             session.commit();

@@ -25,6 +25,12 @@
                         <String fx:value="button-bold" />
                     </styleClass>
                 </Label>
+                  <HBox alignment="CENTER_RIGHT" spacing="10" HBox.hgrow="ALWAYS">
+               <children>
+                   <JFXButton fx:id="btnImprimir" onAction="#actionImprimir" text="Imprimir" />
+                   <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
+               </children>
+                  </HBox>
             </children>
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -32,7 +38,7 @@
         </HBox>
         <HBox layoutY="63.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
             <children>
-                <VBox spacing="20.0" styleClass="layot-color-primary">
+                <VBox spacing="20.0" styleClass="layot-color-primary" HBox.hgrow="ALWAYS">
                     <children>
                         <VBox spacing="20.0" VBox.vgrow="ALWAYS">
                             <children>
@@ -53,12 +59,12 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                     </padding>
                 </VBox>
-                <VBox HBox.hgrow="ALWAYS">
+                <VBox HBox.hgrow="ALWAYS" fx:id="contentChart">
                     <children>
-                  <HBox>
+                  <HBox VBox.vgrow="ALWAYS">
                      <children>
                         <PieChart fx:id="chartPie" prefHeight="402.0" prefWidth="399.0" HBox.hgrow="ALWAYS" />
-                        <BarChart fx:id="chartBar" prefHeight="378.0" prefWidth="424.0">
+                        <BarChart fx:id="chartBar" prefHeight="378.0" prefWidth="424.0" xAxis="x" yAxis="y">
                           <xAxis>
                             <CategoryAxis side="BOTTOM" fx:id="x" />
                           </xAxis>
@@ -68,11 +74,6 @@
                         </BarChart>
                      </children>
                   </HBox>
-                        <HBox alignment="CENTER_RIGHT" spacing="10" VBox.vgrow="ALWAYS">
-                     <children>
-                               <JFXButton fx:id="btnSalir" onAction="#actionSalir" text="Salir" />
-                     </children>
-                        </HBox>
                     </children>
                     <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

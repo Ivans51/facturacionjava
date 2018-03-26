@@ -11,9 +11,12 @@ public class Factura {
     private String duracion;
     private Double IVA;
     private Double total;
+    private String totalEdit;
     private int cliente_cedula;
     private int usuario_cedula;
     private String fecha_pagoEdit;
+    private Cliente cliente;
+    private String nombreCliente;
 
     public int getIdfactura() {
         return idfactura;
@@ -93,5 +96,29 @@ public class Factura {
 
     public void setFecha_pagoEdit(String fecha_pagoEdit) {
         this.fecha_pagoEdit = fecha_pagoEdit;
+    }
+
+    public String getTotalEdit() {
+        return totalEdit;
+    }
+
+    public void setTotalEdit(String totalEdit) {
+        this.totalEdit = totalEdit;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
     }
 }

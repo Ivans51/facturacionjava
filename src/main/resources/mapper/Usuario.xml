@@ -77,8 +77,8 @@
     </select>
 
     <insert id="insert" parameterType="Usuario" keyProperty="idUsuario">
-        INSERT INTO facturacion.usuario (cedula, nacionalidad, nombre, correo, fecha, status)
-        VALUES (#{cedula}, #{nacionalidad}, #{nombre}, #{correo}, #{fecha}, #{status});
+        INSERT INTO facturacion.usuario (cedula, nacionalidad, nombre, clave, correo, fecha, status)
+        VALUES (#{cedula}, #{nacionalidad}, #{nombre}, #{clave}, #{correo}, #{fecha}, #{status});
     </insert>
 
     <update id="updateEstado" parameterType="Usuario">
