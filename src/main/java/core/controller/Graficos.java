@@ -1,7 +1,7 @@
 package core.controller;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
@@ -13,17 +13,13 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.*;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
@@ -34,6 +30,7 @@ import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
 
 public class Graficos extends ManagerFXML implements Initializable {
 
@@ -107,23 +104,8 @@ public class Graficos extends ManagerFXML implements Initializable {
         if (comboTime != null && !"".equals(comboTime) && datePickerUno.getValue() != null) {
             clear();
             setTableFacturaTime();
-            setBarChart("Servicios", "Cantidad", "Servicios", "", servicios);
-            setPieChart("Servicios", servicios);
-            final Label caption = new Label("");
-            caption.setTextFill(Color.DARKORANGE);
-            caption.setStyle("-fx-font: 24 arial;");
-            for (final PieChart.Data data : chartPie.getData()) {
-                data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
-                        e -> {
-                            caption.setTranslateX(e.getSceneX());
-                            caption.setTranslateY(e.getSceneY());
-                            caption.setText(String.valueOf(data.getPieValue()) + "%");
-                        });
-            }
-            if (isFirstTime) {
-                isFirstTime = false;
-                setConsulta();
-            }
+            setBarChart(servicios);
+            setPieChart(servicios);
         } else
             new AlertUtil(Estado.EXITOSA, "Faltan valores por seleccionar");
     }
@@ -180,27 +162,23 @@ public class Graficos extends ManagerFXML implements Initializable {
         });
     }
 
-    private void setBarChart(String xAxis, String yAxis, String title, String sub, HashMap<String, Integer> charts) {
-        x.setLabel(xAxis);
-        y.setLabel(yAxis);
-        chartBar.setTitle(title);
-        // series.setName(sub);
+    private void setBarChart(HashMap<String, Integer> charts) {
+        x.setLabel("Servicios");
+        x.setTickLabelRotation(90);
+        y.setLabel("Cantidad");
+        // chartBar.setTitle("Servicios");
 
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        /*series.nodeProperty().addListener((ObservableValue<? extends Node> ov, Node oldNode, Node newNode) -> {
-            Random random = new Random();
-            int nextInt = random.nextInt(256*256*256);
-            newNode.setStyle("-fx-bar-fill: " + String.format("#%06x", nextInt));
-        });*/
         charts.forEach((s, s2) -> {
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName(s);
             series.getData().add(new XYChart.Data<>(s, s2));
+            chartBar.getData().add(series);
         });
-        chartBar.getData().addAll(series);
     }
 
-    private void setPieChart(String title, HashMap<String, Integer> charts) {
+    private void setPieChart(HashMap<String, Integer> charts) {
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(getPieChart(charts));
-        chartPie.setTitle(title);
+        chartPie.setTitle("Servicios");
         chartPie.setData(pieChartData);
     }
 
@@ -214,27 +192,39 @@ public class Graficos extends ManagerFXML implements Initializable {
     }
 
     public void actionImprimir(ActionEvent actionEvent) {
-        saveAsPng(contentChart, "c:\\temp\\chart.png");
-        System.out.println("After show");
-    }
-    private void saveAsPng(VBox scene, String path) {
-        WritableImage image = scene.snapshot(new SnapshotParameters(), null);
-        File file = new File(path);
         try {
-            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            DateTime d = new DateTime();
-            String timeActual = d.getSecondOfDay() + " - " + d.getMinuteOfHour() + "-" + d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear() + ".pdf";
-            PDFCreator pdfCreator = new PDFCreator(timeActual, "Listado de graficos", "Fecha: " + timeActual, "c:\\temp\\chart.png");
-            pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
-            pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
-            pdfCreator.crearPDF();
+            String graphPath = new File("reports").getAbsolutePath() + "\\chart.png";
+            setGraphReport(graphPath, getNameFile(graphPath));
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
         }
+    }
+
+    private String getNameFile(String graphPath) throws IOException {
+        File file = new File(graphPath);
+        WritableImage snapshot = contentChart.snapshot(new SnapshotParameters(), null);
+        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
+        DateTime d = new DateTime();
+        return d.getSecondOfDay() + " - " + d.getMinuteOfHour() + "-" + d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear() + ".pdf";
+    }
+
+    private void setGraphReport(String graphPath, String nameFile) throws IOException, DocumentException {
+        PDFCreator pdfCreator = new PDFCreator("reports/" + nameFile);
+        pdfCreator.createPDF(documento -> {
+            Paragraph elements = pdfCreator.setParagraph("Listado de graficos", Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elements1 = pdfCreator.setParagraph("Fecha: " + nameFile, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
+
+            PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{230, 290}, tabla -> {
+                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elements1);
+                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elements);
+                tabla.addCell(pdfPCellLeft);
+                tabla.addCell(pdfPCellRight);
+            }, false);
+            documento.add(tableTitle);
+
+            documento.add(pdfCreator.setImagePDF(graphPath, 500, 300, Element.ALIGN_TOP));
+        });
     }
 
     public void actionSalir(ActionEvent actionEvent) {

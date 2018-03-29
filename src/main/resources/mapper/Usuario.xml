@@ -23,6 +23,12 @@
         WHERE estado = 1
     </select>
 
+    <select id="selectStart" parameterType="int" resultMap="result">
+        SELECT *
+        FROM facturacion.usuario
+        WHERE cedula = #{cedula}
+    </select>
+
     <select id="selectById" parameterType="int" resultMap="result">
         SELECT *
         FROM facturacion.usuario

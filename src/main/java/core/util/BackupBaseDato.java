@@ -3,7 +3,8 @@ package core.util;
 import core.controller.Ayuda;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
 
@@ -102,7 +103,7 @@ public class BackupBaseDato {
             /*NOTE: Used to create a cmd command*/
             /*NOTE: Do not create a single large string, this will cause buffer locking, use string array*/
             // String[] executeCmd = new String[]{"C:\\xampp\\mysql\\bin\\mysql", dbName, "-u " + dbUser, "-e", " source " + restorePath};
-            String[] executeCmd = new String[]{"C:\\xampp\\mysql\\bin\\mysql", "-u "+dbUser, "-A", "-D " + dbName , "-e", "\"SOURCE "+restorePath+"\""};
+            String[] executeCmd = new String[]{"C:\\xampp\\mysql\\bin\\mysql", "-u " + dbUser, "-A", "-D " + dbName, "-e", "\"SOURCE " + restorePath + "\""};
 
             /*NOTE: processComplete=0 if correctly executed, will contain other values if not*/
             Process runtimeProcess = Runtime.getRuntime().exec(executeCmd);

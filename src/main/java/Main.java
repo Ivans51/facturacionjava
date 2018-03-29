@@ -1,7 +1,9 @@
 import core.util.ManagerFXML;
 import core.util.Route;
 import javafx.application.Application;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class Main extends Application {
 
@@ -16,6 +18,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        new ManagerFXML().abrirStage(Route.Login, "Inicio de Sesión", null, null);
+        new ManagerFXML().abrirStageStyle(Route.DialogLogin, "Inicio de Sesión", Modality.NONE,
+                null, false, StageStyle.TRANSPARENT, null);
     }
 }

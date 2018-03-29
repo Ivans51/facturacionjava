@@ -34,7 +34,13 @@ public class UsuarioDAO {
         }
         System.out.println("selectAll() --> " + list);
         return list;
+    }
 
+    public void selectStart() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            session.selectOne("Usuario.selectStart", 0);
+        }
+        System.out.println("First Connect");
     }
 
     /**

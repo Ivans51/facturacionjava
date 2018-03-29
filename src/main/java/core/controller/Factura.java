@@ -1,6 +1,7 @@
 package core.controller;
 
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
@@ -196,8 +197,8 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
                 Validar.campoVacio(new String[]{"Datos del cliente"}, jNombre);
                 calcularIva();
-                setFactura();
-                setReportPDF();
+                setFactura(getNameFile());
+                setReportPDF(getNameFile());
                 new AlertUtil(Estado.EXITOSA, "Factura generada", closeAlert -> {
                     cerrarStage(closeAlert);
                     cambiarEscena(Route.InicioInfo, anchorPane);
@@ -211,59 +212,85 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         }
     }
 
-    private void setReportPDF() throws IOException, DocumentException {
+    private String getNameFile() {
         DateTime d = new DateTime();
         String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
-        String namePdf = "Factura" + time;
+        return "Factura" + time;
+    }
+
+    private void setReportPDF(String namePdf) throws IOException, DocumentException {
+        DateTime d = new DateTime();
         String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
         String title = "Inversiones Todo Frío C.A. " +
                 "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
                 "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
         String sub = "Factura del día: " + timeActual;
-        PDFCreator pdfCreator = new PDFCreator(namePdf, title, sub, "src/main/resources/images/FacturaLogo.png");
-        pdfCreator.setFontTitle(pdfCreator.family, 12, Font.BOLD, pdfCreator.background);
-        pdfCreator.setFontSub(pdfCreator.family, 12, Font.NORMAL, pdfCreator.background);
-        pdfCreator.setOtherParragraph("Tipo de Pago: " + cTipoPago.getSelectionModel().getSelectedItem());
-        pdfCreator.setColumnWidthOne(new float[]{40, 220, 130, 130});
-        pdfCreator.setColumnWidthTwo(new float[]{520});
-        pdfCreator.setColumnWidthThree(new float[]{260, 130, 130});
-        pdfCreator.crearPDF(4, (PdfPTable tabla) -> {
-            tabla.addCell("Cant.");
-            tabla.addCell("Concepto o Descripción");
-            tabla.addCell("Precio Unitario");
-            tabla.addCell("Total");
-            totalArt.forEach((key, value) -> {
-                Integer cant = totalCantArt.get(key);
-                Double precio = value.getPrecio();
-                tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
-                tabla.addCell(pdfCreator.setStyleCellTable(key));
-                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", precio) + " Bs"));
-                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * precio) + " Bs"));
-            });
-            for (int i = 0; i < 3; i++) {
+
+        PDFCreator pdfCreator = new PDFCreator("reports/" + namePdf);
+        pdfCreator.createPDF(documento -> {
+
+            Paragraph elements = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elements1 = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
+
+            PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{220, 300}, tabla -> {
+                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elements1);
+                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elements);
+                tabla.addCell(pdfPCellLeft);
+                tabla.addCell(pdfPCellRight);
+            }, false);
+            documento.add(tableTitle);
+
+            documento.add(pdfCreator.setParagraph("Datos del Cliente \n", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
+
+            PdfPTable tableCliente = pdfCreator.setTablePDF(new float[]{520}, tabla -> {
+                tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
+                tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
+                tabla.addCell("C.I. o RIF: " + cliente.getCedula());
+                tabla.addCell("Teléfono: " + jTelefono.getText());
+            }, false);
+            documento.add(tableCliente);
+
+            PdfPTable tableDetail = pdfCreator.setTablePDF(new float[]{40, 220, 130, 130}, tabla -> {
+                tabla.addCell("Cant.");
+                tabla.addCell("Concepto o Descripción");
+                tabla.addCell("Precio Unitario");
+                tabla.addCell("Total");
+                totalArt.forEach((key, value) -> {
+                    Integer cant = totalCantArt.get(key);
+                    Double precio = value.getPrecio();
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
+                    tabla.addCell(pdfCreator.setStyleCellTable(key));
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", precio) + " Bs"));
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * precio) + " Bs"));
+                });
+                for (int i = 0; i < 3; i++) {
+                    tabla.addCell("");
+                }
+            }, true);
+            documento.add(tableDetail);
+
+            PdfPTable tableTotal = pdfCreator.setTablePDF(new float[]{260, 130, 130}, tabla -> {
                 tabla.addCell("");
-            }
-        }, 1, tabla -> {
-            tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
-            tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
-            tabla.addCell("C.I. o RIF: " + cliente.getCedula());
-            tabla.addCell("Teléfono: " + jTelefono.getText());
-        }, 3, tabla -> {
-            tabla.addCell("");
-            tabla.addCell("Subtotal");
-            tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
+                tabla.addCell("Subtotal");
+                tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
 
-            tabla.addCell("");
-            tabla.addCell("IVA");
-            tabla.addCell(String.format("%1$,.2f", iva) + " Bs");
+                tabla.addCell("");
+                tabla.addCell("IVA");
+                tabla.addCell(String.format("%1$,.2f", iva) + " Bs");
 
-            tabla.addCell("");
-            tabla.addCell("Total a Pagar");
-            tabla.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
+                tabla.addCell("");
+                tabla.addCell("Total a Pagar");
+                tabla.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
+            }, false);
+            documento.add(tableTotal);
+
+            String value = "Tipo de Pago: " + cTipoPago.getSelectionModel().getSelectedItem();
+            documento.add(pdfCreator.setParagraph(value, Element.ALIGN_LEFT, 10, 12, Font.BOLD));
         });
     }
 
-    private void setFactura() throws ParseException {
+    private void setFactura(String namePdf) throws ParseException {
         core.vo.Factura factura = new core.vo.Factura();
         StringBuilder serv = new StringBuilder();
         int count = 1;
@@ -280,6 +307,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         factura.setDuracion(String.valueOf(tiempoMaximo + "Hr."));
         factura.setIVA(iva);
         factura.setTotal(totalPagar);
+        factura.setNameFile(namePdf);
         factura.setCliente_cedula(cliente.getCedula());
         factura.setUsuario_cedula(Storage.getUsuario().getCedula());
         facturaDAO.insert(factura);

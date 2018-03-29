@@ -13,6 +13,7 @@
         <result property="duracion" column="duracion"/>
         <result property="fecha_pago" column="fecha_pago"/>
         <result property="IVA" column="IVA"/>
+        <result property="nameFile" column="nameFile"/>
         <result property="total" column="total"/>
         <result property="cliente_cedula" column="cliente_cedula"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
@@ -77,9 +78,9 @@
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">
         INSERT INTO facturacion.factura (servicios, forma_pago, fecha_pago, duracion,
-                                         IVA, total, cliente_cedula, usuario_cedula)
+                                         IVA, total, nameFile, cliente_cedula, usuario_cedula)
         VALUES (#{servicios}, #{forma_pago}, #{fecha_pago}, #{duracion},
-                #{IVA}, #{total}, #{cliente_cedula}, #{usuario_cedula});
+                #{IVA}, #{total}, #{nameFile}, #{cliente_cedula}, #{usuario_cedula});
     </insert>
 
     <update id="update" parameterType="Factura">

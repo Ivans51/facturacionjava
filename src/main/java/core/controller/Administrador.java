@@ -55,7 +55,6 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private String comboTime = "Dia";
     private TableUtil<Factura, String> tableFacturaUtil;
     private Factura facturaRow;
-    private Cliente clienteRow;
     private HashMap<String, Integer> totalCantServ = new HashMap<>();
     private HashMap<String, Double> totalPrecioServ = new HashMap<>();
 
@@ -488,21 +487,36 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     }
 
     public void actionImprimir(ActionEvent actionEvent) {
-        PrintSelection printSelection = new PrintSelection(
-                comboReportes, auditoriasA, serviciosA, clientesA, facturasA, usuariosA);
-        printSelection.printAction(this::imprimirAuditoria);
+        new PrintSelection(comboReportes, auditoriasA, serviciosA, clientesA, facturasA, usuariosA)
+                .printAction(this::imprimirPDF);
     }
 
-    private void imprimirAuditoria(String[] strings, String file, String name) {
+    private void imprimirPDF(String[] strings, String file, String nameAction) {
         try {
             DateTime d = new DateTime();
-            String timeActual = d.getMinuteOfHour() + "-" + d.getHourOfDay() + "-" + d.getDayOfMonth() + d.getDayOfYear();
-            PDFCreator pdfCreator = new PDFCreator(file, "Listado de " + name, "Fecha: " + timeActual, "src/main/resources/images/FacturaLogo.png");
-            pdfCreator.setFontTitle(pdfCreator.family, 14, Font.BOLD, pdfCreator.background);
-            pdfCreator.setFontSub(pdfCreator.family, 12, Font.ITALIC, pdfCreator.background);
-            pdfCreator.crearPDF(5, (PdfPTable tabla) -> {
-                Arrays.stream(strings).forEach(tabla::addCell);
-                valuesReport.forEach(tabla::addCell);
+            String title = "Inversiones Todo Frío C.A. " +
+                    "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                    "\n " + nameAction;
+            String sub = "Factura del día: " + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
+            String imagePath = "src/main/resources/images/FacturaLogo.png";
+            PDFCreator pdfCreator = new PDFCreator(file);
+            pdfCreator.createPDF(documento -> {
+                Paragraph paragraphRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 14, Font.BOLD);
+                Paragraph paragraphLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+                Image imgLogo = pdfCreator.setImagePDF(imagePath, 150, 100, Element.ALIGN_LEFT);
+                PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{260, 260}, tabla -> {
+                    PdfPCell cellLeft = pdfCreator.setCellPDF(Element.ALIGN_LEFT, Rectangle.NO_BORDER, imgLogo, paragraphLeft);
+                    tabla.addCell(cellLeft);
+                    PdfPCell cellRight = pdfCreator.setCellPDF(Element.ALIGN_RIGHT, Rectangle.NO_BORDER, paragraphRight);
+                    tabla.addCell(cellRight);
+                }, false);
+                documento.add(tableTitle);
+
+                PdfPTable table = pdfCreator.setTablePDF(new float[]{40, 220, 130, 130}, (PdfPTable tabla) -> {
+                    Arrays.stream(strings).forEach(tabla::addCell);
+                    valuesReport.forEach(tabla::addCell);
+                }, false);
+                documento.add(table);
             });
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
@@ -513,137 +527,16 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     public void setStatusControls() {
         btnImprimirFactura.setVisible(true);
         if (tableFacturaUtil.getTablaSeleccionada(tableReport) != null) {
-            Factura model = tableFacturaUtil.getModel();
-            facturaRow = facturaDAO.selectById(model.getIdfactura());
-            clienteRow = clienteDAO.selectById(facturaRow.getCliente_cedula());
+            facturaRow = facturaDAO.selectById(tableFacturaUtil.getModel().getIdfactura());
+            // Cliente cliente = clienteDAO.selectById(facturaRow.getCliente_cedula());
         }
     }
 
-    private void setValuesServicios() throws Myexception {
-        if (facturaRow == null)
-            throw new Myexception("No hay datos seleccionados");
-        int occurance = StringUtils.countMatches(facturaRow.getServicios(), ",") + 1;
-        String arrPair[] = facturaRow.getServicios().split(",", occurance);
-        for (int i = 0; i < occurance; i++) {
-            String[] strings = arrPair[i].split("x", 2);
-            if (totalCantServ.get(strings[0].trim()) != null)
-                totalCantServ.merge(strings[0].trim(), Integer.valueOf(strings[1].trim()), Integer::sum);
-            else
-                totalCantServ.put(strings[0].trim(), Integer.valueOf(strings[1].trim()));
-            Servicios servicios = serviciosDAO.selectByNombre(strings[0].trim());
-            if (totalPrecioServ.get(strings[0].trim()) == null)
-                totalPrecioServ.put(servicios.getNombre(), servicios.getPrecio());
-        }
-    }
-
-    private void generatePrint() throws IOException, DocumentException {
-        DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
-        String namePdf = "Factura" + time;
-        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
-        String title = "Inversiones Todo Frío C.A. " +
-                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
-                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
-        String sub = "Factura del día: " + timeActual;
-        PDFCreator pdfCreator = new PDFCreator(namePdf);
-        pdfCreator.createPDF(documento -> {
-
-            Image imgLogo = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
-            Paragraph paragraphRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 14, Font.BOLD);
-            Paragraph paragraphLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
-            PdfPTable tableTitle = pdfCreator.setTablePDF(2, new float[]{260, 260}, tabla -> {
-                PdfPCell cellLeft = pdfCreator.setCellPDF(Element.ALIGN_LEFT, Rectangle.NO_BORDER, imgLogo, paragraphLeft);
-                tabla.addCell(cellLeft);
-                PdfPCell cellRight = pdfCreator.setCellPDF(Element.ALIGN_RIGHT, Rectangle.NO_BORDER, paragraphRight);
-                tabla.addCell(cellRight);
-            }, false);
-            documento.add(tableTitle);
-
-            PdfPTable table = pdfCreator.setTablePDF(4, new float[]{40, 220, 130, 130}, (PdfPTable tabla) -> {
-                tabla.addCell("Cant.");
-                tabla.addCell("Concepto o Descripción");
-                tabla.addCell("Precio Unitario");
-                tabla.addCell("Total");
-                totalPrecioServ.forEach((key, value) -> {
-                    Integer cant = totalCantServ.get(key);
-                    tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
-                    // tabla.addCell(pdfCreator.setStyleCellTable(key));
-                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", value) + " Bs"));
-                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * value) + " Bs"));
-                });
-            }, false);
-            documento.add(table);
-
-            Paragraph ivans = pdfCreator.setParagraph("Hola Ivans", Element.ALIGN_TOP, 10, 12, Font.NORMAL);
-            documento.add(ivans);
-        });
-    }
-
-    private void setReportPDF() throws IOException, DocumentException {
-        DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
-        String namePdf = "Factura" + time;
-        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
-        String title = "Inversiones Todo Frío C.A. " +
-                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
-                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
-        String sub = "Factura del día: " + timeActual;
-        PDFCreator pdfCreator = new PDFCreator(namePdf, title, sub, "src/main/resources/images/FacturaLogo.png");
-        pdfCreator.setFontTitle(pdfCreator.family, 12, Font.BOLD, pdfCreator.background);
-        pdfCreator.setFontSub(pdfCreator.family, 12, Font.NORMAL, pdfCreator.background);
-        pdfCreator.setOtherParragraph("Tipo de Pago: " + facturaRow.getForma_pago());
-        pdfCreator.setColumnWidthOne(new float[]{40, 220, 130, 130});
-        pdfCreator.setColumnWidthTwo(new float[]{520});
-        pdfCreator.setColumnWidthThree(new float[]{260, 130, 130});
-        pdfCreator.crearPDF(4, (PdfPTable tabla) -> {
-            tabla.addCell("Cant.");
-            tabla.addCell("Concepto o Descripción");
-            tabla.addCell("Precio Unitario");
-            tabla.addCell("Total");
-            totalPrecioServ.forEach((key, value) -> {
-                Integer cant = totalCantServ.get(key);
-                tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
-                tabla.addCell(pdfCreator.setStyleCellTable(key));
-                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", value) + " Bs"));
-                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * value) + " Bs"));
-            });
-            for (int i = 0; i < 3; i++) {
-                tabla.addCell("");
-            }
-        }, 1, tabla -> {
-            tabla.addCell("Nombre o razón social: " + clienteRow.getNombres() + " " + clienteRow.getApellidos());
-            tabla.addCell("Domicilio fiscal: " + clienteRow.getDireccion());
-            tabla.addCell("C.I. o RIF: " + clienteRow.getCedula());
-            tabla.addCell("Teléfono: " + clienteRow.getTelefono());
-        }, 3, tabla -> {
-            tabla.addCell("");
-            tabla.addCell("Subtotal");
-            tabla.addCell(String.format("%1$,.2f", getSubtotal()) + " Bs");
-
-            tabla.addCell("");
-            tabla.addCell("IVA");
-            tabla.addCell(String.format("%1$,.2f", facturaRow.getIVA()) + " Bs");
-
-            tabla.addCell("");
-            tabla.addCell("Total a Pagar");
-            tabla.addCell(String.format("%1$,.2f", facturaRow.getTotal()) + " Bs");
-        });
-    }
-    private double getSubtotal() {
-        return facturaRow.getTotal() - (facturaRow.getTotal() * 0.12);
+    public void actionImprimirFactura(ActionEvent actionEvent) {
+        new PDFCreator("reports/" + facturaRow.getNameFile()).openPDF();
     }
 
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
-    }
-
-    public void actionImprimirFactura(ActionEvent actionEvent) {
-        try {
-            setValuesServicios();
-            // setReportPDF();
-            generatePrint();
-        } catch (DocumentException | IOException | Myexception e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -12,6 +12,7 @@ public class Factura {
     private Double IVA;
     private Double total;
     private String totalEdit;
+    private String nameFile;
     private int cliente_cedula;
     private int usuario_cedula;
     private String fecha_pagoEdit;
@@ -120,5 +121,13 @@ public class Factura {
 
     public void setNombreCliente(String nombreCliente) {
         this.nombreCliente = nombreCliente;
+    }
+
+    public String getNameFile() {
+        return nameFile;
+    }
+
+    public void setNameFile(String nameFile) {
+        this.nameFile = nameFile;
     }
 }
