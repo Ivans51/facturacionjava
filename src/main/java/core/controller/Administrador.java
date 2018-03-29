@@ -1,7 +1,7 @@
 package core.controller;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
@@ -25,6 +25,7 @@ import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
 
 public class Administrador extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
@@ -535,6 +536,49 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         }
     }
 
+    private void generatePrint() throws IOException, DocumentException {
+        DateTime d = new DateTime();
+        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
+        String namePdf = "Factura" + time;
+        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
+        String title = "Inversiones Todo Frío C.A. " +
+                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
+        String sub = "Factura del día: " + timeActual;
+        PDFCreator pdfCreator = new PDFCreator(namePdf);
+        pdfCreator.createPDF(documento -> {
+
+            Image imgLogo = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
+            Paragraph paragraphRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 14, Font.BOLD);
+            Paragraph paragraphLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            PdfPTable tableTitle = pdfCreator.setTablePDF(2, new float[]{260, 260}, tabla -> {
+                PdfPCell cellLeft = pdfCreator.setCellPDF(Element.ALIGN_LEFT, Rectangle.NO_BORDER, imgLogo, paragraphLeft);
+                tabla.addCell(cellLeft);
+                PdfPCell cellRight = pdfCreator.setCellPDF(Element.ALIGN_RIGHT, Rectangle.NO_BORDER, paragraphRight);
+                tabla.addCell(cellRight);
+            }, false);
+            documento.add(tableTitle);
+
+            PdfPTable table = pdfCreator.setTablePDF(4, new float[]{40, 220, 130, 130}, (PdfPTable tabla) -> {
+                tabla.addCell("Cant.");
+                tabla.addCell("Concepto o Descripción");
+                tabla.addCell("Precio Unitario");
+                tabla.addCell("Total");
+                totalPrecioServ.forEach((key, value) -> {
+                    Integer cant = totalCantServ.get(key);
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
+                    // tabla.addCell(pdfCreator.setStyleCellTable(key));
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", value) + " Bs"));
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * value) + " Bs"));
+                });
+            }, false);
+            documento.add(table);
+
+            Paragraph ivans = pdfCreator.setParagraph("Hola Ivans", Element.ALIGN_TOP, 10, 12, Font.NORMAL);
+            documento.add(ivans);
+        });
+    }
+
     private void setReportPDF() throws IOException, DocumentException {
         DateTime d = new DateTime();
         String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
@@ -558,10 +602,10 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             tabla.addCell("Total");
             totalPrecioServ.forEach((key, value) -> {
                 Integer cant = totalCantServ.get(key);
-                tabla.addCell(pdfCreator.setStyleCell(String.valueOf(cant)));
-                tabla.addCell(pdfCreator.setStyleCell(key));
-                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", value) + " Bs"));
-                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", cant * value) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
+                tabla.addCell(pdfCreator.setStyleCellTable(key));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", value) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * value) + " Bs"));
             });
             for (int i = 0; i < 3; i++) {
                 tabla.addCell("");
@@ -596,7 +640,8 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     public void actionImprimirFactura(ActionEvent actionEvent) {
         try {
             setValuesServicios();
-            setReportPDF();
+            // setReportPDF();
+            generatePrint();
         } catch (DocumentException | IOException | Myexception e) {
             e.printStackTrace();
         }

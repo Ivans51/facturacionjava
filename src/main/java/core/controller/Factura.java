@@ -20,8 +20,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -198,8 +196,8 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
                 Validar.campoVacio(new String[]{"Datos del cliente"}, jNombre);
                 calcularIva();
-                setReportPDF();
                 setFactura();
+                setReportPDF();
                 new AlertUtil(Estado.EXITOSA, "Factura generada", closeAlert -> {
                     cerrarStage(closeAlert);
                     cambiarEscena(Route.InicioInfo, anchorPane);
@@ -237,10 +235,10 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
             totalArt.forEach((key, value) -> {
                 Integer cant = totalCantArt.get(key);
                 Double precio = value.getPrecio();
-                tabla.addCell(pdfCreator.setStyleCell(String.valueOf(cant)));
-                tabla.addCell(pdfCreator.setStyleCell(key));
-                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", precio) + " Bs"));
-                tabla.addCell(pdfCreator.setStyleCell(String.format("%1$,.2f", cant * precio) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
+                tabla.addCell(pdfCreator.setStyleCellTable(key));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", precio) + " Bs"));
+                tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * precio) + " Bs"));
             });
             for (int i = 0; i < 3; i++) {
                 tabla.addCell("");

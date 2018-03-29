@@ -12,17 +12,15 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PDFCreator {
 
     public Font.FontFamily family = Font.FontFamily.COURIER;
-    public int size = 16;
-    public int style = Font.ITALIC;
     public BaseColor background = BaseColor.DARK_GRAY;
     private String image;
     private String nameFile, sub, title, otherParragraph;
     private Font fontTitle, fontSub;
-    private boolean openPDF = true;
     private float[] columnWidthOne;
     private float[] columnWidthTwo;
     private float[] columnWidthThree;
@@ -32,23 +30,6 @@ public class PDFCreator {
         this.title = title;
         this.sub = sub;
         this.image = imagePath;
-    }
-
-    public void crearPDF(int numColumns, PDFTabla pdfTabla) throws IOException, DocumentException {
-        Document documento = new Document();
-        PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
-        documento.open();
-        setParagraph(documento);
-        PdfPTable tablaOne = new PdfPTable(numColumns);
-        if (columnWidthOne != null && columnWidthOne.length > 0) {
-            tablaOne.setTotalWidth(columnWidthOne);
-            tablaOne.setLockedWidth(true);
-        }
-        pdfTabla.addCellTable(tablaOne);
-        documento.add(tablaOne);
-        documento.close();
-        System.out.println("Imprisión correcta");
-        openPDF();
     }
 
     public void crearPDF() throws IOException, DocumentException {
@@ -61,11 +42,28 @@ public class PDFCreator {
         openPDF();
     }
 
+    public void crearPDF(int numColumns, PDFTabla pdfTabla) throws IOException, DocumentException {
+        Document documento = new Document();
+        PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
+        documento.open();
+        setParagraph(documento, 150, 100);
+        PdfPTable tablaOne = new PdfPTable(numColumns);
+        if (columnWidthOne != null && columnWidthOne.length > 0) {
+            tablaOne.setTotalWidth(columnWidthOne);
+            tablaOne.setLockedWidth(true);
+        }
+        pdfTabla.addCellTable(tablaOne);
+        documento.add(tablaOne);
+        documento.close();
+        System.out.println("Imprisión correcta");
+        openPDF();
+    }
+
     public void crearPDF(int numColumns, PDFTabla pdfTablaOne, int numColumsTwo, PDFTabla pdfTablaTwo, int numColumsThree, PDFTabla pdfTablaThree) throws IOException, DocumentException {
         Document documento = new Document();
         PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
         documento.open();
-        setParagraph(documento);
+        setParagraph(documento, 150, 100);
 
         Paragraph p1 = new Paragraph("Datos del Cliente \n ", fontTitle);
         p1.setPaddingTop(10);
@@ -73,13 +71,12 @@ public class PDFCreator {
 
         PdfPTable tablaTwo = new PdfPTable(numColumsTwo);
         if (columnWidthTwo != null && columnWidthTwo.length > 0) {
-            tablaTwo.setTotalWidth(PageSize.A4.getWidth());
             tablaTwo.setTotalWidth(columnWidthTwo);
             tablaTwo.setWidthPercentage(100);
             tablaTwo.setLockedWidth(true);
         }
-        tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
         pdfTablaTwo.addCellTable(tablaTwo);
+        tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
         tablaTwo.setTableEvent(new BorderEvent());
         documento.add(tablaTwo);
 
@@ -114,16 +111,105 @@ public class PDFCreator {
         openPDF();
     }
 
-    private void setParagraph(Document documento, float witdh, float height) throws DocumentException, IOException {
+    public PDFCreator(String nameFile) {
+        this.nameFile = nameFile;
+    }
+
+    public void createPDF(Elements element) throws IOException, DocumentException {
+        Document documento = new Document();
+        PdfWriter.getInstance(documento, new FileOutputStream(nameFile));
+        documento.open();
+        // addPart(documento, element);
+        element.add(documento);
+        documento.close();
+        System.out.println("Imprisión correcta");
+        openPDF();
+    }
+
+    public interface Elements{
+        void add(Document documento) throws DocumentException, IOException;
+    }
+
+    private void addPart(Document documento, ArrayList<Element> element) throws DocumentException {
+        for (Element el : element)
+            documento.add(el);
+    }
+
+    /**
+     * @param columnWidth - array of a size 520
+     * @param pdfTablaTwo - Interface to add information to cell
+     */
+    public PdfPTable setTablePDF(int numColumsTwo, float[] columnWidth, PDFTabla pdfTablaTwo, boolean noBorder) throws DocumentException, IOException {
+        PdfPTable tablaTwo = new PdfPTable(numColumsTwo);
+        if (columnWidth != null && columnWidth.length > 0) {
+            tablaTwo.setTotalWidth(columnWidth);
+            tablaTwo.setWidthPercentage(100);
+            tablaTwo.setLockedWidth(true);
+        }
+        if (noBorder) {
+            tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+            tablaTwo.setTableEvent(new BorderEvent());
+        }
+        pdfTablaTwo.addCellTable(tablaTwo);
+        return tablaTwo;
+    }
+
+    /**
+     * Import! - Add Cell at the setTablePDF and after array elements
+     * @param align  - For example: Element.ALIGN_LEFT
+     * @param border - For example: Rectangle.NO_BORDER
+     */
+    public PdfPCell setCellPDF(int align, int border, Element... elements) throws IOException, DocumentException {
+        PdfPCell cellLeft = new PdfPCell();
+        cellLeft.setVerticalAlignment(align);
+        cellLeft.setBorder(border);
+        for (Element el : elements)
+            cellLeft.addElement(el);
+        return cellLeft;
+    }
+
+    /**
+     * Import! - Add Cell at the Documento
+     * @param witdh  - Example: 150
+     * @param height - Example: 100
+     * @param align  - For example: Element.ALIGN_LEFT
+     */
+    public Image setImagePDF(String path, float witdh, float height, int align) throws IOException, BadElementException {
+        Image img = Image.getInstance(path);
+        img.setAlignment(align);
+        img.scaleToFit(witdh, height);
+        return img;
+    }
+
+    /**
+     * Import! - Add Cell at the Documento
+     * @param align  - For example: Element.ALIGN_LEFT
+     */
+    public Paragraph setParagraph(String value, int align, int paddingTop, int size, int style) {
+        Paragraph paragraph = new Paragraph(value, new Font(family, size, style, background));
+        paragraph.setAlignment(align);
+        paragraph.setPaddingTop(paddingTop);
+        return paragraph;
+    }
+
+    private void setParagraph(Document documento, int witdh, int height) throws DocumentException, IOException {
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
         table.setWidths(new int[]{1, 2});
 
+        PdfPCell cellLeft = getPdfPCellLeft(documento, witdh, height);
+        PdfPCell cellRight = getPdfPCellRight();
+        table.addCell(cellLeft);
+        table.addCell(cellRight);
+        documento.add(table);
+    }
+
+    private PdfPCell getPdfPCellLeft(Document documento, float witdh, float height) throws IOException, DocumentException {
         PdfPCell cellLeft = new PdfPCell();
         if (image != null) {
             Image img = Image.getInstance(image);
+            img.setAlignment(Element.ALIGN_LEFT);
             img.scaleToFit(witdh, height);
-            img.setAlignment(Element.ALIGN_LEFT);
             cellLeft.addElement(img);
 
             Paragraph sub = new Paragraph(this.sub, fontSub);
@@ -135,6 +221,10 @@ public class PDFCreator {
             cellLeft.setBorder(Rectangle.NO_BORDER);
             documento.add(cellLeft);
         }
+        return cellLeft;
+    }
+
+    private PdfPCell getPdfPCellRight() {
         PdfPCell cellRight = new PdfPCell();
         Paragraph p = new Paragraph(this.title, fontTitle);
         p.setPaddingTop(10);
@@ -142,45 +232,10 @@ public class PDFCreator {
         cellRight.addElement(p);
         cellRight.setVerticalAlignment(Element.ALIGN_BOTTOM);
         cellRight.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cellLeft);
-        table.addCell(cellRight);
-        documento.add(table);
+        return cellRight;
     }
 
-    private void setParagraph(Document documento) throws DocumentException, IOException {
-        PdfPTable table = new PdfPTable(2);
-        table.setWidthPercentage(100);
-        table.setWidths(new int[]{1, 2});
-
-        PdfPCell cellLeft = new PdfPCell();
-        if (image != null) {
-            Image img = Image.getInstance(image);
-            img.scaleToFit(150, 100);
-            img.setAlignment(Element.ALIGN_LEFT);
-            cellLeft.addElement(img);
-
-            Paragraph sub = new Paragraph(this.sub, fontSub);
-            sub.setAlignment(Element.ALIGN_LEFT);
-            sub.setPaddingTop(10);
-            cellLeft.addElement(sub);
-
-            cellLeft.setVerticalAlignment(Element.ALIGN_TOP);
-            cellLeft.setBorder(Rectangle.NO_BORDER);
-            documento.add(cellLeft);
-        }
-        PdfPCell cellRight = new PdfPCell();
-        Paragraph p = new Paragraph(this.title, fontTitle);
-        p.setPaddingTop(10);
-        p.setAlignment(Element.ALIGN_RIGHT);
-        cellRight.addElement(p);
-        cellRight.setVerticalAlignment(Element.ALIGN_BOTTOM);
-        cellRight.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cellLeft);
-        table.addCell(cellRight);
-        documento.add(table);
-    }
-
-    public PdfPCell setStyleCell(String value){
+    public PdfPCell setStyleCellTable(String value) {
         Font titleFont = FontFactory.getFont(FontFactory.COURIER, 11, BaseColor.DARK_GRAY);
         Paragraph subTitle = new Paragraph(value, titleFont);
         PdfPCell cell = new PdfPCell(subTitle);
@@ -189,12 +244,32 @@ public class PDFCreator {
     }
 
     private void openPDF() {
-        if (Desktop.isDesktopSupported() && openPDF) try {
+        if (Desktop.isDesktopSupported()) try {
             File myFile = new File(this.nameFile);
             Desktop.getDesktop().open(myFile);
         } catch (IOException ex) {
             System.out.println("No se pudo crear");
         }
+    }
+
+    /**
+     * @param family: Font.FontFamily.COURIER
+     * @param size: 14
+     * @param style: Font.BOLD
+     * @param background: BaseColor.DARK_GRAY
+     */
+    public void setFontTitle(Font.FontFamily family, int size, int style, BaseColor background) {
+        fontTitle = new Font(family, size, style, background);
+    }
+
+    /**
+     * @param family: Font.FontFamily.COURIER
+     * @param size: 14
+     * @param style: Font.BOLD
+     * @param background: BaseColor.DARK_GRAY
+     */
+    public void setFontSub(Font.FontFamily family, int size, int style, BaseColor background) {
+        fontSub = new Font(family, size, style, background);
     }
 
     public void setColumnWidthOne(float[] columnWidthOne) {
@@ -209,23 +284,11 @@ public class PDFCreator {
         this.columnWidthThree = columnWidthThree;
     }
 
-    public void setFontTitle(Font.FontFamily family, int size, int style, BaseColor background) {
-        fontTitle = new Font(family, size, style, background);
-    }
-
-    public void setFontSub(Font.FontFamily family, int size, int style, BaseColor background) {
-        fontSub = new Font(family, size, style, background);
-    }
-
     public void setOtherParragraph(String otherParragraph) {
         this.otherParragraph = otherParragraph;
     }
 
-    public void setOpenPDF(boolean openPDF) {
-        this.openPDF = openPDF;
-    }
-
     public interface PDFTabla {
-        void addCellTable(PdfPTable tabla);
+        void addCellTable(PdfPTable tabla) throws IOException, DocumentException;
     }
 }
