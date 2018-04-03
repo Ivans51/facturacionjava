@@ -57,22 +57,22 @@
                         <Label text="Cliente Elegido" />
                         <HBox spacing="10.0">
                             <children>
-                                <VBox>
+                                <VBox HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Nombre" />
-                                        <TextField fx:id="jNombre" disable="true" editable="false" />
+                              <Label fx:id="jNombre" prefHeight="25.0" prefWidth="126.0" />
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Ciudad" />
-                                        <TextField fx:id="jCiudad" disable="true" />
+                              <Label fx:id="jCiudad" prefHeight="25.0" prefWidth="159.0" />
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Teléfono" />
-                                        <TextField fx:id="jTelefono" disable="true" editable="false" />
+                              <Label fx:id="jTelefono" />
                                     </children>
                                 </VBox>
                             </children>
@@ -93,19 +93,18 @@
                                         <ComboBox fx:id="cServicios" prefWidth="150.0" />
                                     </children>
                                 </VBox>
-                                <VBox>
+                                <VBox HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label text="Precio" />
-                                        <TextField fx:id="jPrecio" disable="true" />
+                              <Label fx:id="jPrecio" />
                                     </children>
                                 </VBox>
                                 <VBox>
                                     <children>
                                         <Label text="Tiempo Estimado (Hr)" />
-                                        <TextField fx:id="jFecha" disable="true" />
+                              <Label fx:id="jFecha" />
                                     </children>
                                 </VBox>
-                                <VBox />
                             </children>
                         </HBox>
                         <HBox alignment="CENTER_RIGHT">

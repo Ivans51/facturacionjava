@@ -1,6 +1,7 @@
 package core.util;
 
 import com.sun.istack.internal.Nullable;
+import core.controller.ChartsBar;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
@@ -47,13 +48,20 @@ public class ManagerFXML {
      * @param loadRoot
      * @param parentPane
      */
-    public void cambiarEscena(String loadRoot, Pane parentPane) {
+    protected void cambiarEscena(String loadRoot, Pane parentPane) {
         try {
             Pane childPane = FXMLLoader.load(getClass().getResource(loadRoot));
             parentPane.getChildren().setAll(childPane);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected <T> T cambiarEscenaModel(String loadRoot, Pane parentPane, Class<T> type) throws IOException {
+        T cast = type.cast(new FXMLLoader(getClass().getResource(loadRoot)));
+        Pane childPane = FXMLLoader.load(getClass().getResource(loadRoot));
+        parentPane.getChildren().setAll(childPane);
+        return cast;
     }
 
     /**

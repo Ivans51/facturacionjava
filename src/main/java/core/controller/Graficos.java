@@ -5,18 +5,18 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
-import core.dao.*;
+import core.dao.FacturaDAO;
+import core.dao.ServiciosDAO;
 import core.util.*;
 import core.vo.Factura;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.chart.*;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -29,58 +29,31 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class Graficos extends ManagerFXML implements Initializable {
 
-    public JFXButton btnSalir, btnConsultar, btnImprimir;
+    public static HashMap<String, Integer> servicios = new HashMap<>();
+    public JFXButton btnSalir, btnImprimir;
     public AnchorPane anchorPane;
-    public ComboBox<String> cTime;
+    public ComboBox<String> cTime, cServicios;
     public DatePicker datePickerUno, datePickerDos;
-
-    public PieChart chartPie;
-    public BarChart<String, Number> chartBar;
-    public CategoryAxis x;
-    public NumberAxis y;
     public VBox contentChart;
-
+    public Label lblAgregados;
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
-    private String comboReportes = "";
+    private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private String[] rangoTiempo = {"Dia", "Mes", "Rango"};
-    private List<String> tipos = new ArrayList<>();
     private String comboTime = "Dia";
-    private HashMap<String, Integer> servicios = new HashMap<>();
-    private boolean isFirstTime = true;
+    private int count = 0;
+    private List<String> nombreServicios = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         datePickerDos.setVisible(false);
-        stateButton();
         setCombo();
-    }
-
-    private void stateButton() {
-        // Deshabilitar botones
-        switch (Storage.getUsuario().getStatus()) {
-            case Estado.TECNICO:
-                tipos.add("Factura");
-                comboReportes = "Factura";
-                break;
-            case Estado.GERENTE:
-                tipos.add("Auditoria");
-                tipos.add("Servicios");
-                tipos.add("Cliente");
-                tipos.add("Factura");
-                tipos.add("Usuario");
-                comboReportes = "Auditoria";
-                break;
-            case Estado.ASISTENTE:
-                tipos.add("Cliente");
-                tipos.add("Factura");
-                comboReportes = "Factura";
-                break;
-        }
     }
 
     private void setCombo() {
@@ -89,31 +62,36 @@ public class Graficos extends ManagerFXML implements Initializable {
             comboTime = newValue;
             datePickerDos.setVisible(newValue.equals("Rango"));
         });
+
+        serviciosDAO.selectNombres().forEach(it -> nombreServicios.add(it.getNombre()));
+        cServicios.setItems(FXCollections.observableArrayList(nombreServicios));
+        nombreServicios.clear();
+        cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (count < 5 && !nombreServicios.contains(newValue)) {
+                lblAgregados.setText(++count + " Agregados");
+                nombreServicios.add(newValue);
+                // cServicios.getSelectionModel().clearSelection();
+            } else
+                new AlertUtil(Estado.EXITOSA, "5 servicios máximo");
+        });
     }
 
     public void actionConsultar(ActionEvent actionEvent) {
         try {
             setConsulta();
-        } catch (Myexception myexception) {
+        } catch (IOException | Myexception myexception) {
             myexception.printStackTrace();
             new AlertUtil(Estado.EXITOSA, myexception.getMessage());
         }
     }
 
-    private void setConsulta() throws Myexception {
+    private void setConsulta() throws Myexception, IOException {
         if (comboTime != null && !"".equals(comboTime) && datePickerUno.getValue() != null) {
-            clear();
+            servicios.clear();
             setTableFacturaTime();
-            setBarChart(servicios);
-            setPieChart(servicios);
+            cambiarEscena(Route.ChartsBar, contentChart);
         } else
-            new AlertUtil(Estado.EXITOSA, "Faltan valores por seleccionar");
-    }
-
-    private void clear() {
-        servicios.clear();
-        chartBar.getData().clear();
-        chartPie.getData().clear();
+            throw new Myexception("Faltan valores por seleccionar");
     }
 
     private void setTableFacturaTime() throws Myexception {
@@ -154,41 +132,20 @@ public class Graficos extends ManagerFXML implements Initializable {
             String arrPair[] = it.getServicios().split(",", occurance);
             for (int i = 0; i < occurance; i++) {
                 String[] strings = arrPair[i].split("x", 2);
-                if (servicios.get(strings[0].trim()) != null)
-                    servicios.merge(strings[0].trim(), Integer.valueOf(strings[1].trim()), Integer::sum);
-                else
-                    servicios.put(strings[0].trim(), Integer.valueOf(strings[1].trim()));
+                if (validateCombo(strings[0].trim())) {
+                    if (servicios.get(strings[0].trim()) != null)
+                        servicios.merge(strings[0].trim(), Integer.valueOf(strings[1].trim()), Integer::sum);
+                    else
+                        servicios.put(strings[0].trim(), Integer.valueOf(strings[1].trim()));
+                }
             }
         });
     }
 
-    private void setBarChart(HashMap<String, Integer> charts) {
-        x.setLabel("Servicios");
-        x.setTickLabelRotation(90);
-        y.setLabel("Cantidad");
-        // chartBar.setTitle("Servicios");
-
-        charts.forEach((s, s2) -> {
-            XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName(s);
-            series.getData().add(new XYChart.Data<>(s, s2));
-            chartBar.getData().add(series);
-        });
-    }
-
-    private void setPieChart(HashMap<String, Integer> charts) {
-        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(getPieChart(charts));
-        chartPie.setTitle("Servicios");
-        chartPie.setData(pieChartData);
-    }
-
-    private List<PieChart.Data> getPieChart(HashMap<String, Integer> charts) {
-        List<PieChart.Data> datas = new ArrayList<>();
-        charts.forEach((s, s2) -> {
-            PieChart.Data data = new PieChart.Data(s, s2);
-            datas.add(data);
-        });
-        return datas;
+    private boolean validateCombo(String trim) {
+        for (String servicio : nombreServicios)
+            if (trim.equals(servicio)) return true;
+        return false;
     }
 
     public void actionImprimir(ActionEvent actionEvent) {
@@ -229,5 +186,15 @@ public class Graficos extends ManagerFXML implements Initializable {
 
     public void actionSalir(ActionEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
+    }
+
+    public void actionCambiarGrafico(ActionEvent actionEvent) {
+        cambiarEscena(Route.ChartsBar, contentChart);
+    }
+
+    public void actionLimpiar(ActionEvent actionEvent) {
+        nombreServicios.clear();
+        count = 0;
+        lblAgregados.setText("0 Agregados");
     }
 }

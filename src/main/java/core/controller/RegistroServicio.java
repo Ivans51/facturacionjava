@@ -4,16 +4,13 @@ import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.ServiciosDAO;
 import core.util.*;
-import core.vo.Auditoria;
 import core.vo.Servicios;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
@@ -25,10 +22,11 @@ import java.util.ResourceBundle;
 public class RegistroServicio extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
     public AnchorPane anchorPane;
-    public TextField jNombre, jPrecio, jTiempoE, jBuscar;
+    public TextField jNombre, jPrecio, jBuscar;
     public JFXButton btnAgregar, btnLimpiar, btnEliminar, btnSalir;
     public TableView<Servicios> tableServicio;
     public TableColumn tbNombre, tbPrecio, tbFecha, tbTiempoE;
+    public Spinner<Integer> jTiempoE;
 
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private TableUtil<Servicios, String> table;
@@ -42,6 +40,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        jTiempoE.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 2000, 1));
         setTable();
         setBuscarTableCliente();
     }
@@ -80,11 +79,11 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
 
     public void actionAgregar(ActionEvent actionEvent) {
         try {
-            Validar.campoVacio(field, jNombre, jPrecio, jTiempoE);
-            Validar.isNumber(fieldNumber, jPrecio, jTiempoE);
+            Validar.campoVacio(field, jNombre, jPrecio);
+            Validar.isNumber(fieldNumber, jPrecio);
             elegirConsulta();
             tableServicio.refresh();
-            Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+            Validar.limmpiarCampos(jNombre, jPrecio);
         } catch (Myexception | ParseException myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
@@ -117,7 +116,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
         Servicios servicios = new Servicios();
         servicios.setNombre(jNombre.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
-        servicios.setTiempo_estimado(jTiempoE.getText());
+        servicios.setTiempo_estimado(jTiempoE.getEditor().getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
         servicios.setEstado(1);
         return servicios;
@@ -126,7 +125,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     private Servicios getServiciosUpdate() throws ParseException {
         servicios.setNombre(jNombre.getText());
         servicios.setPrecio(Double.valueOf(jPrecio.getText()));
-        servicios.setTiempo_estimado(jTiempoE.getText());
+        servicios.setTiempo_estimado(jTiempoE.getEditor().getText());
         servicios.setFecha(FechaUtil.getCurrentDate());
         return servicios;
     }
@@ -147,7 +146,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
             servicios = table.getModel();
             jNombre.setText(servicios.getNombre());
             jPrecio.setText(String.valueOf(servicios.getPrecio()));
-            jTiempoE.setText(servicios.getTiempo_estimado());
+            jTiempoE.getEditor().setText(servicios.getTiempo_estimado());
             stateViewEdit(true);
         }
     }
@@ -162,7 +161,7 @@ public class RegistroServicio extends ManagerFXML implements Initializable, Tabl
     public void actionLimpiar(ActionEvent actionEvent) {
         if (servicios.isEstado() == 1 || stateEdit)
             stateViewEdit(false);
-        Validar.limmpiarCampos(jNombre, jPrecio, jTiempoE);
+        Validar.limmpiarCampos(jNombre, jPrecio);
     }
 
     public void actionSalir(ActionEvent actionEvent) {

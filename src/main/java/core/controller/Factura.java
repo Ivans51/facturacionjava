@@ -16,10 +16,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import org.joda.time.DateTime;
 
@@ -35,7 +32,8 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
 
     public AnchorPane anchorPane;
     public ComboBox<String> cServicios, cTipoPago;
-    public TextField jPrecio, jFecha, jCedula, jNombre, jCiudad, jTelefono;
+    public Label jPrecio, jFecha, jNombre, jCiudad, jTelefono;
+    public TextField jCedula;
     public JFXButton btnAgregar, btnSalir, btnImprimir, btnEliminar;
     public TableView<Cliente> tableCliente;
     public TableColumn tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono;
@@ -47,7 +45,6 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
-    private List<Servicios> servicios = new ArrayList<>();
 
     private HashMap<String, Double> totalPrecioArt = new HashMap<>();
     private HashMap<String, Integer> totalCantArt = new HashMap<>();
@@ -96,7 +93,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         final ObservableList<Servicios> tablaSelecionada = tableServicio.getSelectionModel().getSelectedItems();
         tablaSelecionada.addListener((ListChangeListener<Servicios>) c -> tableServicioUtil.seleccionarTabla(this));
 
-        tableServicioUtil.getListTable().addAll(servicios);
+        tableServicioUtil.getListTable().addAll(new ArrayList<>());
     }
 
     private void setTableCliente() {
@@ -123,7 +120,10 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     public void actionAgregar(ActionEvent actionEvent) {
         String item = cServicios.getSelectionModel().getSelectedItem();
         if (item != null && !"".equals(item)) {
-            tableServicioUtil.getListTable().add(serviciosDAO.selectByNombre(item));
+            Servicios servicios = serviciosDAO.selectByNombre(item);
+            servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
+            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + " Bs");
+            tableServicioUtil.getListTable().add(servicios);
             tableServicio.refresh();
             setTotal(item);
             limpiar();
@@ -177,25 +177,11 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         }
     }
 
-    // Busca los clientes de la empresa
-    /*public void actionBuscar(ActionEvent actionEvent) {
-        Cliente cliente = clienteDAO.selectById(Integer.parseInt(jCedula.getText()));
-        if (cliente == null)
-            abrirStageStyle(Route.ClienteDialog, "Agregar Cliente", Modality.WINDOW_MODAL, null,
-                    false, StageStyle.TRANSPARENT, () -> {
-                        DialogCliente display = ManagerFXML.getFxmlLoader().getController();
-                        display.setModel(jCedula.getText());
-                    });
-        else {
-            new AlertUtil(Estado.EXITOSA, "Usuario ya esta registrado en el sistema");
-        }
-    }*/
-
     public void actionImprimir(ActionEvent actionEvent) {
         try {
             if (totalCantArt.size() > 0) {
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
-                Validar.campoVacio(new String[]{"Datos del cliente"}, jNombre);
+                Validar.stringVacio(new String[]{"Datos del cliente"}, jNombre.getText());
                 calcularIva();
                 setFactura(getNameFile());
                 setReportPDF(getNameFile());

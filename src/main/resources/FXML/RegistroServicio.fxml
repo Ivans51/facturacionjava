@@ -4,6 +4,7 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -41,8 +42,15 @@
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="60.0" text="Precio" />
                 <TextField fx:id="jPrecio" />
-                <Label layoutX="25.0" layoutY="130.0" text="Tiempo Estimado (Horas)" />
-                <TextField fx:id="jTiempoE" />
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                      <Label text="Tiempo (Horas)" HBox.hgrow="ALWAYS" />
+                  <Spinner HBox.hgrow="ALWAYS" fx:id="jTiempoE"/>
+               </children>
+               <padding>
+                  <Insets top="20.0" />
+               </padding>
+            </HBox>
                 <HBox alignment="BOTTOM_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
                         <JFXButton fx:id="btnAgregar" onAction="#actionAgregar" text="Agregar" />
