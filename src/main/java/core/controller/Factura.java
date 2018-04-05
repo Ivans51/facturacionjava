@@ -183,8 +183,9 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
                 Validar.stringVacio(new String[]{"Datos del cliente"}, jNombre.getText());
                 calcularIva();
-                setFactura(getNameFile());
-                setReportPDF(getNameFile());
+                String nameFile = getNameFile();
+                setFactura(nameFile);
+                setReportPDF(nameFile);
                 new AlertUtil(Estado.EXITOSA, "Factura generada", closeAlert -> {
                     cerrarStage(closeAlert);
                     cambiarEscena(Route.InicioInfo, anchorPane);
@@ -282,7 +283,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         int count = 1;
         for (String totalArt : totalPrecioArt.keySet()) {
             if (count < totalPrecioArt.size())
-                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt)).append(" ,");
+                serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt)).append(", ");
             else
                 serv.append(totalArt).append(" x ").append(totalCantArt.get(totalArt));
             count++;

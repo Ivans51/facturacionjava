@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ChartsBar implements Initializable {
+public class Charts implements Initializable {
 
     public PieChart chartPie;
     public BarChart<String, Number> chartBar;

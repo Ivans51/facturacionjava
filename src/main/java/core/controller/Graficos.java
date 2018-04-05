@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
@@ -39,16 +38,18 @@ public class Graficos extends ManagerFXML implements Initializable {
     public static HashMap<String, Integer> servicios = new HashMap<>();
     public JFXButton btnSalir, btnImprimir;
     public AnchorPane anchorPane;
-    public ComboBox<String> cTime, cServicios;
+    public ComboBox<String> cTime, cServicios, cAgregados, cMonth;
     public DatePicker datePickerUno, datePickerDos;
     public VBox contentChart;
-    public Label lblAgregados;
+
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
     private ServiciosDAO serviciosDAO = new ServiciosDAO(MyBatisConnection.getSqlSessionFactory());
     private String[] rangoTiempo = {"Dia", "Mes", "Rango"};
     private String comboTime = "Dia";
     private int count = 0;
     private List<String> nombreServicios = new ArrayList<>();
+    private String[] months = {"Enero", "Febreo", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -57,23 +58,30 @@ public class Graficos extends ManagerFXML implements Initializable {
     }
 
     private void setCombo() {
+        cMonth.setItems(FXCollections.observableArrayList(months));
+
         cTime.setItems(FXCollections.observableArrayList(rangoTiempo));
         cTime.valueProperty().addListener((observable, oldValue, newValue) -> {
             comboTime = newValue;
             datePickerDos.setVisible(newValue.equals("Rango"));
+            /*cMonth.setVisible(newValue.equals("Mes"));
+            datePickerUno.setVisible(!newValue.equals("Mes"));*/
         });
 
         serviciosDAO.selectNombres().forEach(it -> nombreServicios.add(it.getNombre()));
         cServicios.setItems(FXCollections.observableArrayList(nombreServicios));
         nombreServicios.clear();
-        cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (count < 5 && !nombreServicios.contains(newValue)) {
-                lblAgregados.setText(++count + " Agregados");
-                nombreServicios.add(newValue);
-                // cServicios.getSelectionModel().clearSelection();
-            } else
-                new AlertUtil(Estado.EXITOSA, "5 servicios máximo");
-        });
+    }
+
+    public void actionAgregados(ActionEvent actionEvent) {
+        if (count < 5) {
+            nombreServicios.add(cServicios.getSelectionModel().getSelectedItem());
+            cAgregados.getItems().add(cServicios.getSelectionModel().getSelectedItem());
+            cServicios.getItems().remove(cServicios.getSelectionModel().getSelectedItem());
+            cServicios.getSelectionModel().clearSelection();
+            count++;
+        } else
+            new AlertUtil(Estado.EXITOSA, "5 servicios máximo");
     }
 
     public void actionConsultar(ActionEvent actionEvent) {
@@ -152,6 +160,7 @@ public class Graficos extends ManagerFXML implements Initializable {
         try {
             String graphPath = new File("reports").getAbsolutePath() + "\\chart.png";
             setGraphReport(graphPath, getNameFile(graphPath));
+            new AlertUtil(Estado.EXITOSA, "Se generó el documento");
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
         }
@@ -168,8 +177,10 @@ public class Graficos extends ManagerFXML implements Initializable {
     private void setGraphReport(String graphPath, String nameFile) throws IOException, DocumentException {
         PDFCreator pdfCreator = new PDFCreator("reports/" + nameFile);
         pdfCreator.createPDF(documento -> {
+            DateTime d = new DateTime();
+            String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
             Paragraph elements = pdfCreator.setParagraph("Listado de graficos", Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
-            Paragraph elements1 = pdfCreator.setParagraph("Fecha: " + nameFile, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Paragraph elements1 = pdfCreator.setParagraph("Fecha: " + timeActual, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
             Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
 
             PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{230, 290}, tabla -> {
@@ -188,13 +199,13 @@ public class Graficos extends ManagerFXML implements Initializable {
         cambiarEscena(Route.InicioInfo, anchorPane);
     }
 
-    public void actionCambiarGrafico(ActionEvent actionEvent) {
-        cambiarEscena(Route.ChartsBar, contentChart);
-    }
-
     public void actionLimpiar(ActionEvent actionEvent) {
         nombreServicios.clear();
         count = 0;
-        lblAgregados.setText("0 Agregados");
+        cAgregados.getItems().clear();
+        cServicios.getItems().clear();
+        serviciosDAO.selectNombres().forEach(it -> nombreServicios.add(it.getNombre()));
+        cServicios.setItems(FXCollections.observableArrayList(nombreServicios));
+        nombreServicios.clear();
     }
 }

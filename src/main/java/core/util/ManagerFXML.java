@@ -1,7 +1,6 @@
 package core.util;
 
 import com.sun.istack.internal.Nullable;
-import core.controller.ChartsBar;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;

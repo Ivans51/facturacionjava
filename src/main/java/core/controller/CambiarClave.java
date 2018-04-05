@@ -3,14 +3,10 @@ package core.controller;
 import com.jfoenix.controls.JFXButton;
 import core.conexion.MyBatisConnection;
 import core.dao.UsuarioDAO;
-import core.util.AlertUtil;
-import core.util.Estado;
-import core.util.ManagerFXML;
-import core.util.Route;
+import core.util.*;
 import core.vo.Usuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -25,7 +21,7 @@ public class CambiarClave extends ManagerFXML implements Initializable {
     public TextField jCorreo;
     public PasswordField jClave, jNuevaClave;
     public Label lblNueva;
-    public JFXButton btnNuevaClave, btnSalir;
+    public JFXButton btnNuevaClave, btnSalir, btnIngresar;
 
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
     private Usuario byClaveCorre;
@@ -36,17 +32,26 @@ public class CambiarClave extends ManagerFXML implements Initializable {
     }
 
     public void actionEnviar(ActionEvent actionEvent) {
-        Usuario usuario = new Usuario();
-        usuario.setCorreo(jCorreo.getText());
-        usuario.setClave(jClave.getText());
-        byClaveCorre = usuarioDAO.selectByClaveCorre(usuario);
-        if (byClaveCorre != null){
-            lblNueva.setVisible(true);
-            jNuevaClave.setVisible(true);
-            btnNuevaClave.setVisible(true);
+        if (btnIngresar.getText().equals("Limpiar")) {
+            Validar.limmpiarCampos(jClave, jCorreo, jNuevaClave);
+            setValues("Ingresar", false);
         } else {
-            new AlertUtil(Estado.EXITOSA, "Datos incorrectos");
+            Usuario usuario = new Usuario();
+            usuario.setCorreo(jCorreo.getText());
+            usuario.setClave(jClave.getText());
+            byClaveCorre = usuarioDAO.selectByClaveCorre(usuario);
+            if (byClaveCorre != null)
+                setValues("Limpiar", true);
+            else
+                new AlertUtil(Estado.EXITOSA, "Datos incorrectos");
         }
+    }
+
+    private void setValues(String text, boolean state) {
+        btnIngresar.setText(text);
+        btnNuevaClave.setVisible(state);
+        jNuevaClave.setVisible(state);
+        lblNueva.setVisible(state);
     }
 
     public void actionSalir(ActionEvent actionEvent) {
@@ -54,13 +59,18 @@ public class CambiarClave extends ManagerFXML implements Initializable {
     }
 
     public void actionNueva(ActionEvent actionEvent) {
-        Usuario usuario = new Usuario();
-        usuario.setCedula(byClaveCorre.getCedula());
-        usuario.setClave(jNuevaClave.getText());
-        usuarioDAO.updateClave(usuario);
-        new AlertUtil(Estado.EXITOSA, "Su contraseña ha sido cambiada", closeAlert -> {
-            cerrarStage(closeAlert);
-            abrirStage(Route.Login, "Inicio de Sesión", btnSalir, null);
-        });
+        if (jNuevaClave.getText().length() >= 8) {
+            Usuario usuario = new Usuario();
+            usuario.setCedula(byClaveCorre.getCedula());
+            usuario.setClave(jNuevaClave.getText());
+            usuarioDAO.updateClave(usuario);
+            new AlertUtil(Estado.EXITOSA, "Su contraseña ha sido cambiada", closeAlert -> {
+                cerrarStage(closeAlert);
+                abrirStage(Route.Login, "Inicio de Sesión", btnSalir, null);
+            });
+        } else {
+            new AlertUtil(Estado.EXITOSA, "Se requiere un mínimo de 8 caracteres");
+            jNuevaClave.requestFocus();
+        }
     }
 }
