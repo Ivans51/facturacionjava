@@ -188,7 +188,7 @@ public class Graficos extends ManagerFXML implements Initializable {
                 PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elements);
                 tabla.addCell(pdfPCellLeft);
                 tabla.addCell(pdfPCellRight);
-            }, false);
+            });
             documento.add(tableTitle);
 
             documento.add(pdfCreator.setImagePDF(graphPath, 500, 300, Element.ALIGN_TOP));

@@ -37,18 +37,27 @@ public class PDFCreator {
      * @param columnWidth - array of a size 520 max
      * @param pdfTablaTwo - Interface to add information to cell
      */
-    public PdfPTable setTablePDF(float[] columnWidth, PDFTabla pdfTablaTwo, boolean noBorder) throws DocumentException, IOException {
+    public PdfPTable setTablePDF(float[] columnWidth, PDFTabla pdfTablaTwo) throws DocumentException, IOException {
         PdfPTable tablaTwo = new PdfPTable(columnWidth.length);
-        if (noBorder)
-            tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
         if (columnWidth.length > 0) {
             tablaTwo.setTotalWidth(columnWidth);
             tablaTwo.setWidthPercentage(100);
             tablaTwo.setLockedWidth(true);
         }
-        if (noBorder)
-            tablaTwo.setTableEvent(new BorderEvent());
         pdfTablaTwo.addCellTable(tablaTwo);
+        return tablaTwo;
+    }
+
+    public PdfPTable setTablePDFWithoutBorder(float[] columnWidth, PDFTabla pdfTablaTwo) throws DocumentException, IOException {
+        PdfPTable tablaTwo = new PdfPTable(columnWidth);
+        if (columnWidth.length > 0) {
+            tablaTwo.setTotalWidth(columnWidth);
+            tablaTwo.setWidthPercentage(100);
+            tablaTwo.setLockedWidth(true);
+        }
+        tablaTwo.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+        pdfTablaTwo.addCellTable(tablaTwo);
+        tablaTwo.setTableEvent(new BorderEvent());
         return tablaTwo;
     }
 

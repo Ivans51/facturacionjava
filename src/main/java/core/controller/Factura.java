@@ -9,6 +9,7 @@ import core.dao.ClienteDAO;
 import core.dao.FacturaDAO;
 import core.dao.ServiciosDAO;
 import core.util.*;
+import core.util.TableUtil;
 import core.vo.Cliente;
 import core.vo.Servicios;
 import javafx.beans.value.ObservableValue;
@@ -216,26 +217,26 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         PDFCreator pdfCreator = new PDFCreator("reports/" + namePdf);
         pdfCreator.createPDF(documento -> {
 
-            Paragraph elements = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
-            Paragraph elements1 = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Paragraph elementRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elementsLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
             Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
 
             PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{220, 300}, tabla -> {
-                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elements1);
-                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elements);
+                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elementsLeft);
+                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elementRight);
                 tabla.addCell(pdfPCellLeft);
                 tabla.addCell(pdfPCellRight);
-            }, false);
+            });
             documento.add(tableTitle);
 
-            documento.add(pdfCreator.setParagraph("Datos del Cliente \n", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
+            documento.add(pdfCreator.setParagraph("Datos del Cliente \n ", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
 
-            PdfPTable tableCliente = pdfCreator.setTablePDF(new float[]{520}, tabla -> {
+            PdfPTable tableCliente = pdfCreator.setTablePDFWithoutBorder(new float[]{520}, tabla -> {
                 tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
                 tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
                 tabla.addCell("C.I. o RIF: " + cliente.getCedula());
                 tabla.addCell("Teléfono: " + jTelefono.getText());
-            }, false);
+            });
             documento.add(tableCliente);
 
             PdfPTable tableDetail = pdfCreator.setTablePDF(new float[]{40, 220, 130, 130}, tabla -> {
@@ -251,26 +252,29 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
                     tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", precio) + " Bs"));
                     tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", cant * precio) + " Bs"));
                 });
-                for (int i = 0; i < 3; i++) {
-                    tabla.addCell("");
-                }
-            }, true);
+            });
             documento.add(tableDetail);
 
-            PdfPTable tableTotal = pdfCreator.setTablePDF(new float[]{260, 130, 130}, tabla -> {
-                tabla.addCell("");
-                tabla.addCell("Subtotal");
-                tabla.addCell(String.format("%1$,.2f", subTotal) + " Bs");
+            PdfPTable tableEnd = pdfCreator.setTablePDF(new float[]{260, 260}, tabla -> {
+                PdfPTable tableOneTotal = pdfCreator.setTablePDFWithoutBorder(new float[]{260}, tabla1 -> {
+                    for (int i = 0; i < 3; i++) tabla1.addCell("");
+                });
 
-                tabla.addCell("");
-                tabla.addCell("IVA");
-                tabla.addCell(String.format("%1$,.2f", iva) + " Bs");
+                PdfPTable tableTwoTotal = pdfCreator.setTablePDF(new float[]{130, 130}, tabla2 -> {
+                    tabla2.addCell("Subtotal");
+                    tabla2.addCell(String.format("%1$,.2f", subTotal) + " Bs");
 
-                tabla.addCell("");
-                tabla.addCell("Total a Pagar");
-                tabla.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
-            }, false);
-            documento.add(tableTotal);
+                    tabla2.addCell("IVA");
+                    tabla2.addCell(String.format("%1$,.2f", iva) + " Bs");
+
+                    tabla2.addCell("Total a Pagar");
+                    tabla2.addCell(String.format("%1$,.2f", totalPagar) + " Bs");
+                });
+                tabla.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+                tabla.addCell(tableOneTotal);
+                tabla.addCell(tableTwoTotal);
+            });
+            documento.add(tableEnd);
 
             String value = "Tipo de Pago: " + cTipoPago.getSelectionModel().getSelectedItem();
             documento.add(pdfCreator.setParagraph(value, Element.ALIGN_LEFT, 10, 12, Font.BOLD));

@@ -28,12 +28,12 @@ public class CreateReportPDF {
 
     public static void main(String[] args) {
         CreateReportPDF createReportPDF = new CreateReportPDF();
-        createReportPDF.setValuesServicios(1);
+        createReportPDF.setValuesServicios();
         createReportPDF.actionImprimir();
     }
 
-    private void setValuesServicios(int id) {
-        factura = facturaDAO.selectById(id);
+    private void setValuesServicios() {
+        factura = facturaDAO.selectById(15);
         cliente = clienteDAO.selectById(factura.getCliente_cedula());
         int occurance = StringUtils.countMatches(factura.getServicios(), ",") + 1;
         String arrPair[] = factura.getServicios().split(",", occurance);
@@ -67,17 +67,17 @@ public class CreateReportPDF {
                     PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, cellRight);
                     tabla.addCell(pdfPCellLeft);
                     tabla.addCell(pdfPCellRight);
-                }, false);
+                });
                 documento.add(tableTitle);
 
-                documento.add(pdfCreator.setParagraph("Datos del Cliente \n", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
+                documento.add(pdfCreator.setParagraph("Datos del Cliente \n ", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
 
-                PdfPTable tableCliente = pdfCreator.setTablePDF(new float[]{520}, tabla -> {
+                PdfPTable tableCliente = pdfCreator.setTablePDFWithoutBorder(new float[]{520}, tabla -> {
                     tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
                     tabla.addCell("Domicilio fiscal: " + cliente.getDireccion());
                     tabla.addCell("C.I. o RIF: " + cliente.getCedula());
                     tabla.addCell("Teléfono: " + cliente.getTelefono());
-                }, false);
+                });
                 documento.add(tableCliente);
 
                 PdfPTable tableDetail = pdfCreator.setTablePDF(new float[]{40, 220, 130, 130}, tabla -> {
@@ -92,26 +92,29 @@ public class CreateReportPDF {
                         tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", servicios.getPrecio()) + " Bs"));
                         tabla.addCell(pdfCreator.setStyleCellTable(String.format("%1$,.2f", value * servicios.getPrecio()) + " Bs"));
                     });
-                    for (int i = 0; i < 3; i++) {
-                        tabla.addCell("");
-                    }
-                }, true);
+                });
                 documento.add(tableDetail);
 
-                PdfPTable tableTotal = pdfCreator.setTablePDF(new float[]{260, 130, 130}, tabla -> {
-                    tabla.addCell("");
-                    tabla.addCell("Subtotal");
-                    tabla.addCell(String.format("%1$,.2f", calcularSubtotal()) + " Bs");
+                PdfPTable tableEnd = pdfCreator.setTablePDF(new float[]{260, 260}, tabla -> {
+                    PdfPTable tableOneTotal = pdfCreator.setTablePDFWithoutBorder(new float[]{260}, tabla1 -> {
+                        for (int i = 0; i < 3; i++) tabla1.addCell("");
+                    });
 
-                    tabla.addCell("");
-                    tabla.addCell("IVA");
-                    tabla.addCell(String.format("%1$,.2f", factura.getIVA()) + " Bs");
+                    PdfPTable tableTwoTotal = pdfCreator.setTablePDF(new float[]{130, 130}, tabla2 -> {
+                        tabla2.addCell("Subtotal");
+                        tabla2.addCell(String.format("%1$,.2f", calcularSubtotal()) + " Bs");
 
-                    tabla.addCell("");
-                    tabla.addCell("Total a Pagar");
-                    tabla.addCell(String.format("%1$,.2f", factura.getTotal()) + " Bs");
-                }, false);
-                documento.add(tableTotal);
+                        tabla2.addCell("IVA");
+                        tabla2.addCell(String.format("%1$,.2f", factura.getIVA()) + " Bs");
+
+                        tabla2.addCell("Total a Pagar");
+                        tabla2.addCell(String.format("%1$,.2f", factura.getTotal()) + " Bs");
+                    });
+                    tabla.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+                    tabla.addCell(tableOneTotal);
+                    tabla.addCell(tableTwoTotal);
+                });
+                documento.add(tableEnd);
 
                 String value = "Tipo de Pago: " + factura.getForma_pago();
                 documento.add(pdfCreator.setParagraph(value, Element.ALIGN_LEFT, 10, 12, Font.BOLD));

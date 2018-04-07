@@ -17,7 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -509,13 +508,13 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                     tabla.addCell(cellLeft);
                     PdfPCell cellRight = pdfCreator.setCellPDF(Element.ALIGN_RIGHT, Rectangle.NO_BORDER, paragraphRight);
                     tabla.addCell(cellRight);
-                }, false);
+                });
                 documento.add(tableTitle);
 
                 PdfPTable table = pdfCreator.setTablePDF(new float[]{40, 220, 130, 130}, (PdfPTable tabla) -> {
                     Arrays.stream(strings).forEach(tabla::addCell);
                     valuesReport.forEach(tabla::addCell);
-                }, false);
+                });
                 documento.add(table);
             });
         } catch (IOException | DocumentException e) {
