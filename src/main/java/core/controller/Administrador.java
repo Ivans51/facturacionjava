@@ -24,10 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.ResourceBundle;
 
 public class Administrador extends ManagerFXML implements Initializable, TableUtil.StatusControles {
 
@@ -93,7 +91,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 comboReportes = "Factura";
                 eligirTime("Dia");
                 lblTotal.setVisible(true);
-                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
+                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales) + "Bs.");
                 break;
         }
     }
@@ -137,7 +135,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 tableFac.getListTable().addAll(addFactura(facturaDAO.joinFacturaCliente()));
                 if (!Storage.getUsuario().getStatus().equals(Estado.TECNICO)) {
                     lblTotal.setVisible(true);
-                    lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
+                    lblTotal.setText("Totales: " + String.format("%1$,.2f", totales) + "Bs");
                 }
                 break;
             case "Usuario":
@@ -244,7 +242,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private List<Servicios> addServicios(List<Servicios> serviciosList) {
         for (Servicios servicios : serviciosList) {
             servicios.setFechaEdit(FechaUtil.getDateFormat(servicios.getFecha()));
-            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + " Bs");
+            servicios.setPrecioEdit(String.format("%1$,.2f", servicios.getPrecio()) + "Bs");
         }
         serviciosList.forEach(it -> {
             valuesReport.add(String.valueOf(it.getIdservicios()));
@@ -356,19 +354,20 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 case "Dia":
                     servicios.setIdservicios(timeOne.getDayOfMonth());
                     servicios.setNombre(String.valueOf(timeOne.getMonthValue()));
-                    servicios.setDescripcion(String.valueOf(timeOne.getYear()));
+                    servicios.setEstado(timeOne.getYear());
                     serviciosList = serviciosDAO.selectByDia(servicios);
                     break;
                 case "Rango":
                     if (timeTwo != null) {
-                        servicios.setNombre(String.valueOf(Date.valueOf(timeOne)));
-                        servicios.setDescripcion(String.valueOf(Date.valueOf(timeTwo)));
-                        serviciosList = serviciosDAO.selectByRango(servicios);
+                        Map<String, Object> parms = new HashMap<String, Object>();
+                        parms.put("rangOne", String.valueOf(Date.valueOf(timeOne)));
+                        parms.put("rangTwo", String.valueOf(Date.valueOf(timeTwo)));
+                        serviciosList = serviciosDAO.selectByRango(parms);
                     }
                     break;
                 case "Mes":
                     servicios.setNombre(String.valueOf(timeOne.getMonthValue()));
-                    servicios.setDescripcion(String.valueOf(timeOne.getYear()));
+                    servicios.setEstado(timeOne.getYear());
                     serviciosList = serviciosDAO.selectByMes(servicios);
                     break;
             }
@@ -439,7 +438,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             table.getListTable().addAll(addFactura(facturaList));
             if (!Storage.getUsuario().getStatus().equals(Estado.TECNICO)) {
                 lblTotal.setVisible(true);
-                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales));
+                lblTotal.setText("Totales: " + String.format("%1$,.2f", totales) + "Bs");
             }
         }
     }
@@ -518,6 +517,11 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                     valuesReport.forEach(tabla::addCell);
                 });
                 documento.add(table);
+
+                if (lblTotal.isVisible()) {
+                    Paragraph total = pdfCreator.setParagraph(lblTotal.getText(), Element.ALIGN_RIGHT, 10, 12, Font.NORMAL);
+                    documento.add(total);
+                }
             });
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
@@ -526,12 +530,9 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
 
     @Override
     public void setStatusControls() {
-        Factura model = tableFacturaUtil.getModel();
-        try {
-            facturaRow = facturaDAO.selectById(model.getIdfactura());
+        if (tableFacturaUtil.getModel().getClass().getName().equalsIgnoreCase("core.vo.Factura")) {
+            facturaRow = facturaDAO.selectById(tableFacturaUtil.getModel().getIdfactura());
             btnImprimirFactura.setVisible(true);
-        } catch (ClassCastException ex) {
-            ex.printStackTrace();
         }
     }
 

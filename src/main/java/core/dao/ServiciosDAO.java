@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class ServiciosDAO {
 
@@ -126,7 +127,7 @@ public class ServiciosDAO {
         }
         return list;
     }
-    public List<Servicios> selectByRango(Servicios usuario) {
+    public List<Servicios> selectByRango(Map<String, Object> usuario) {
         List<Servicios> list = null;
         SqlSession session = sqlSessionFactory.openSession();
         try {

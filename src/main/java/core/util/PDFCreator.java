@@ -92,7 +92,7 @@ public class PDFCreator {
 
     /**
      * Import! - Add Cell at the Documento
-     *
+     * @param style - Font.NORMAL
      * @param align - For example: Element.ALIGN_LEFT
      */
     public Paragraph setParagraph(String value, int align, int paddingTop, int sizeFont, int style) {

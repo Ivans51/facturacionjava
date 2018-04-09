@@ -31,19 +31,19 @@
     <select id="selectByDia" parameterType="Factura" resultMap="result">
         SELECT *
         FROM facturacion.servicios
-        WHERE DAY(fecha) = #{idservicios} AND MONTH(fecha) = #{nombre} AND YEAR(precio) = #{precio}
+        WHERE DAY(fecha) = #{idservicios} AND MONTH(fecha) = #{nombre} AND YEAR(fecha) = #{estado}
     </select>
 
-    <select id="selectByRango" parameterType="Factura" resultMap="result">
+    <select id="selectByRango" parameterType="map" resultMap="result">
         SELECT *
         FROM facturacion.servicios
-        WHERE fecha BETWEEN #{nombre} AND #{precio}
+        WHERE fecha BETWEEN #{rangOne} AND #{rangTwo}
     </select>
 
     <select id="selectByMes" parameterType="Factura" resultMap="result">
         SELECT *
         FROM facturacion.servicios
-        WHERE MONTH(fecha) = #{nombre} AND YEAR(fecha) = #{precio}
+        WHERE MONTH(fecha) = #{nombre} AND YEAR(fecha) = #{estado}
     </select>
 
     <!--<select id="selectJoinSub" parameterType="string" resultMap="serviciosSub">

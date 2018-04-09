@@ -180,7 +180,7 @@ public class Graficos extends ManagerFXML implements Initializable {
         pdfCreator.createPDF(documento -> {
             DateTime d = new DateTime();
             String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
-            Paragraph elements = pdfCreator.setParagraph("Listado de graficos", Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elements = pdfCreator.setParagraph("Listado de gráficos", Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
             Paragraph elements1 = pdfCreator.setParagraph("Fecha: " + timeActual, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
             Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
 

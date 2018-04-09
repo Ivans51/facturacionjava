@@ -1,8 +1,6 @@
 package core.vo;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Servicios {
 
@@ -73,19 +71,19 @@ public class Servicios {
         this.descripcion = descripcion;
     }
 
-    public void setPrecioEdit(String precioEdit) {
-        this.precioEdit = precioEdit;
-    }
-
-    public void setFechaEdit(String fechaEdit) {
-        this.fechaEdit = fechaEdit;
-    }
-
     public String getPrecioEdit() {
         return precioEdit;
     }
 
+    public void setPrecioEdit(String precioEdit) {
+        this.precioEdit = precioEdit;
+    }
+
     public String getFechaEdit() {
         return fechaEdit;
+    }
+
+    public void setFechaEdit(String fechaEdit) {
+        this.fechaEdit = fechaEdit;
     }
 }
