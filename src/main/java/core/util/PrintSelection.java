@@ -22,7 +22,7 @@ public class PrintSelection {
 
     public void printAction(Print print) {
         DateTime d = new DateTime();
-        String fecha = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear();
+        String fecha = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay();
         switch (comboReportes) {
             case "Auditoria":
                 String aut = "Auditoria-";

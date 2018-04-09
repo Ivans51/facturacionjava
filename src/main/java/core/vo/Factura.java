@@ -18,6 +18,7 @@ public class Factura {
     private String fecha_pagoEdit;
     private Cliente cliente;
     private String nombreCliente;
+    private String placa;
 
     public int getIdfactura() {
         return idfactura;
@@ -129,5 +130,13 @@ public class Factura {
 
     public void setNameFile(String nameFile) {
         this.nameFile = nameFile;
+    }
+
+    public String getPlaca() {
+        return placa;
+    }
+
+    public void setPlaca(String placa) {
+        this.placa = placa;
     }
 }

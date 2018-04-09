@@ -18,8 +18,8 @@
             <URL value="@../CSS/styles-layout.css" />
          </stylesheets>
          <children>
-            <JFXButton fx:id="btnServicio" layoutX="20.0" layoutY="20.0" onAction="#actionServicio" text="Servicio" />
             <JFXButton fx:id="btnCliente" onAction="#actionCliente" text="Cliente" />
+            <JFXButton fx:id="btnServicio" layoutX="20.0" layoutY="20.0" onAction="#actionServicio" text="Servicio" />
             <JFXButton fx:id="btnFacturacion" layoutX="236.0" layoutY="20.0" onAction="#actionFacturacion" text="Facturación" />
             <JFXButton fx:id="btnAdministrador" layoutX="128.0" layoutY="20.0" onAction="#actionAdministrador" text="Reportes" />
             <JFXButton fx:id="btnGraficos" layoutX="128.0" layoutY="20.0" onAction="#actionGraficos" text="Gráficos" />

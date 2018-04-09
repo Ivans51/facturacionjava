@@ -5,7 +5,6 @@ import core.conexion.MyBatisConnection;
 import core.dao.ClienteDAO;
 import core.util.*;
 import core.vo.Cliente;
-import core.vo.Servicios;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -15,6 +14,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
@@ -45,21 +45,29 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     private String[] fieldString = {"Nacionalidad"};
     private int[] rangeLimitCedula = {7, 8};
     private int[] rangeLimitTelefono = {11, 11};
+    private String nacionalidad;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         cNacionalidad.getItems().addAll(nacionalidades);
         cNacionalidad.valueProperty().addListener((observable, oldValue, newValue) -> {
-            switch (newValue) {
-                case "V":
-                    rangeLimitCedula = new int[]{7, 8};
-                    break;
-                case "E":
-                    rangeLimitCedula = new int[]{7, 8};
-                    break;
-                case "J":
-                    rangeLimitCedula = new int[]{7, 9};
-                    break;
+            nacionalidad = newValue;
+            if (nacionalidad != null) {
+                switch (nacionalidad) {
+                    case "V":
+                        rangeLimitCedula = new int[]{7, 8};
+                        jApellido.setEditable(true);
+                        break;
+                    case "E":
+                        rangeLimitCedula = new int[]{7, 8};
+                        jApellido.setEditable(true);
+                        break;
+                    case "J":
+                        rangeLimitCedula = new int[]{7, 9};
+                        jApellido.setText("");
+                        jApellido.setEditable(false);
+                        break;
+                }
             }
         });
         Validar.getValueLimit(cNacionalidad, "");
@@ -98,13 +106,16 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
             if (!stateEdit)
                 Validar.limitField(rangeLimitCedula, "Cédula o RIF", jCedula);
             Validar.limitField(rangeLimitTelefono, "Telefono", jTelefono);
-            Validar.campoVacio(field, jNombre, jCedula, jApellido, jDireccion, jTelefono);
+            if (nacionalidad.equals("J"))
+                Validar.campoVacio(field, jNombre, jCedula, jDireccion, jTelefono);
+            else
+                Validar.campoVacio(field, jNombre, jCedula, jApellido, jDireccion, jTelefono);
             Validar.stringVacio(fieldString, cNacionalidad.getSelectionModel().getSelectedItem());
             Validar.isNumber(fieldNumber, jCedula, jTelefono);
             elegirConsulta();
             tableCliente.refresh();
             Validar.limmpiarCampos(jNombre, jCedula, jDireccion, jApellido, jTelefono);
-        } catch (ParseException | Myexception myexception){
+        } catch (ParseException | Myexception myexception) {
             new AlertUtil(Estado.ERROR, myexception.getMessage());
             myexception.printStackTrace();
         }
@@ -134,7 +145,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         cliente.setNombres(jNombre.getText());
         cliente.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
         cliente.setDireccion(jDireccion.getText());
-        cliente.setApellidos(jApellido.getText());
+        cliente.setApellidos(nacionalidad.equals("J") ? "" : jApellido.getText());
         cliente.setTelefono(jTelefono.getText());
         cliente.setFecha(FechaUtil.getCurrentDate());
         cliente.setUsuario_cedula(Storage.getUsuario().getCedula());
@@ -146,7 +157,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         cliente.setNombres(jNombre.getText());
         cliente.setNacionalidad(cNacionalidad.getSelectionModel().getSelectedItem());
         cliente.setDireccion(jDireccion.getText());
-        cliente.setApellidos(jApellido.getText());
+        cliente.setApellidos(nacionalidad.equals("J") ? "" : jApellido.getText());
         cliente.setTelefono(jTelefono.getText());
         cliente.setUsuario_cedula(Storage.getUsuario().getCedula());
         return cliente;
@@ -169,7 +180,7 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
     private void stateViewEdit(boolean edit) {
         stateEdit = edit;
         if (Storage.getUsuario().getStatus().equalsIgnoreCase(Estado.GERENTE))
-        btnEliminar.setVisible(edit);
+            btnEliminar.setVisible(edit);
         jCedula.setDisable(edit);
         cNacionalidad.setDisable(edit);
         btnAgregar.setText(edit ? "Editar" : "Agregar");
@@ -194,5 +205,10 @@ public class RegistroCliente extends ManagerFXML implements Initializable, Table
         table.getListTable().remove(this.cliente);
         tableCliente.refresh();
         new AlertUtil(Estado.ERROR, "Se guardo el cambio");
+    }
+
+    public void actionApellido(MouseEvent actionEvent) {
+        if (nacionalidad.equals("J"))
+            new AlertUtil(Estado.ERROR, "Cliente jurídico no permite apellido");
     }
 }

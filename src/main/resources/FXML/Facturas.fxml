@@ -128,6 +128,8 @@
                      <children>
                         <Label text="Tipo de Pago" />
                         <ComboBox fx:id="cTipoPago" prefWidth="150.0" />
+                        <Label text="Placa" />
+                         <TextField fx:id="jPlaca"/>
                      </children>
                   </HBox>
                         <HBox alignment="CENTER_RIGHT">

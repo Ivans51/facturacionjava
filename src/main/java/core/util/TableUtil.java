@@ -1,18 +1,12 @@
 package core.util;
 
 import com.sun.istack.internal.Nullable;
-import core.vo.Cliente;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -62,9 +56,8 @@ public class TableUtil<T, V> {
     public T getTablaSeleccionada(TableView table) {
         if (table != null) {
             List<T> tabla = table.getSelectionModel().getSelectedItems();
-            if (tabla.size() == 1) {
+            if (tabla.size() == 1)
                 return tabla.get(0);
-            }
         }
         return null;
     }
@@ -73,7 +66,7 @@ public class TableUtil<T, V> {
         return table.getItems();
     }
 
-    public void searchMultiple(String value){
+    public void searchMultiple(String value) {
         ObservableList<T> subentries = FXCollections.observableArrayList();
 
         int count = table.getColumns().size();

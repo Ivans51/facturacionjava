@@ -56,7 +56,7 @@
                 <Label layoutX="25.0" layoutY="60.0" text="Nombre" />
                 <TextField fx:id="jNombre" />
                 <Label layoutX="25.0" layoutY="95.0" text="Apellido" />
-                <TextField fx:id="jApellido" />
+                <TextField fx:id="jApellido" onMouseClicked="#actionApellido" />
                 <Label layoutX="25.0" layoutY="95.0" text="Telefono" />
                 <TextField fx:id="jTelefono" />
                 <Label layoutX="25.0" layoutY="130.0" text="Dirección" />

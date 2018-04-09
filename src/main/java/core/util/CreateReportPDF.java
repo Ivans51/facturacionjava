@@ -26,14 +26,23 @@ public class CreateReportPDF {
     private Factura factura;
     private Cliente cliente;
 
+    /**
+     * Print PDF though id
+     * @param args: args
+     */
     public static void main(String[] args) {
-        CreateReportPDF createReportPDF = new CreateReportPDF();
-        createReportPDF.setValuesServicios();
-        createReportPDF.actionImprimir();
+        try {
+            CreateReportPDF createReportPDF = new CreateReportPDF();
+            createReportPDF.setValuesServicios(12);
+            createReportPDF.actionImprimir();
+            createReportPDF.setReportTecnicoPDF(createReportPDF.getNameFile()[1]);
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void setValuesServicios() {
-        factura = facturaDAO.selectById(15);
+    private void setValuesServicios(int id) {
+        factura = facturaDAO.selectById(id);
         cliente = clienteDAO.selectById(factura.getCliente_cedula());
         int occurance = StringUtils.countMatches(factura.getServicios(), ",") + 1;
         String arrPair[] = factura.getServicios().split(",", occurance);
@@ -48,14 +57,14 @@ public class CreateReportPDF {
 
     private void actionImprimir() {
         try {
-            DateTime d = new DateTime();
-            String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
             String title = "Inversiones Todo Frío C.A. " +
-                    "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
-                    "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
-            String sub = "Factura del día: " + timeActual;
+                    "\nJ-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                    "\n Teléfono: 0243-5117088" +
+                    "\n Email: Inversionestodofrioca@gmail.com" +
+                    "\n " + "Factura Nº: " + factura.getIdfactura();
+            String sub = "Factura del día: " + FechaUtil.getDateFormat(factura.getFecha_pago());
 
-            PDFCreator pdfCreator = new PDFCreator("reports/" + getNameFile());
+            PDFCreator pdfCreator = new PDFCreator("reports/" + getNameFile()[0]);
             pdfCreator.createPDF(documento -> {
 
                 Paragraph cellRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
@@ -77,6 +86,7 @@ public class CreateReportPDF {
                     tabla.addCell("Domicilio fiscal: " + cliente.getDireccion());
                     tabla.addCell("C.I. o RIF: " + cliente.getCedula());
                     tabla.addCell("Teléfono: " + cliente.getTelefono());
+                    tabla.addCell("Número de Placa: " + factura.getCliente().getPlaca());
                 });
                 documento.add(tableCliente);
 
@@ -124,10 +134,54 @@ public class CreateReportPDF {
         }
     }
 
-    private String getNameFile() {
-        DateTime d = new DateTime();
-        String time = d.getDayOfMonth() + "-" + d.getMonthOfYear() + "-" + d.getYear() + "-" + d.getSecondOfDay() + ".pdf";
-        return "Factura" + time;
+    private void setReportTecnicoPDF(String namePdf) throws IOException, DocumentException {
+        String title = "Inversiones Todo Frío C.A. " +
+                "\nJ-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n Teléfono: 0243-5117088" +
+                "\n Email: Inversionestodofrioca@gmail.com" +
+                "\n " + "Factura Nº: " + factura.getIdfactura();
+        String sub = "Factura del día: " + FechaUtil.getDateFormat(factura.getFecha_pago());
+
+        PDFCreator pdfCreator = new PDFCreator("reports/" + namePdf);
+        pdfCreator.createPDF(documento -> {
+
+            Paragraph elementRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elementsLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
+
+            PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{220, 300}, tabla -> {
+                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elementsLeft);
+                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elementRight);
+                tabla.addCell(pdfPCellLeft);
+                tabla.addCell(pdfPCellRight);
+            });
+            documento.add(tableTitle);
+
+            documento.add(pdfCreator.setParagraph("Datos del Cliente \n ", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
+
+            PdfPTable tableCliente = pdfCreator.setTablePDFWithoutBorder(new float[]{520}, tabla -> {
+                tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
+                tabla.addCell("Domicilio fiscal: " + cliente.getDireccion());
+                tabla.addCell("C.I. o RIF: " + cliente.getCedula());
+                tabla.addCell("Teléfono: " + cliente.getTelefono());
+                tabla.addCell("Número de Placa: " + factura.getCliente().getPlaca());
+            });
+            documento.add(tableCliente);
+
+            PdfPTable tableDetail = pdfCreator.setTablePDF(new float[]{40, 480}, tabla -> {
+                tabla.addCell("Cant.");
+                tabla.addCell("Concepto o Descripción");
+                totalArt.forEach((key, value) -> {
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(value)));
+                    tabla.addCell(pdfCreator.setStyleCellTable(key));
+                });
+            });
+            documento.add(tableDetail);
+        });
+    }
+
+    private String[] getNameFile() {
+        return factura.getNameFile().split("/", 2);
     }
 
     private double calcularSubtotal() {

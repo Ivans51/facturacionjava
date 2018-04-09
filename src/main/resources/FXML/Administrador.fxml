@@ -75,7 +75,7 @@
                                     <Label fx:id="lblTotal" text="Total" visible="false"/>
                                 </children>
                             </HBox>
-                            <JFXButton fx:id="btnImprimirFactura" layoutX="14.0" layoutY="506.0" onAction="#actionImprimirFactura"
+                            <JFXButton fx:id="btnImprimirFactura" layoutX="14.0" layoutY="506.0" onAction="#actionOpenFactura"
                                        styleClass="button-blue" text="Imprimir Factura" visible="false"/>
                             <JFXButton fx:id="btnImprimir" layoutX="14.0" layoutY="506.0" onAction="#actionImprimir"
                                        styleClass="button-blue" text="Imprimir"/>

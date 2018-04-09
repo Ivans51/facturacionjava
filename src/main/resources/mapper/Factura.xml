@@ -29,6 +29,7 @@
         <result property="direccion" column="direccion"/>
         <result property="telefono" column="telefono"/>
         <result property="fecha" column="fecha"/>
+        <result property="placa" column="placa"/>
         <result property="nacionalidad" column="nacionalidad"/>
         <result property="usuario_cedula" column="usuario_cedula"/>
     </resultMap>
@@ -45,7 +46,7 @@
     </select>
 
     <select id="joinFacturaCliente" resultMap="result">
-        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        SELECT a1.idfactura, a1.servicios, a1.placa, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
         FROM facturacion.factura a1
         INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
     </select>
@@ -56,21 +57,21 @@
 
     <!-- The value is not correspond -->
     <select id="selectByDia" parameterType="Factura" resultMap="result">
-        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        SELECT a1.idfactura, a1.servicios, a1.placa, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
         FROM facturacion.factura a1
             INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
         WHERE DAY(a1.fecha_pago) = #{idfactura} AND MONTH(a1.fecha_pago) = #{cliente_cedula} AND YEAR(a1.fecha_pago) = #{usuario_cedula}
     </select>
 
     <select id="selectByRango" parameterType="Factura" resultMap="result">
-        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        SELECT a1.idfactura, a1.servicios, a1.placa, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
         FROM facturacion.factura a1
             INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
         WHERE a1.fecha_pago BETWEEN #{fecha_pago} AND #{duracion}
     </select>
 
     <select id="selectByMes" parameterType="Factura" resultMap="result">
-        SELECT a1.idfactura, a1.servicios, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
+        SELECT a1.idfactura, a1.servicios, a1.placa, a1.fecha_pago, a1.duracion, a1.total, a2.nombres, a2.apellidos
         FROM facturacion.factura a1
             INNER JOIN facturacion.cliente a2 ON a1.cliente_cedula= a2.cedula
         WHERE MONTH(a1.fecha_pago) = #{cliente_cedula} AND YEAR(a1.fecha_pago) = #{usuario_cedula}
@@ -78,17 +79,17 @@
 
     <insert id="insert" parameterType="Factura" useGeneratedKeys="true" keyProperty="idfactura">
         INSERT INTO facturacion.factura (servicios, forma_pago, fecha_pago, duracion,
-                                         IVA, total, nameFile, cliente_cedula, usuario_cedula)
+                                         IVA, total, nameFile, cliente_cedula, usuario_cedula, placa)
         VALUES (#{servicios}, #{forma_pago}, #{fecha_pago}, #{duracion},
-                #{IVA}, #{total}, #{nameFile}, #{cliente_cedula}, #{usuario_cedula});
+                #{IVA}, #{total}, #{nameFile}, #{cliente_cedula}, #{usuario_cedula}, #{placa});
     </insert>
 
     <update id="update" parameterType="Factura">
         UPDATE facturacion.factura
         SET servicios = #{servicios}, forma_pago = #{forma_pago},
-            fecha_pago = #{fecha_pago}, duracion = #{duracion},
+            fecha_pago = #{fecha_pago}, duracion = #{duracion},  placa = #{placa},
             IVA = #{IVA}, total = #{total},
-            cliente_cedula = #{cliente_cedula}, usuario_cedula = #{usuario_cedula},
+            cliente_cedula = #{cliente_cedula}, usuario_cedula = #{usuario_cedula}
         WHERE idfactura = #{idfactura}
     </update>
 

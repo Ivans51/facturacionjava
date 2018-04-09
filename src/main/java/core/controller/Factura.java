@@ -34,7 +34,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     public AnchorPane anchorPane;
     public ComboBox<String> cServicios, cTipoPago;
     public Label jPrecio, jFecha, jNombre, jCiudad, jTelefono;
-    public TextField jCedula;
+    public TextField jCedula, jPlaca;
     public JFXButton btnAgregar, btnSalir, btnImprimir, btnEliminar;
     public TableView<Cliente> tableCliente;
     public TableColumn tbCedula, tbNombreCliente, tbCiudad, tbFecha, tbTelefono;
@@ -54,7 +54,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     private double iva, subTotal, totalPagar;
 
     private String[] columS = {"cedula", "nombres", "apellidos", "direccion", "telefono"};
-    private String[] columServicio = {"idservicios", "nombre", "precio", "tiempo_estimado"};
+    private String[] columServicio = {"idservicios", "nombre", "precioEdit", "tiempo_estimado"};
     private String[] tiposPago = {"Efectivo", "Transferencia", "Cheque", "Otro"};
     private Servicios servicio;
     private Cliente cliente;
@@ -77,7 +77,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         cServicios.valueProperty().addListener((observable, oldValue, newValue) -> {
             Servicios select = serviciosDAO.selectByNombre(newValue);
             if (select != null) {
-                jPrecio.setText(String.valueOf(select.getPrecio()));
+                jPrecio.setText(String.format("%1$,.2f", select.getPrecio()) + " Bs");
                 jFecha.setText(select.getTiempo_estimado());
                 int tiempo = Integer.parseInt(select.getTiempo_estimado());
                 if (tiempo > tiempoMaximo)
@@ -181,12 +181,15 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
     public void actionImprimir(ActionEvent actionEvent) {
         try {
             if (totalCantArt.size() > 0) {
+                Validar.limitField(new int[]{6, 7}, "6 y 7 caracteres permitidos", jPlaca);
                 Validar.stringVacio(new String[]{"Tipo de Pago"}, cTipoPago.getSelectionModel().getSelectedItem());
                 Validar.stringVacio(new String[]{"Datos del cliente"}, jNombre.getText());
+                Validar.stringVacio(new String[]{"Requiere Placa"}, jPlaca.getText());
                 calcularIva();
                 String nameFile = getNameFile();
                 setFactura(nameFile);
                 setReportPDF(nameFile);
+                setReportTecnicoPDF(nameFile);
                 new AlertUtil(Estado.EXITOSA, "Factura generada", closeAlert -> {
                     cerrarStage(closeAlert);
                     cambiarEscena(Route.InicioInfo, anchorPane);
@@ -210,7 +213,9 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         DateTime d = new DateTime();
         String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
         String title = "Inversiones Todo Frío C.A. " +
-                "\nj-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\nJ-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n Teléfono: 0243-5117088" +
+                "\n Email: Inversionestodofrioca@gmail.com" +
                 "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
         String sub = "Factura del día: " + timeActual;
 
@@ -236,6 +241,7 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
                 tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
                 tabla.addCell("C.I. o RIF: " + cliente.getCedula());
                 tabla.addCell("Teléfono: " + jTelefono.getText());
+                tabla.addCell("Número de Placa: " + jPlaca.getText());
             });
             documento.add(tableCliente);
 
@@ -281,6 +287,55 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         });
     }
 
+    private void setReportTecnicoPDF(String namePdf) throws IOException, DocumentException {
+        DateTime d = new DateTime();
+        String timeActual = "" + d.getDayOfMonth() + "/" + d.getMonthOfYear() + "/" + d.getYear();
+        String title = "Inversiones Todo Frío C.A. " +
+                "\nJ-29441763-9 \nDireccion: Avenida los Cedros Cruce C/C Junin Local 105-C Barrio Lourdes Maracay " +
+                "\n Teléfono: 0243-5117088" +
+                "\n Email: Inversionestodofrioca@gmail.com" +
+                "\n " + "Factura Nº: " + facturaDAO.selectLastID().getIdfactura();
+        String sub = "Factura del día: " + timeActual;
+
+        PDFCreator pdfCreator = new PDFCreator("reports/tecnico-" + namePdf);
+        pdfCreator.createPDF(documento -> {
+
+            Paragraph elementRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
+            Paragraph elementsLeft = pdfCreator.setParagraph(sub, Element.ALIGN_LEFT, 10, 12, Font.NORMAL);
+            Image image = pdfCreator.setImagePDF("src/main/resources/images/FacturaLogo.png", 150, 100, Element.ALIGN_LEFT);
+
+            PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{220, 300}, tabla -> {
+                PdfPCell pdfPCellLeft = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, image, elementsLeft);
+                PdfPCell pdfPCellRight = pdfCreator.setCellPDF(Element.ALIGN_TOP, Rectangle.NO_BORDER, elementRight);
+                tabla.addCell(pdfPCellLeft);
+                tabla.addCell(pdfPCellRight);
+            });
+            documento.add(tableTitle);
+
+            documento.add(pdfCreator.setParagraph("Datos del Cliente \n ", Element.ALIGN_LEFT, 10, 12, Font.BOLD));
+
+            PdfPTable tableCliente = pdfCreator.setTablePDFWithoutBorder(new float[]{520}, tabla -> {
+                tabla.addCell("Nombre o razón social: " + cliente.getNombres() + " " + cliente.getApellidos());
+                tabla.addCell("Domicilio fiscal: " + jCiudad.getText());
+                tabla.addCell("C.I. o RIF: " + cliente.getCedula());
+                tabla.addCell("Teléfono: " + jTelefono.getText());
+                tabla.addCell("Número de Placa: " + jPlaca.getText());
+            });
+            documento.add(tableCliente);
+
+            PdfPTable tableDetail = pdfCreator.setTablePDF(new float[]{40, 480}, tabla -> {
+                tabla.addCell("Cant.");
+                tabla.addCell("Concepto o Descripción");
+                totalArt.forEach((key, value) -> {
+                    Integer cant = totalCantArt.get(key);
+                    tabla.addCell(pdfCreator.setStyleCellTable(String.valueOf(cant)));
+                    tabla.addCell(pdfCreator.setStyleCellTable(key));
+                });
+            });
+            documento.add(tableDetail);
+        });
+    }
+
     private void setFactura(String namePdf) throws ParseException {
         core.vo.Factura factura = new core.vo.Factura();
         StringBuilder serv = new StringBuilder();
@@ -298,7 +353,8 @@ public class Factura extends ManagerFXML implements Initializable, TableUtil.Sta
         factura.setDuracion(String.valueOf(tiempoMaximo + "Hr."));
         factura.setIVA(iva);
         factura.setTotal(totalPagar);
-        factura.setNameFile(namePdf);
+        factura.setPlaca(jPlaca.getText());
+        factura.setNameFile(namePdf + "/" + "tecnico-" + namePdf);
         factura.setCliente_cedula(cliente.getCedula());
         factura.setUsuario_cedula(Storage.getUsuario().getCedula());
         facturaDAO.insert(factura);

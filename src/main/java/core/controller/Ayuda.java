@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 
 import java.awt.*;
 import java.io.File;
@@ -22,13 +23,15 @@ public class Ayuda extends ManagerFXML implements Initializable {
     public Label lblMessageBackup;
     public AnchorPane anchorPane;
 
+    private Desktop desktop = Desktop.getDesktop();
+    private BackupBaseDato backupBaseDato = new BackupBaseDato("facturacion", "root", "", Ayuda.class);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
     }
 
     public void actionBackup(ActionEvent actionEvent) {
-        BackupBaseDato backupBaseDato = new BackupBaseDato("facturacion", "root", "", Ayuda.class);
         backupBaseDato.backupdbMsyql();
         new AlertUtil(Estado.EXITOSA, "Se creó el respaldo en un archivo .sql", closeAlert -> {
             cerrarStage(closeAlert);
@@ -39,11 +42,6 @@ public class Ayuda extends ManagerFXML implements Initializable {
                     "3) Seleccione import y luego elija el archivo generado";*/
             String value = "Se generó el respaldo correctamente, en la ruta: " + backupBaseDato.getSavePath();
             lblMessageBackup.setText(value);
-            /*try {
-                Desktop.getDesktop().open(new File(backupBaseDato.getSavePath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
         });
     }
 
@@ -58,5 +56,26 @@ public class Ayuda extends ManagerFXML implements Initializable {
 
     public void actionSalir(MouseEvent actionEvent) {
         cambiarEscena(Route.InicioInfo, anchorPane);
+    }
+
+    public void actionOpenFile(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+
+        // Set Initial Directory to Desktop
+        String pathname = System.getProperty("user.home") + "\\Desktop";
+        fileChooser.setInitialDirectory(new File(backupBaseDato.getFolderPath()));
+
+        // Set extension filter, only PDF files will be shown
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("sql files (*.sql)", "*.sql");
+        fileChooser.getExtensionFilters().add(extFilter);
+        // fileChooser.getSelectedFile().getAbsolutePath()
+
+        // Show open file dialog
+        File file = fileChooser.showOpenDialog(Storage.getStage());
+        if (file != null) {
+            // desktop.open(file);
+            if (backupBaseDato.restoreDB("facturacion", "root", "", file.getAbsolutePath()))
+                new AlertUtil(Estado.EXITOSA, "Base de datos restaurada");
+        }
     }
 }

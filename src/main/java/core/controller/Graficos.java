@@ -76,6 +76,7 @@ public class Graficos extends ManagerFXML implements Initializable {
     public void actionAgregados(ActionEvent actionEvent) {
         if (count < 5) {
             nombreServicios.add(cServicios.getSelectionModel().getSelectedItem());
+            cAgregados.getSelectionModel().select(cServicios.getSelectionModel().getSelectedItem());
             cAgregados.getItems().add(cServicios.getSelectionModel().getSelectedItem());
             cServicios.getItems().remove(cServicios.getSelectionModel().getSelectedItem());
             cServicios.getSelectionModel().clearSelection();

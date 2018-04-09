@@ -114,6 +114,7 @@ public class PDFCreator {
         if (Desktop.isDesktopSupported()) try {
             Desktop.getDesktop().open(new File(this.nameFile));
         } catch (IOException ex) {
+            new AlertUtil(Estado.EXITOSA, "No se pudo abrir o crear");
             System.out.println("No se pudo abrir o crear " + ex.getMessage());
         }
     }

@@ -13,6 +13,7 @@ public class Cliente {
     private int usuario_cedula;
     private Date fecha;
     private int estado;
+    private String placa;
 
     public int getCedula() {
         return cedula;
@@ -84,5 +85,13 @@ public class Cliente {
 
     public void setEstado(int estado) {
         this.estado = estado;
+    }
+
+    public String getPlaca() {
+        return placa;
+    }
+
+    public void setPlaca(String placa) {
+        this.placa = placa;
     }
 }

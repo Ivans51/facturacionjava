@@ -1,6 +1,7 @@
 package core.util;
 
 import core.vo.Usuario;
+import javafx.stage.Stage;
 
 /**
  * Created by WAMS-10 on 30/07/2017.
@@ -8,6 +9,7 @@ import core.vo.Usuario;
 public class Storage {
 
     public static Usuario usuario;
+    private static Stage stage;
     /*public static Valores valores;
     public static Empleado empleado;*/
 
@@ -17,6 +19,14 @@ public class Storage {
 
     public static void setUsuario(Usuario usuario) {
         Storage.usuario = usuario;
+    }
+
+    public static void setStage(Stage stage) {
+        Storage.stage = stage;
+    }
+
+    public static Stage getStage() {
+        return stage;
     }
 
     /* public static Valores getValores() {
