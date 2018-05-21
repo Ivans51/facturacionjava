@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
+import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class Charts implements Initializable {
     public BarChart<String, Number> chartBar;
     public CategoryAxis x;
     public NumberAxis y;
+    // public Label lblChart;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -44,6 +47,18 @@ public class Charts implements Initializable {
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(getPieChart(charts));
         chartPie.setTitle("Servicios");
         chartPie.setData(pieChartData);
+        /*for (final PieChart.Data data : chartPie.getData()) {
+            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+                        double total = 0;
+                        for (PieChart.Data d : chartPie.getData())
+                            total += d.getPieValue();
+                        lblChart.setTranslateX(e.getSceneX());
+                        lblChart.setTranslateY(e.getSceneY());
+                        String text = String.format("%.1f%%", 100 * data.getPieValue() / total);
+                        lblChart.setText(text);
+                    }
+            );
+        }*/
     }
 
     private List<PieChart.Data> getPieChart(HashMap<String, Integer> charts) {

@@ -12,6 +12,7 @@
         <typeAlias type="core.vo.Factura" alias="Factura"/>
         <typeAlias type="core.vo.Servicios" alias="Servicios"/>
         <typeAlias type="core.vo.Usuario" alias="Usuario"/>
+        <typeAlias type="core.vo.Gastos" alias="Gastos"/>
     </typeAliases>
 
     <environments default="development">
@@ -33,6 +34,7 @@
         <mapper resource="mapper/Factura.xml"/>
         <mapper resource="mapper/Servicios.xml"/>
         <mapper resource="mapper/Usuario.xml"/>
+        <mapper resource="mapper/Gastos.xml"/>
     </mappers>
 
 </configuration>

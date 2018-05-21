@@ -42,6 +42,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private ClienteDAO clienteDAO = new ClienteDAO(MyBatisConnection.getSqlSessionFactory());
     private FacturaDAO facturaDAO = new FacturaDAO(MyBatisConnection.getSqlSessionFactory());
     private UsuarioDAO usuarioDAO = new UsuarioDAO(MyBatisConnection.getSqlSessionFactory());
+    private GastosDAO gastosDAO = new GastosDAO(MyBatisConnection.getSqlSessionFactory());
     private String comboReportes = "";
     private String[] rangoTiempo = new String[]{"Dia", "Mes", "Rango"};
     private String[] clientesA = {"Cédula", "Nombres", "Apellidos", "Direccion", "Teléfono"};
@@ -49,8 +50,9 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     private String[] facturasA = {"Nombre", "Servicios", "FechaPago", "Placa", "Total"};
     private String[] serviciosA = {"Id", "Nombre", "Precio", "Fecha", "TiempoEntrega"};
     private String[] auditoriasA = {"Id", "Fecha", "Hora", "Acción", "Usuario"};
+    private String[] gastosA = {"Monto", "Concepto", "Nº Cuenta", "Fecha", "Usuario"};
     private ArrayList<String> valuesReport = new ArrayList<>();
-    private List<String> tipos = new ArrayList<>();
+    private List<String> tiposUsuarioSetCombo = new ArrayList<>();
     private Double totales;
     private String comboTime = "Dia";
     private TableUtil<Factura, String> tableFacturaUtil;
@@ -69,25 +71,26 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         TableUtil<Factura, String> tableFactura = getFacturaStringTableUtil();
         switch (Storage.getUsuario().getStatus()) {
             case Estado.TECNICO:
-                tipos.add("Factura");
+                tiposUsuarioSetCombo.add("Factura");
                 comboReportes = "Factura";
                 tableFactura.getListTable().addAll(addFactura(facturaDAO.joinFacturaCliente()));
                 lblTotal.setVisible(false);
                 break;
             case Estado.GERENTE:
-                tipos.add("Auditoria");
-                tipos.add("Servicios");
-                tipos.add("Cliente");
-                tipos.add("Factura");
-                tipos.add("Usuario");
+                tiposUsuarioSetCombo.add("Auditoria");
+                tiposUsuarioSetCombo.add("Servicios");
+                tiposUsuarioSetCombo.add("Cliente");
+                tiposUsuarioSetCombo.add("Factura");
+                tiposUsuarioSetCombo.add("Usuario");
+                tiposUsuarioSetCombo.add("Gastos");
                 comboReportes = "Auditoria";
                 TableUtil<Auditoria, String> tableAuditoria = getAuditoriaStringTableUtil();
                 tableAuditoria.getListTable().addAll(addAuditoria(auditoriaDAO.selectAll()));
                 break;
             case Estado.ASISTENTE:
                 rangoTiempo = new String[]{"Dia"};
-                tipos.add("Cliente");
-                tipos.add("Factura");
+                tiposUsuarioSetCombo.add("Cliente");
+                tiposUsuarioSetCombo.add("Factura");
                 comboReportes = "Factura";
                 eligirTime("Dia");
                 lblTotal.setVisible(true);
@@ -105,7 +108,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             // setTableFacturaTime(newValue);
         });
 
-        cReportes.setItems(FXCollections.observableArrayList(tipos));
+        cReportes.setItems(FXCollections.observableArrayList(tiposUsuarioSetCombo));
         cReportes.valueProperty().addListener((observable, oldValue, newValue) -> {
             btnImprimirFactura.setVisible(false);
             comboReportes = newValue;
@@ -129,6 +132,12 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             case "Cliente":
                 TableUtil<Cliente, String> tableCliente = getClienteStringTableUtil();
                 tableCliente.getListTable().addAll(addClientes(clienteDAO.selectAll()));
+                break;
+            case "Gastos":
+                TableUtil<Gastos, String> tableGastos = getGastosStringTableUtil();
+                List<Gastos> gastosList = gastosDAO.selectAll();
+                if (gastosList != null && gastosList.size() > 0)
+                    tableGastos.getListTable().addAll(addGastos(gastosList));
                 break;
             case "Factura":
                 TableUtil<Factura, String> tableFac = getFacturaStringTableUtil();
@@ -228,6 +237,28 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         return clienteList;
     }
 
+    // Gastos
+    private TableUtil<Gastos, String> getGastosStringTableUtil() {
+        setHeaders(gastosA);
+        String[] columA = {"monto", "concepto", "ncuenta", "fecha", "usuario_cedula"};
+        TableUtil<Gastos, String> table;
+        tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table = new TableUtil(Gastos.class, tableReport);
+        table.inicializarTabla(columA, tbId, tbFecha, tbHora, tbAcion, tbUsuario);
+        return table;
+    }
+
+    private List<Gastos> addGastos(List<Gastos> gastosList) {
+        gastosList.forEach(it -> {
+            valuesReport.add(String.valueOf(it.getIdgastos()));
+            valuesReport.add(it.getConcepto());
+            valuesReport.add(it.getNcuenta());
+            valuesReport.add(String.valueOf(it.getFecha()));
+            valuesReport.add(String.valueOf(it.getUsuario_cedula()));
+        });
+        return gastosList;
+    }
+
     // Servicios
     private TableUtil<Servicios, String> getServiciosStringTableUtil() {
         setHeaders(serviciosA);
@@ -300,6 +331,9 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
                 break;
             case "Cliente":
                 setTableClienteTime();
+                break;
+            case "Gastos":
+                setTableGastosTime();
                 break;
             case "Factura":
                 setTableFacturaTime();
@@ -407,6 +441,38 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
         }
     }
 
+    private void setTableGastosTime() {
+        TableUtil<Gastos, String> table = getGastosStringTableUtil();
+
+        List<Gastos> gastosList = new ArrayList<>();
+        LocalDate timeOne = datePickerUno.getValue();
+        LocalDate timeTwo = datePickerDos.getValue();
+        Gastos gastos = new Gastos();
+        if (timeOne != null) {
+            switch (comboTime) {
+                case "Dia":
+                    gastos.setNcuenta(String.valueOf(timeOne.getDayOfMonth()));
+                    gastos.setMonto(String.valueOf(timeOne.getMonthValue()));
+                    gastos.setConcepto(String.valueOf(timeOne.getYear()));
+                    gastosList = gastosDAO.selectByDia(gastos);
+                    break;
+                case "Rango":
+                    if (timeTwo != null) {
+                        gastos.setMonto(String.valueOf(Date.valueOf(timeOne)));
+                        gastos.setConcepto(String.valueOf(Date.valueOf(timeTwo)));
+                        gastosList = gastosDAO.selectByRango(gastos);
+                    }
+                    break;
+                case "Mes":
+                    gastos.setMonto(String.valueOf(timeOne.getMonthValue()));
+                    gastos.setConcepto(String.valueOf(timeOne.getYear()));
+                    gastosList = gastosDAO.selectByMes(gastos);
+                    break;
+            }
+            table.getListTable().addAll(addGastos(gastosList));
+        }
+    }
+
     private void setTableFacturaTime() {
         TableUtil<Factura, String> table = getFacturaStringTableUtil();
 
@@ -501,7 +567,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             String imagePath = "src/main/resources/images/FacturaLogo.png";
             PDFCreator pdfCreator = new PDFCreator("reports/" + file);
             pdfCreator.createPDF(documento -> {
-                Paragraph paragraphRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 14, Font.BOLD);
+                Paragraph paragraphRight = pdfCreator.setParagraph(title, Element.ALIGN_RIGHT, 10, 12, Font.BOLD);
                 Paragraph paragraphLeft = pdfCreator.setParagraph(sub, Element.ALIGN_CENTER, 10, 12, Font.NORMAL);
                 Image imgLogo = pdfCreator.setImagePDF(imagePath, 150, 100, Element.ALIGN_LEFT);
                 PdfPTable tableTitle = pdfCreator.setTablePDF(new float[]{220, 300}, tabla -> {

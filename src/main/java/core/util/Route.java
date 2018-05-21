@@ -21,5 +21,5 @@ public class Route {
     public static String RegistroCliente = "/FXML/RegistroCliente.fxml";
     public static String RegistroServicio = "/FXML/RegistroServicio.fxml";
     public static String RegistroUsuario = "/FXML/RegistroUsuario.fxml";
-
+    public static String RegistrosGastos = "/FXML/RegistroGastos.fxml";
 }

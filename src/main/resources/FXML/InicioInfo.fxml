@@ -29,6 +29,12 @@
             <Image url="@../images/FacturaLogo.png" />
          </image>
       </ImageView>
+      <Label fx:id="lblNombre" layoutX="32.0" layoutY="487.0" text="Bienvenido " textFill="WHITE">
+         <styleClass>
+            <String fx:value="label-font-medium" />
+            <String fx:value="label-bold" />
+         </styleClass>
+      </Label>
    </children>
    <stylesheets>
       <URL value="@../CSS/styles-layout.css" />

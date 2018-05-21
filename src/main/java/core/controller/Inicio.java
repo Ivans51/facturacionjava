@@ -7,7 +7,6 @@ import core.util.Route;
 import core.util.Storage;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,12 +14,10 @@ import java.util.ResourceBundle;
 public class Inicio extends ManagerFXML implements Initializable {
 
     public AnchorPane anchorPane;
-    public Label lblNombreUsuario;
-    public JFXButton btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario, btnGraficos, btnAyuda;
+    public JFXButton btnCliente, btnAdministrador, btnCerrar, btnFacturacion, btnServicio, btnUsuario, btnGraficos, btnAyuda, btnGastos;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        lblNombreUsuario.setText(Storage.getUsuario().getNombre());
         cambiarEscena(Route.InicioInfo, anchorPane);
         stateButton();
     }
@@ -75,5 +72,9 @@ public class Inicio extends ManagerFXML implements Initializable {
 
     public void actionAyuda(ActionEvent actionEvent) {
         cambiarEscena(Route.Ayuda, anchorPane);
+    }
+
+    public void actionGastos(ActionEvent actionEvent) {
+        cambiarEscena(Route.RegistrosGastos, anchorPane);
     }
 }

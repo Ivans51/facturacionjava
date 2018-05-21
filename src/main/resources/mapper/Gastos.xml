@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Gastos">
+
+    <resultMap id="result" type="Gastos">
+        <result property="idgastos" column="idgastos"/>
+        <result property="monto" column="monto"/>
+        <result property="concepto" column="concepto"/>
+        <result property="tipoPago" column="tipoPago"/>
+        <result property="ncuenta" column="ncuenta"/>
+        <result property="fecha" column="fecha"/>
+        <result property="estado" column="estado"/>
+        <result property="usuario_cedula" column="usuario_cedula"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="result">
+        SELECT *
+        FROM facturacion.gastos
+        WHERE estado = 1
+    </select>
+
+    <select id="selectLastID" parameterType="string" resultMap="result">
+        SELECT max(idgastos) as idgastos FROM facturacion.gastos
+    </select>
+
+    <select id="selectById" parameterType="int" resultMap="result">
+        SELECT *
+        FROM facturacion.gastos
+        WHERE idgastos = #{idgastos}
+    </select>
+
+    <!-- The value is not correspond -->
+    <select id="selectByDia" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.gastos
+        WHERE DAY(fecha) = #{ncuenta} AND MONTH(fecha) = #{monto} AND YEAR(fecha) = #{concepto}
+    </select>
+
+    <select id="selectByRango" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.gastos
+        WHERE fecha BETWEEN #{monto} AND #{concepto}
+    </select>
+
+    <select id="selectByMes" parameterType="Factura" resultMap="result">
+        SELECT *
+        FROM facturacion.gastos
+        WHERE MONTH(fecha) = #{monto} AND YEAR(fecha) = #{concepto}
+    </select>
+
+    <insert id="insert" parameterType="Cliente" useGeneratedKeys="true" keyProperty="cedula">
+        INSERT INTO facturacion.gastos (idgastos, monto, concepto, tipoPago, ncuenta, fecha, estado, usuario_cedula)
+        VALUES (#{idgastos}, #{monto}, #{concepto}, #{tipoPago}, #{ncuenta}, #{fecha}, #{estado}, #{usuario_cedula});
+    </insert>
+
+    <update id="update" parameterType="Cliente">
+        UPDATE facturacion.gastos
+        SET idgastos = #{idgastos}, monto = #{monto},
+            concepto = #{concepto}, ncuenta = #{ncuenta}, tipoPago = #{tipoPago},
+            fecha = #{fecha}, usuario_cedula = #{usuario_cedula}
+        WHERE idgastos = #{idgastos}
+    </update>
+
+    <update id="updateEstado" parameterType="Servicios">
+        UPDATE facturacion.gastos
+        SET estado = #{estado}
+        WHERE idgastos = #{idgastos}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM facturacion.gastos
+        WHERE idgastos = #{idgastos}
+    </delete>
+</mapper>
