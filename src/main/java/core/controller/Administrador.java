@@ -240,7 +240,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     // Gastos
     private TableUtil<Gastos, String> getGastosStringTableUtil() {
         setHeaders(gastosA);
-        String[] columA = {"monto", "concepto", "ncuenta", "fecha", "usuario_cedula"};
+        String[] columA = {"montoEdit", "concepto", "ncuenta", "fechaEdit", "usuario_cedula"};
         TableUtil<Gastos, String> table;
         tableReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Gastos.class, tableReport);
@@ -249,11 +249,15 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     }
 
     private List<Gastos> addGastos(List<Gastos> gastosList) {
+        gastosList.forEach(gastos -> {
+            gastos.setFechaEdit(FechaUtil.getDateFormat(gastos.getFecha()));
+            gastos.setMontoEdit(String.format("%1$,.2f", gastos.getMonto()) + " Bs");
+        });
         gastosList.forEach(it -> {
-            valuesReport.add(String.valueOf(it.getIdgastos()));
+            valuesReport.add(String.valueOf(it.getMontoEdit()));
             valuesReport.add(it.getConcepto());
             valuesReport.add(it.getNcuenta());
-            valuesReport.add(String.valueOf(it.getFecha()));
+            valuesReport.add(String.valueOf(it.getFechaEdit()));
             valuesReport.add(String.valueOf(it.getUsuario_cedula()));
         });
         return gastosList;

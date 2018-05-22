@@ -38,7 +38,7 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
     private Gastos gastos;
     private boolean stateEdit = false;
     private String[] tiposPago = {"Efectivo", "Transferencia", "Cheque"};
-    private String[] columS = {"monto", "concepto", "tipoPago", "ncuenta", "fecha"};
+    private String[] columS = {"montoEdit", "concepto", "tipoPago", "ncuenta", "fechaEdit"};
     private String[] field = {"Monto", "Concepto", "Nº Cuenta"};
     private String[] fieldNumber = {"Monto", "Nº Cuenta"};
     private String[] fieldString = {"Tipo de Pago"};
