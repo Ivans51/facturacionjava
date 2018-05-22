@@ -10,14 +10,16 @@ public class PrintSelection {
     private String[] clientesA;
     private String[] facturasA;
     private String[] usuariosA;
+    private String[] gastosA;
 
-    public PrintSelection(String selectedCombo, String[] auditoriasA, String[] serviciosA, String[] clientesA, String[] facturasA, String[] usuariosA) {
+    public PrintSelection(String selectedCombo, String[] auditoriasA, String[] serviciosA, String[] clientesA, String[] facturasA, String[] usuariosA, String[] gastosA) {
         this.comboReportes = selectedCombo;
         this.auditoriasA = auditoriasA;
         this.serviciosA = serviciosA;
         this.clientesA = clientesA;
         this.facturasA = facturasA;
         this.usuariosA = usuariosA;
+        this.gastosA = gastosA;
     }
 
     public void printAction(Print print) {
@@ -47,6 +49,10 @@ public class PrintSelection {
             case "Graficos":
                 String gra = "Gráfico-";
                 print.action(usuariosA, gra + fecha + ".pdf", gra);
+                break;
+            case "Gastos":
+                String gas = "Gastos-";
+                print.action(gastosA, gas + fecha + ".pdf", gas);
                 break;
         }
     }

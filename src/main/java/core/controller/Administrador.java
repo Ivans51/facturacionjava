@@ -452,19 +452,19 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
             switch (comboTime) {
                 case "Dia":
                     gastos.setNcuenta(String.valueOf(timeOne.getDayOfMonth()));
-                    gastos.setMonto(String.valueOf(timeOne.getMonthValue()));
+                    gastos.setTipoPago(String.valueOf(timeOne.getMonthValue()));
                     gastos.setConcepto(String.valueOf(timeOne.getYear()));
                     gastosList = gastosDAO.selectByDia(gastos);
                     break;
                 case "Rango":
                     if (timeTwo != null) {
-                        gastos.setMonto(String.valueOf(Date.valueOf(timeOne)));
+                        gastos.setTipoPago(String.valueOf(Date.valueOf(timeOne)));
                         gastos.setConcepto(String.valueOf(Date.valueOf(timeTwo)));
                         gastosList = gastosDAO.selectByRango(gastos);
                     }
                     break;
                 case "Mes":
-                    gastos.setMonto(String.valueOf(timeOne.getMonthValue()));
+                    gastos.setTipoPago(String.valueOf(timeOne.getMonthValue()));
                     gastos.setConcepto(String.valueOf(timeOne.getYear()));
                     gastosList = gastosDAO.selectByMes(gastos);
                     break;
@@ -550,7 +550,7 @@ public class Administrador extends ManagerFXML implements Initializable, TableUt
     }
 
     public void actionImprimir(ActionEvent actionEvent) {
-        new PrintSelection(comboReportes, auditoriasA, serviciosA, clientesA, facturasA, usuariosA)
+        new PrintSelection(comboReportes, auditoriasA, serviciosA, clientesA, facturasA, usuariosA, gastosA)
                 .printAction(this::imprimirPDF);
     }
 

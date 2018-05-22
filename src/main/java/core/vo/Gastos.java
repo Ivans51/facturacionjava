@@ -5,12 +5,14 @@ import java.util.Date;
 public class Gastos {
 
     private int idgastos;
-    private String monto;
+    private double monto;
     private String concepto;
     private String tipoPago;
     private String ncuenta;
     private int estado;
     private Date fecha;
+    private String fechaEdit;
+    private String montoEdit;
     private int usuario_cedula;
 
     public int getIdgastos() {
@@ -21,11 +23,11 @@ public class Gastos {
         this.idgastos = idgastos;
     }
 
-    public String getMonto() {
+    public double getMonto() {
         return monto;
     }
 
-    public void setMonto(String monto) {
+    public void setMonto(double monto) {
         this.monto = monto;
     }
 
@@ -75,5 +77,21 @@ public class Gastos {
 
     public void setEstado(int estado) {
         this.estado = estado;
+    }
+
+    public String getFechaEdit() {
+        return fechaEdit;
+    }
+
+    public void setFechaEdit(String fechaEdit) {
+        this.fechaEdit = fechaEdit;
+    }
+
+    public String getMontoEdit() {
+        return montoEdit;
+    }
+
+    public void setMontoEdit(String montoEdit) {
+        this.montoEdit = montoEdit;
     }
 }

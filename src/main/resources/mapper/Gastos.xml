@@ -33,30 +33,30 @@
     </select>
 
     <!-- The value is not correspond -->
-    <select id="selectByDia" parameterType="Factura" resultMap="result">
+    <select id="selectByDia" parameterType="Gastos" resultMap="result">
         SELECT *
         FROM facturacion.gastos
-        WHERE DAY(fecha) = #{ncuenta} AND MONTH(fecha) = #{monto} AND YEAR(fecha) = #{concepto}
+        WHERE DAY(fecha) = #{ncuenta} AND MONTH(fecha) = #{tipoPago} AND YEAR(fecha) = #{concepto}
     </select>
 
-    <select id="selectByRango" parameterType="Factura" resultMap="result">
+    <select id="selectByRango" parameterType="Gastos" resultMap="result">
         SELECT *
         FROM facturacion.gastos
-        WHERE fecha BETWEEN #{monto} AND #{concepto}
+        WHERE fecha BETWEEN #{monto} AND #{tipoPago}
     </select>
 
-    <select id="selectByMes" parameterType="Factura" resultMap="result">
+    <select id="selectByMes" parameterType="Gastos" resultMap="result">
         SELECT *
         FROM facturacion.gastos
-        WHERE MONTH(fecha) = #{monto} AND YEAR(fecha) = #{concepto}
+        WHERE MONTH(fecha) = #{monto} AND YEAR(fecha) = #{tipoPago}
     </select>
 
-    <insert id="insert" parameterType="Cliente" useGeneratedKeys="true" keyProperty="cedula">
-        INSERT INTO facturacion.gastos (idgastos, monto, concepto, tipoPago, ncuenta, fecha, estado, usuario_cedula)
-        VALUES (#{idgastos}, #{monto}, #{concepto}, #{tipoPago}, #{ncuenta}, #{fecha}, #{estado}, #{usuario_cedula});
+    <insert id="insert" parameterType="Gastos" useGeneratedKeys="true" keyProperty="idgastos">
+        INSERT INTO facturacion.gastos (monto, concepto, tipoPago, ncuenta, fecha, estado, usuario_cedula)
+        VALUES (#{monto}, #{concepto}, #{tipoPago}, #{ncuenta}, #{fecha}, #{estado}, #{usuario_cedula});
     </insert>
 
-    <update id="update" parameterType="Cliente">
+    <update id="update" parameterType="Gastos">
         UPDATE facturacion.gastos
         SET idgastos = #{idgastos}, monto = #{monto},
             concepto = #{concepto}, ncuenta = #{ncuenta}, tipoPago = #{tipoPago},
@@ -64,7 +64,7 @@
         WHERE idgastos = #{idgastos}
     </update>
 
-    <update id="updateEstado" parameterType="Servicios">
+    <update id="updateEstado" parameterType="Gastos">
         UPDATE facturacion.gastos
         SET estado = #{estado}
         WHERE idgastos = #{idgastos}

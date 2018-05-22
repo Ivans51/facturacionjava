@@ -5,6 +5,7 @@ import core.conexion.MyBatisConnection;
 import core.dao.GastosDAO;
 import core.util.*;
 import core.vo.Gastos;
+import core.vo.Servicios;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -34,7 +35,6 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
     private TableUtil<Gastos, String> table;
     private GastosDAO gastosDAO = new GastosDAO(MyBatisConnection.getSqlSessionFactory());
     private List<Gastos> gastosList = new ArrayList<>();
-    private List<String> cedulas = new ArrayList<>();
     private Gastos gastos;
     private boolean stateEdit = false;
     private String[] tiposPago = {"Efectivo", "Transferencia", "Cheque"};
@@ -50,6 +50,7 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
         cTipoPago.getItems().addAll(tiposPago);
         cTipoPago.valueProperty().addListener((observable, oldValue, newValue) -> {
             tipoPagoSelected = newValue;
+            jCuenta.setEditable(!newValue.equalsIgnoreCase("Efectvo"));
         });
         Validar.getValueLimit(cTipoPago, "");
         setTable();
@@ -59,7 +60,7 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
     private void setTable() {
         tableGastos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table = new TableUtil(Gastos.class, tableGastos);
-        table.inicializarTabla(columS, tbMonto, tbConcepto, tbTipoPago, tbNumeroCuenta);
+        table.inicializarTabla(columS, tbMonto, tbConcepto, tbTipoPago, tbNumeroCuenta, tbFecha);
 
         final ObservableList<Gastos> tablaSelecionada = tableGastos.getSelectionModel().getSelectedItems();
         tablaSelecionada.addListener((ListChangeListener<Gastos>) c -> table.seleccionarTabla(this));
@@ -79,7 +80,10 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
 
     private void selectAllGastos() {
         gastosList = gastosDAO.selectAll();
-        gastosList.forEach(it -> cedulas.add(String.valueOf(it.getIdgastos())));
+        gastosList.forEach(gastos -> {
+            gastos.setFechaEdit(FechaUtil.getDateFormat(gastos.getFecha()));
+            gastos.setMontoEdit(String.format("%1$,.2f", gastos.getMonto()) + " Bs");
+        });
     }
 
     public void actionAgregar(ActionEvent actionEvent) {
@@ -119,18 +123,21 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
     // Modelo que se envia a la BD
     private Gastos getGastosInsert() throws ParseException {
         Gastos gastos = new Gastos();
-        gastos.setMonto(jMonto.getText());
+        gastos.setMonto(Double.parseDouble(jMonto.getText()));
         gastos.setConcepto(jConcepto.getText());
         gastos.setNcuenta(jCuenta.getText());
+        gastos.setTipoPago(cTipoPago.getSelectionModel().getSelectedItem());
         gastos.setFecha(FechaUtil.getCurrentDate());
+        gastos.setEstado(1);
         gastos.setUsuario_cedula(Storage.getUsuario().getCedula());
         return gastos;
     }
 
     private Gastos getGastosUpdate() {
-        gastos.setMonto(jMonto.getText());
+        gastos.setMonto(Double.parseDouble(jMonto.getText()));
         gastos.setConcepto(jConcepto.getText());
         gastos.setNcuenta(jCuenta.getText());
+        gastos.setTipoPago(cTipoPago.getSelectionModel().getSelectedItem());
         gastos.setUsuario_cedula(Storage.getUsuario().getCedula());
         return gastos;
     }
@@ -139,7 +146,7 @@ public class RegistroGastos extends ManagerFXML implements Initializable, TableU
     public void setStatusControls() {
         if (table.getModel() != null) {
             gastos = table.getModel();
-            jMonto.setText(gastos.getMonto());
+            jMonto.setText(String.valueOf(gastos.getMonto()));
             jConcepto.setText(gastos.getConcepto());
             jCuenta.setText(gastos.getNcuenta());
             cTipoPago.getSelectionModel().select(gastos.getTipoPago());
